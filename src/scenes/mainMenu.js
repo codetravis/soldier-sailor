@@ -8,6 +8,8 @@ class MainMenuScene extends Phaser.Scene {
 
     create() {
         this.add.sprite( 32, 32, 'default_soldier')
+
+        this.scene.start('BattleScene')
     }
 
 }
