@@ -1,3 +1,5 @@
+import Soldier from '../classes/soldier.js'
+
 class BattleScene extends Phaser.Scene {
     constructor() {
         super({ key: 'BattleScene', active: false })
@@ -7,9 +9,13 @@ class BattleScene extends Phaser.Scene {
     }
 
     create() {
-        const cell_size = 32
-        let start_row = 0
-        let start_col = 0
+        this.cell_size = 32
+        this.boarding_start_row = 0
+        this.boarding_start_col = 0
+
+        let captain_start_row = 0
+        let captain_start_col = 0
+
         this.map = [
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 2, 0, 0, 0],
@@ -35,21 +41,39 @@ class BattleScene extends Phaser.Scene {
                     cell_color = 0xffffff
                 } else if (cell_type === 2) {
                     cell_color = 0x0000ff
+                    captain_start_col = col
+                    captain_start_row = row
                 } else if (cell_type === 3) {
                     cell_color = 0x00ff00
                 } else if (cell_type === 4) {
                     cell_color = 0xff0000
                 } else if (cell_type === 7) {
-                    start_col = col
-                    start_row = row
+                    this.boarding_start_col = col
+                    this.boarding_start_row = row
                     cell_color = 0x777777
                 }
 
-                this.add.rectangle(col * cell_size, row * cell_size, cell_size-2, cell_size-2, cell_color)
+                this.add.rectangle(col * this.cell_size, row * this.cell_size, this.cell_size-2, this.cell_size-2, cell_color)
             }
         }
 
-        this.add.sprite( start_col * cell_size, start_row * cell_size, 'default_soldier')
+        this.player_soldier = new Soldier({
+            scene: this, 
+            x: this.boarding_start_col * this.cell_size, 
+            y: this.boarding_start_row * this.cell_size, 
+            key: 'default_soldier', 
+            map_x_offset: 0,
+            map_y_offset: 0,
+            tile_size: this.cell_size
+        })
+        this.add.sprite( captain_start_col * this.cell_size, captain_start_row * this.cell_size, 'default_enemy_soldier')
+    }
+
+    update() {
+        if(this.player_soldier.x !== this.cell_size * (this.boarding_start_col + 2) ||
+           this.player_soldier.y !== this.cell_size * (this.boarding_start_row)) {
+            this.player_soldier.moveSoldierTowardTargetPoint({ x: this.cell_size * (this.boarding_start_col + 2), y: this.cell_size * (this.boarding_start_row)})
+           }
     }
 
 }
