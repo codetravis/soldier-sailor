@@ -9,6 +9,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.move_speed = 3
         this.movement_remaining = this.move_speed
+        this.facing = config.facing
         config.scene.add.existing(this);
     }
 
@@ -16,8 +17,10 @@ class Soldier extends Phaser.GameObjects.Sprite {
         if(this.movement_remaining > 0) {
             if(target.x > this.x) {
                 this.x = this.x + 2
+                this.facing = 2
             } else if (target.x < this.x) {
                 this.x = this.x - 2
+                this.facing = 6
             }
             if(Math.abs(this.x - target.x) <= 1) {
                 this.x = target.x
@@ -25,12 +28,15 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
             if(target.y > this.y) {
                 this.y = this.y + 2
+                this.facing = 4
             } else if (target.y < this.y) {
                 this.y = this.y - 2
+                this.facing = 0
             }
             if(Math.abs(this.y - target.y) <= 1) {
                 this.y = target.y
             }
+            this.angle = this.facing * 45
         }
     }
 }

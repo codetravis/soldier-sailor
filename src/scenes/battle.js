@@ -1,4 +1,5 @@
 import Soldier from '../classes/soldier.js'
+import ShipMaps from '../classes/shipMaps.js'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -20,22 +21,7 @@ class BattleScene extends Phaser.Scene {
         this.engineer_start_col = 0
 
 
-        this.map = [
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 2, 0, 0, 0],
-            [0, 0, 0, 1, 1, 4, 0, 0],
-            [0, 0, 0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 1, 1, 1, 0, 0],
-            [0, 7, 7, 1, 1, 1, 0, 0],
-            [0, 0, 0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 1, 1, 0, 0],
-            [0, 0, 0, 1, 1, 3, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-        ]
+        this.map = new ShipMaps().maps["terran_corvette"]
         this.map_width = this.map[0].length
         this.map_height = this.map.length
 
@@ -72,7 +58,8 @@ class BattleScene extends Phaser.Scene {
             key: 'default_soldier', 
             map_x_offset: 0,
             map_y_offset: 0,
-            tile_size: this.tile_size
+            tile_size: this.tile_size,
+            facing: 0,
         })
         this.add.sprite( this.captain_start_col * this.tile_size, this.captain_start_row * this.tile_size, 'default_enemy_soldier')
 
