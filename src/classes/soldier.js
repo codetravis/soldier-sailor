@@ -7,27 +7,30 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.map_y_offset = config.map_y_offset
         this.map_tile = { x: (config.x - this.map_offset)/config.tile_size, y: (config.y - this.map_y_offset)/config.tile_size}
 
-
+        this.move_speed = 3
+        this.movement_remaining = this.move_speed
         config.scene.add.existing(this);
     }
 
     moveSoldierTowardTargetPoint(target) {
-        if(target.x > this.x) {
-            this.x = this.x + 2
-        } else if (target.x < this.x) {
-            this.x = this.x - 2
-        }
-        if(Math.abs(this.x - target.x) <= 1) {
-            this.x = target.x
-        }
+        if(this.movement_remaining > 0) {
+            if(target.x > this.x) {
+                this.x = this.x + 2
+            } else if (target.x < this.x) {
+                this.x = this.x - 2
+            }
+            if(Math.abs(this.x - target.x) <= 1) {
+                this.x = target.x
+            }
 
-        if(target.y > this.y) {
-            this.y = this.y + 2
-        } else if (target.y < this.y) {
-            this.y = this.y - 2
-        }
-        if(Math.abs(this.y - target.y) <= 1) {
-            this.y = target.y
+            if(target.y > this.y) {
+                this.y = this.y + 2
+            } else if (target.y < this.y) {
+                this.y = this.y - 2
+            }
+            if(Math.abs(this.y - target.y) <= 1) {
+                this.y = target.y
+            }
         }
     }
 }
