@@ -73,7 +73,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     update() {
-        if(this.move_path.length >= 1) {
+        if(this.move_path.length >= 1 && this.player_soldier.movement_remaining > 0) {
             let target_point = this.move_path[0]
             if(this.player_soldier.x !== this.tile_size * (target_point.x) ||
             this.player_soldier.y !== this.tile_size * (target_point.y)) {
@@ -83,23 +83,18 @@ class BattleScene extends Phaser.Scene {
                     this.markAllHidden()
                     this.getVisibleTiles(this.player_soldier)
                     this.changeDisplay()
-                    console.log(this.map_tiles)
                     this.player_soldier.movement_remaining -= 1
                 }
             }
-        } else {
-            this.markAllHidden()
-            this.getVisibleTiles(this.player_soldier)
-            this.changeDisplay()
         }
     }
 
     changeDisplay() {
         Object.keys(this.map_tiles).forEach(function (key) {
             if(this.map_tiles[key].is_visible) {
-                this.map_tiles[key].alpha = 1
+                this.map_tiles[key].setAlpha(1)
             } else {
-                this.map_tiles[key].alpha = 0
+                this.map_tiles[key].setAlpha(0)
             }
         }.bind(this))
     }
@@ -128,7 +123,6 @@ class BattleScene extends Phaser.Scene {
                 break
             }
             current_point = current_point.parent
-            //console.log(current_point)
         }
 
         return path
@@ -165,7 +159,7 @@ class BattleScene extends Phaser.Scene {
         let first_row = new ScanRow(1, -1, 1)
         let origin = { x: Math.floor(soldier.x / this.tile_size), y: Math.floor(soldier.y / this.tile_size) }
         this.markVisible({depth: 0, column: 0}, origin)
-        this.scanRowForVisibleTiles(first_row, 3, origin)
+        this.scanRowForVisibleTiles(first_row, 20, origin)
     }
 
     scanRowForVisibleTiles(row, max_depth, origin) {
@@ -236,12 +230,9 @@ class BattleScene extends Phaser.Scene {
     }
 
     markAllHidden() {
-        for(let i = 0; i < this.map_tiles.length; i++) {
-            for(let j = 0; j < this.map_tiles[i].length; j++) {
-                console.log(j + "_" + i)
-                this.map_tiles[j + "_" + i].is_visible = false
-            }
-        }
+        Object.keys(this.map_tiles).forEach(function(key) {
+            this.map_tiles[key].is_visible = false
+        }.bind(this))
     }
 
     getSlope(tile) {
