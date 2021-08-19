@@ -1,5 +1,6 @@
 import Soldier from '../classes/soldier.js'
 import ShipMaps from '../classes/shipMaps.js'
+import ScanRow from '../classes/scanRow.js'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -21,10 +22,10 @@ class BattleScene extends Phaser.Scene {
         this.engineer_start_col = 0
 
 
-        this.map = new ShipMaps().maps["terran_corvette"]
+        this.map = new ShipMaps().maps["terran_cruiser"]
         this.map_width = this.map[0].length
         this.map_height = this.map.length
-
+        this.map_tiles = {}
         for(let row = 0; row < this.map.length; row++) {
             for(let col = 0; col < this.map[row].length; col++) {
                 const cell_type = this.map[row][col]
@@ -47,9 +48,11 @@ class BattleScene extends Phaser.Scene {
                     tile_color = 0x777777
                 }
 
-                this.add.rectangle(col * this.tile_size, row * this.tile_size, this.tile_size-2, this.tile_size-2, tile_color)
+                this.map_tiles[col + "_" + row] = this.add.rectangle(col * this.tile_size, row * this.tile_size, this.tile_size-2, this.tile_size-2, tile_color)
+                this.map_tiles[col + "_" + row].is_visible = false
             }
         }
+        this.markAllHidden()
 
         this.player_soldier = new Soldier({
             scene: this, 
@@ -61,6 +64,8 @@ class BattleScene extends Phaser.Scene {
             tile_size: this.tile_size,
             facing: 0,
         })
+        this.getVisibleTiles(this.player_soldier)
+        this.changeDisplay()
         this.add.sprite( this.captain_start_col * this.tile_size, this.captain_start_row * this.tile_size, 'default_enemy_soldier')
 
         this.move_path = this.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.engineer_start_col, y: this.engineer_start_row})
@@ -75,11 +80,28 @@ class BattleScene extends Phaser.Scene {
                 this.player_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x), y: this.tile_size * (target_point.y)})
                 if((this.player_soldier.x === target_point.x * 32 && this.player_soldier.y === target_point.y * 32) && this.move_path.length > 1) {
                     this.move_path.shift()
+                    this.markAllHidden()
+                    this.getVisibleTiles(this.player_soldier)
+                    this.changeDisplay()
+                    console.log(this.map_tiles)
                     this.player_soldier.movement_remaining -= 1
-                    console.log(target_point)
                 }
             }
+        } else {
+            this.markAllHidden()
+            this.getVisibleTiles(this.player_soldier)
+            this.changeDisplay()
         }
+    }
+
+    changeDisplay() {
+        Object.keys(this.map_tiles).forEach(function (key) {
+            if(this.map_tiles[key].is_visible) {
+                this.map_tiles[key].alpha = 1
+            } else {
+                this.map_tiles[key].alpha = 0
+            }
+        }.bind(this))
     }
 
     aStar(start, end) {
@@ -138,6 +160,94 @@ class BattleScene extends Phaser.Scene {
         }
         return true
     }
+
+    getVisibleTiles(soldier) {
+        let first_row = new ScanRow(1, -1, 1)
+        let origin = { x: Math.floor(soldier.x / this.tile_size), y: Math.floor(soldier.y / this.tile_size) }
+        this.markVisible({depth: 0, column: 0}, origin)
+        this.scanRowForVisibleTiles(first_row, 3, origin)
+    }
+
+    scanRowForVisibleTiles(row, max_depth, origin) {
+        if(row.depth > max_depth) {
+            return
+        }
+        let prev_tile = null
+        let tiles = row.getTiles()
+        for(let i = 0; i < tiles.length; i++) {
+            let cur_tile = tiles[i]
+            if(this.isWall(cur_tile, origin) || this.isSymetric(row, cur_tile)) {
+                this.markVisible(cur_tile, origin)
+            }
+            if(prev_tile && this.isWall(prev_tile, origin) && this.isFloor(cur_tile, origin)) {
+                row.start_slope = this.getSlope(cur_tile)
+            }
+            if(prev_tile && this.isFloor(prev_tile, origin) && this.isWall(cur_tile, origin)) {
+                let next_row = row.nextRow()
+                next_row.end_slope = this.getSlope(cur_tile)
+                this.scanRowForVisibleTiles(next_row, max_depth, origin)
+            }
+            prev_tile = cur_tile
+        }
+        if(this.isFloor(prev_tile, origin)) {
+            this.scanRowForVisibleTiles(row.nextRow(), max_depth, origin)
+        }
+    }
+
+    isWall(tile, origin) {
+        if(origin.y + tile.depth >= this.map.length || origin.y + tile.depth < 0) {
+            return true
+        }
+        if(origin.x + tile.column >= this.map[origin.y + tile.depth].length || origin.x + tile.column < 0) {
+            return true
+        }
+        return this.map[origin.y + tile.depth][origin.x + tile.column] === 0
+    }
+
+    isFloor(tile, origin) {
+        if(!tile) {
+            return false
+        }
+        if(origin.y + tile.depth >= this.map.length || origin.y + tile.depth < 0) {
+            return false
+        }
+        if(origin.x + tile.column >= this.map[origin.y + tile.depth].length || origin.x + tile.column < 0) {
+            return false
+        }
+        return this.map[origin.y + tile.depth][origin.x + tile.column] !== 0
+    }
+
+    isSymetric(row, tile) {
+        return (tile.column >= row.depth * row.start_slope && 
+            tile.column <= row.depth * row.end_slope)
+    }
+
+    markVisible(tile, origin) {
+        if(!tile) {
+            return
+        }
+        if(origin.y + tile.depth >= this.map.length || origin.y + tile.depth < 0) {
+            return
+        }
+        if(origin.x + tile.column >= this.map[origin.y + tile.depth].length || origin.x + tile.column < 0) {
+            return
+        }
+        this.map_tiles[`${tile.column + origin.x}_${tile.depth + origin.y}`].is_visible = true
+    }
+
+    markAllHidden() {
+        for(let i = 0; i < this.map_tiles.length; i++) {
+            for(let j = 0; j < this.map_tiles[i].length; j++) {
+                console.log(j + "_" + i)
+                this.map_tiles[j + "_" + i].is_visible = false
+            }
+        }
+    }
+
+    getSlope(tile) {
+        return ((2 * tile.column - 1) / (2 * tile.depth))
+    }
+
 
 }
 
