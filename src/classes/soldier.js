@@ -5,9 +5,9 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.map_x_offset = config.map_x_offset
         this.map_y_offset = config.map_y_offset
-        this.map_tile = { x: (config.x - this.map_offset)/config.tile_size, y: (config.y - this.map_y_offset)/config.tile_size}
+        this.map_tile = { x: (config.x - this.map_x_offset)/config.tile_size, y: (config.y - this.map_y_offset)/config.tile_size}
 
-        this.move_speed = 10
+        this.move_speed = 2
         this.senses = 5
         this.movement_remaining = this.move_speed
         this.facing = config.facing

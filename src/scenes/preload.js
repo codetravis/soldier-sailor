@@ -12,6 +12,7 @@ class PreloadScene extends Phaser.Scene {
     }
 
     create() {
+        console.log("Pre load scene")
         this.scene.start('MainMenuScene')
     }
 }

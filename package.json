@@ -24,6 +24,7 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
+    "fraction.js": "^4.1.1",
     "phaser": "^3.50.0"
   }
 }

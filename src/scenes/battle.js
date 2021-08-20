@@ -1,6 +1,7 @@
 import Soldier from '../classes/soldier.js'
 import ShipMaps from '../classes/shipMaps.js'
 import ScanRow from '../classes/scanRow.js'
+import Fraction from 'fraction.js'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -12,24 +13,31 @@ class BattleScene extends Phaser.Scene {
 
     create() {
         this.tile_size = 32
+        this.map_x_offset = 64
+        this.map_y_offset = 64
         this.boarding_start_row = 0
         this.boarding_start_col = 0
 
         this.captain_start_row = 0
         this.captain_start_col = 0
 
+        this.weapons_start_row = 0
+        this.weapons_start_col = 0
+
         this.engineer_start_row = 0
         this.engineer_start_col = 0
 
 
-        this.map = new ShipMaps().maps["terran_cruiser"]
+        this.map = new ShipMaps().maps["test_tiny"]
+        console.log("loading test map")
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
         for(let row = 0; row < this.map.length; row++) {
+            let tile_color = 0x333333
             for(let col = 0; col < this.map[row].length; col++) {
                 const cell_type = this.map[row][col]
-                let tile_color = 0x000000
+                tile_color = 0x333333
                 if (cell_type === 1) {
                     tile_color = 0xffffff
                 } else if (cell_type === 2) {
@@ -42,33 +50,36 @@ class BattleScene extends Phaser.Scene {
                     this.engineer_start_col = col
                 } else if (cell_type === 4) {
                     tile_color = 0xff0000
+                    this.weapons_start_col = col
+                    this.weapons_start_row = row
                 } else if (cell_type === 7) {
                     this.boarding_start_col = col
                     this.boarding_start_row = row
                     tile_color = 0x777777
                 }
 
-                this.map_tiles[col + "_" + row] = this.add.rectangle(col * this.tile_size, row * this.tile_size, this.tile_size-2, this.tile_size-2, tile_color)
+                this.map_tiles[col + "_" + row] = this.add.rectangle(col * this.tile_size + this.map_x_offset, row * this.tile_size + this.map_y_offset, this.tile_size-2, this.tile_size-2, tile_color)
                 this.map_tiles[col + "_" + row].is_visible = false
             }
         }
+        console.log("marking all as hidden")
         this.markAllHidden()
 
         this.player_soldier = new Soldier({
             scene: this, 
-            x: this.boarding_start_col * this.tile_size, 
-            y: this.boarding_start_row * this.tile_size, 
+            x: this.boarding_start_col * this.tile_size + this.map_x_offset, 
+            y: this.boarding_start_row * this.tile_size + this.map_y_offset, 
             key: 'default_soldier', 
-            map_x_offset: 0,
-            map_y_offset: 0,
+            map_x_offset: this.map_x_offset,
+            map_y_offset: this.map_y_offset,
             tile_size: this.tile_size,
             facing: 0,
         })
         this.getVisibleTiles(this.player_soldier)
         this.changeDisplay()
-        this.add.sprite( this.captain_start_col * this.tile_size, this.captain_start_row * this.tile_size, 'default_enemy_soldier')
+        this.add.sprite( this.captain_start_col * this.tile_size + this.map_x_offset, this.captain_start_row * this.tile_size + this.map_y_offset, 'default_enemy_soldier')
 
-        this.move_path = this.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.engineer_start_col, y: this.engineer_start_row})
+        this.move_path = this.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
         console.log(this.move_path[0])
     }
 
@@ -77,10 +88,11 @@ class BattleScene extends Phaser.Scene {
             let target_point = this.move_path[0]
             if(this.player_soldier.x !== this.tile_size * (target_point.x) ||
             this.player_soldier.y !== this.tile_size * (target_point.y)) {
-                this.player_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x), y: this.tile_size * (target_point.y)})
-                if((this.player_soldier.x === target_point.x * 32 && this.player_soldier.y === target_point.y * 32) && this.move_path.length > 1) {
+                this.player_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x) + this.map_x_offset, y: this.tile_size * (target_point.y) + this.map_y_offset})
+                if((this.player_soldier.x === target_point.x * this.tile_size + this.map_x_offset && this.player_soldier.y === target_point.y * this.tile_size + this.map_y_offset) && this.move_path.length > 1) {
                     this.move_path.shift()
                     this.markAllHidden()
+                    console.log("getting updated visible tiles")
                     this.getVisibleTiles(this.player_soldier)
                     this.changeDisplay()
                     this.player_soldier.movement_remaining -= 1
@@ -156,13 +168,17 @@ class BattleScene extends Phaser.Scene {
     }
 
     getVisibleTiles(soldier) {
-        let first_row = new ScanRow(1, -1, 1)
+        let first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
         let origin = { x: Math.floor(soldier.x / this.tile_size), y: Math.floor(soldier.y / this.tile_size) }
-        this.markVisible({depth: 0, column: 0}, origin)
-        this.scanRowForVisibleTiles(first_row, 20, origin)
+        this.markVisible({depth: 0, column: 0}, origin, 0)
+        this.scanRowForVisibleTiles(first_row, 5, origin, 0)
+        this.scanRowForVisibleTiles(first_row, 5, origin, 1)
+        this.scanRowForVisibleTiles(first_row, 5, origin, 2)
+        this.scanRowForVisibleTiles(first_row, 5, origin, 3)
     }
 
-    scanRowForVisibleTiles(row, max_depth, origin) {
+    scanRowForVisibleTiles(row, max_depth, origin, direction) {
+        // derived from https://www.albertford.com/shadowcasting algo in python
         if(row.depth > max_depth) {
             return
         }
@@ -170,45 +186,47 @@ class BattleScene extends Phaser.Scene {
         let tiles = row.getTiles()
         for(let i = 0; i < tiles.length; i++) {
             let cur_tile = tiles[i]
-            if(this.isWall(cur_tile, origin) || this.isSymetric(row, cur_tile)) {
-                this.markVisible(cur_tile, origin)
+            if(this.isWall(cur_tile, origin, direction) || this.isSymetric(row, cur_tile)) {
+                this.markVisible(cur_tile, origin, direction)
             }
-            if(prev_tile && this.isWall(prev_tile, origin) && this.isFloor(cur_tile, origin)) {
+            if(prev_tile && this.isWall(prev_tile, origin, direction) && this.isFloor(cur_tile, origin, direction)) {
                 row.start_slope = this.getSlope(cur_tile)
             }
-            if(prev_tile && this.isFloor(prev_tile, origin) && this.isWall(cur_tile, origin)) {
+            if(prev_tile && this.isFloor(prev_tile, origin, direction) && this.isWall(cur_tile, origin, direction)) {
                 let next_row = row.nextRow()
                 next_row.end_slope = this.getSlope(cur_tile)
-                this.scanRowForVisibleTiles(next_row, max_depth, origin)
+                this.scanRowForVisibleTiles(next_row, max_depth, origin, direction)
             }
             prev_tile = cur_tile
         }
-        if(this.isFloor(prev_tile, origin)) {
-            this.scanRowForVisibleTiles(row.nextRow(), max_depth, origin)
+        if(this.isFloor(prev_tile, origin, direction)) {
+            this.scanRowForVisibleTiles(row.nextRow(), max_depth, origin, direction)
         }
     }
 
-    isWall(tile, origin) {
-        if(origin.y + tile.depth >= this.map.length || origin.y + tile.depth < 0) {
+    isWall(tile, origin, direction) {
+        let coordinates = this.getMapXYCoordinates(tile, origin, direction)
+        if(coordinates.y >= this.map.length || coordinates.y < 0) {
             return true
         }
-        if(origin.x + tile.column >= this.map[origin.y + tile.depth].length || origin.x + tile.column < 0) {
+        if(coordinates.x >= this.map[coordinates.y].length || coordinates.y < 0) {
             return true
         }
-        return this.map[origin.y + tile.depth][origin.x + tile.column] === 0
+        return this.map[coordinates.y][coordinates.x] === 0
     }
 
-    isFloor(tile, origin) {
+    isFloor(tile, origin, direction) {
         if(!tile) {
             return false
         }
-        if(origin.y + tile.depth >= this.map.length || origin.y + tile.depth < 0) {
+        let coordinates = this.getMapXYCoordinates(tile, origin, direction)
+        if(coordinates.y >= this.map.length || coordinates.y < 0) {
             return false
         }
-        if(origin.x + tile.column >= this.map[origin.y + tile.depth].length || origin.x + tile.column < 0) {
+        if(coordinates.x >= this.map[coordinates.y].length || coordinates.x < 0) {
             return false
         }
-        return this.map[origin.y + tile.depth][origin.x + tile.column] !== 0
+        return this.map[coordinates.y][coordinates.x] !== 0
     }
 
     isSymetric(row, tile) {
@@ -216,17 +234,18 @@ class BattleScene extends Phaser.Scene {
             tile.column <= row.depth * row.end_slope)
     }
 
-    markVisible(tile, origin) {
+    markVisible(tile, origin, direction) {
         if(!tile) {
             return
         }
-        if(origin.y + tile.depth >= this.map.length || origin.y + tile.depth < 0) {
+        let coordinates = this.getMapXYCoordinates(tile, origin, direction)
+        if(coordinates.y >= this.map.length || coordinates.y < 0) {
             return
         }
-        if(origin.x + tile.column >= this.map[origin.y + tile.depth].length || origin.x + tile.column < 0) {
+        if(coordinates.x >= this.map[coordinates.y].length || coordinates.x < 0) {
             return
         }
-        this.map_tiles[`${tile.column + origin.x}_${tile.depth + origin.y}`].is_visible = true
+        this.map_tiles[`${coordinates.x}_${coordinates.y}`].is_visible = true
     }
 
     markAllHidden() {
@@ -236,7 +255,28 @@ class BattleScene extends Phaser.Scene {
     }
 
     getSlope(tile) {
-        return ((2 * tile.column - 1) / (2 * tile.depth))
+        return new Fraction((2 * tile.column - 1), (2 * tile.depth))
+    }
+
+    getMapXYCoordinates(tile, origin, direction) {
+        // UP
+        if(direction === 0) {
+            return { x: origin.x + tile.column, y: origin.y - tile.depth }
+        }
+        // RIGHT
+        if(direction === 1) {
+            return { x: origin.x + tile.depth, y: origin.y + tile.column }
+        }
+        // DOWN
+        if(direction === 2) {
+            return { x: origin.x + tile.column, y: origin.y + tile.depth }
+        }
+        // LEFT
+        if(direction === 3) {
+            return { x: origin.x - tile.depth, y: origin.y + tile.column }
+        }
+
+        return { x: 0, y: 0 }
     }
 
 
