@@ -2,6 +2,7 @@ import Soldier from '../classes/soldier.js'
 import ShipMaps from '../classes/shipMaps.js'
 import ScanRow from '../classes/scanRow.js'
 import Fraction from 'fraction.js'
+import Pathfinder from '../classes/pathfinder.js'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -29,7 +30,7 @@ class BattleScene extends Phaser.Scene {
         this.engineer_start_col = 0
 
 
-        this.map = new ShipMaps().maps["test_map"]
+        this.map = new ShipMaps().maps["terran_cruiser"]
         console.log("loading test map")
         this.map_width = this.map[0].length
         this.map_height = this.map.length
@@ -81,7 +82,8 @@ class BattleScene extends Phaser.Scene {
         this.add.sprite( this.captain_start_col * this.tile_size + this.map_x_offset, this.captain_start_row * this.tile_size + this.map_y_offset, 'default_enemy_soldier')
         console.log("building move path")
         let begin_time = Date.now()
-        this.move_path = this.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
+        this.pathfinder = new Pathfinder(this.map)
+        this.move_path = this.pathfinder.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
         let end_time = Date.now()
         console.log("it took " + (end_time - begin_time) + " to build the move path")
         console.log(this.move_path[0])
@@ -113,66 +115,6 @@ class BattleScene extends Phaser.Scene {
                 this.map_tiles[key].setAlpha(0)
             }
         }.bind(this))
-    }
-
-    aStar(start, end) {
-        start.parent = null
-        let frontier = [start]
-        let neighbors = []
-        let visited = []
-        let current_point = start
-        while (frontier.length > 0 && (current_point.x !== end.x || current_point.y !== end.y)) {
-            current_point = frontier.shift()
-            if(Object.keys(visited).includes(`${current_point.x}_${current_point.y}`)) {
-                continue
-            }
-                
-            neighbors = this.getTileNeighbors(current_point)
-            neighbors.forEach(function (n_tile) {
-                if(!Object.keys(visited).includes(`${n_tile.x}_${n_tile.y}`)) {
-                    frontier.push(n_tile)
-                }
-            })
-            visited[`${current_point.x}_${current_point.y}`] = current_point
-        }
-
-        let path = []
-        while(current_point.x !== start.x || current_point.y !== start.y) {
-            path.unshift(current_point)
-            if(current_point.parent == null) {
-                break
-            }
-            current_point = current_point.parent
-        }
-
-        return path
-    }
-
-    getTileNeighbors(tile) {
-        let neighbors = []
-
-        if(tile.x > 0 && this.isFreeTile(tile.x - 1, tile.y)) {
-            neighbors.push({ x: tile.x - 1, y: tile.y, parent: tile })
-        }
-        if(tile.y > 0 && this.isFreeTile(tile.x, tile.y - 1)) {
-            neighbors.push({ x: tile.x, y: tile.y - 1, parent: tile })
-        }
-
-        if(tile.y < this.map_height - 1 && this.isFreeTile(tile.x, tile.y + 1)) {
-            neighbors.push({ x: tile.x, y: tile.y + 1, parent: tile})
-        }
-        if(tile.x < this.map_width - 1 && this.isFreeTile(tile.x + 1, tile.y)) {
-            neighbors.push({ x: tile.x + 1, y: tile.y, parent: tile})
-        }
-
-        return neighbors
-    }
-
-    isFreeTile(x, y) {
-        if(this.map[y][x] === 0) {
-            return false
-        }
-        return true
     }
 
     getVisibleTiles(soldier) {

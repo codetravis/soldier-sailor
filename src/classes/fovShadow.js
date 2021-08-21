@@ -2,15 +2,16 @@ import ScanRow from './scanRow.js'
 import Fraction from 'fraction.js'
 
 class FovShadow {
-    constructor(two_d_map, tile_size) {
+    constructor(two_d_map, tile_size, map_offset) {
         this.map_tiles = {}
         this.map = two_d_map
         this.tile_size = tile_size
+        this.map_offset = map_offset
     }
 
     getVisibleTiles(soldier) {
         let first_row = new ScanRow(1, -1, 1)
-        let origin = { x: Math.floor(soldier.x / this.tile_size), y: Math.floor(soldier.y / this.tile_size) }
+        let origin = { x: Math.floor((soldier.x - this.map_offset.x) / this.tile_size), y: Math.floor((soldier.y - this.map_offset.y) / this.tile_size) }
         this.markVisible({depth: 0, column: 0}, origin, 0)
         this.scanRowForVisibleTiles(first_row, 5, origin, 0)
         this.scanRowForVisibleTiles(first_row, 5, origin, 1)
