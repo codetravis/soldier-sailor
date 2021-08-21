@@ -1,7 +1,7 @@
 import ScanRow from './scanRow.js'
 import Fraction from 'fraction.js'
 
-class fovShadow {
+class FovShadow {
     constructor(two_d_map, tile_size) {
         this.map_tiles = {}
         this.map = two_d_map
@@ -120,3 +120,5 @@ class fovShadow {
         return { x: 0, y: 0 }
     }
 }
+
+export default FovShadow

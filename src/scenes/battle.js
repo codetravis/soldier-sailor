@@ -12,6 +12,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     create() {
+        
         this.tile_size = 32
         this.map_x_offset = 64
         this.map_y_offset = 64
@@ -28,7 +29,7 @@ class BattleScene extends Phaser.Scene {
         this.engineer_start_col = 0
 
 
-        this.map = new ShipMaps().maps["test_tiny"]
+        this.map = new ShipMaps().maps["test_map"]
         console.log("loading test map")
         this.map_width = this.map[0].length
         this.map_height = this.map.length
@@ -62,8 +63,6 @@ class BattleScene extends Phaser.Scene {
                 this.map_tiles[col + "_" + row].is_visible = false
             }
         }
-        console.log("marking all as hidden")
-        this.markAllHidden()
 
         this.player_soldier = new Soldier({
             scene: this, 
@@ -76,10 +75,15 @@ class BattleScene extends Phaser.Scene {
             facing: 0,
         })
         this.getVisibleTiles(this.player_soldier)
+        console.log("attempting to change display")
         this.changeDisplay()
+        console.log("done changing display")
         this.add.sprite( this.captain_start_col * this.tile_size + this.map_x_offset, this.captain_start_row * this.tile_size + this.map_y_offset, 'default_enemy_soldier')
-
+        console.log("building move path")
+        let begin_time = Date.now()
         this.move_path = this.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
+        let end_time = Date.now()
+        console.log("it took " + (end_time - begin_time) + " to build the move path")
         console.log(this.move_path[0])
     }
 
@@ -98,6 +102,10 @@ class BattleScene extends Phaser.Scene {
                     this.player_soldier.movement_remaining -= 1
                 }
             }
+        }
+
+        if (this.game.sound.context.state === 'suspended') {
+            this.game.sound.context.resume();
         }
     }
 
@@ -119,9 +127,13 @@ class BattleScene extends Phaser.Scene {
         let current_point = start
         while (frontier.length > 0 && (current_point.x !== end.x || current_point.y !== end.y)) {
             current_point = frontier.shift()
-            neighbors = this.getTileNeighbors(current_point, visited)
+            if(Object.keys(visited).includes(`${current_point.x}_${current_point.y}`)) {
+                continue
+            }
+                
+            neighbors = this.getTileNeighbors(current_point)
             neighbors.forEach(function (n_tile) {
-                if(!visited[`${n_tile.x}_${n_tile.y}`]) {
+                if(!Object.keys(visited).includes(`${n_tile.x}_${n_tile.y}`)) {
                     frontier.push(n_tile)
                 }
             })
@@ -140,7 +152,7 @@ class BattleScene extends Phaser.Scene {
         return path
     }
 
-    getTileNeighbors(tile, visited) {
+    getTileNeighbors(tile) {
         let neighbors = []
 
         if(tile.x > 0 && this.isFreeTile(tile.x - 1, tile.y)) {
@@ -169,12 +181,16 @@ class BattleScene extends Phaser.Scene {
 
     getVisibleTiles(soldier) {
         let first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
-        let origin = { x: Math.floor(soldier.x / this.tile_size), y: Math.floor(soldier.y / this.tile_size) }
-        this.markVisible({depth: 0, column: 0}, origin, 0)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 0)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 1)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 2)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 3)
+        let origin = { x: Math.floor((soldier.x - this.map_x_offset )/ this.tile_size), y: Math.floor((soldier.y - this.map_y_offset)/ this.tile_size) }
+        this.markVisible({depth: 0, column: 0}, origin, 2)
+        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 0)
+        first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
+        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 1)
+        first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
+        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 2)
+        first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
+        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 3)
+        console.log("done scanning")
     }
 
     scanRowForVisibleTiles(row, max_depth, origin, direction) {
@@ -276,7 +292,15 @@ class BattleScene extends Phaser.Scene {
             return { x: origin.x - tile.depth, y: origin.y + tile.column }
         }
 
-        return { x: 0, y: 0 }
+        return { x: origin.x, y: origin.y }
+    }
+
+    logVisibleTiles() {
+        Object.keys(this.map_tiles).forEach(function(key) {
+            if(this.map_tiles[key].is_visible) {
+                console.log(key)
+            }
+        }.bind(this))
     }
 
 
