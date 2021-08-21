@@ -103,10 +103,6 @@ class BattleScene extends Phaser.Scene {
                 }
             }
         }
-
-        if (this.game.sound.context.state === 'suspended') {
-            this.game.sound.context.resume();
-        }
     }
 
     changeDisplay() {
