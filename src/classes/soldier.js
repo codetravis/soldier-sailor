@@ -7,8 +7,9 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.map_y_offset = config.map_y_offset
         this.map_tile = { x: (config.x - this.map_x_offset)/config.tile_size, y: (config.y - this.map_y_offset)/config.tile_size}
 
-        this.move_speed = 2
+        this.move_speed = 5
         this.senses = 5
+        this.sight_range = this.senses * 3
         this.movement_remaining = this.move_speed
         this.facing = config.facing
         config.scene.add.existing(this);

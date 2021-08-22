@@ -3,6 +3,7 @@ import ShipMaps from '../classes/shipMaps.js'
 import ScanRow from '../classes/scanRow.js'
 import Fraction from 'fraction.js'
 import Pathfinder from '../classes/pathfinder.js'
+import FovShadow from '../classes/fovShadow.js'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -13,7 +14,6 @@ class BattleScene extends Phaser.Scene {
     }
 
     create() {
-        
         this.tile_size = 32
         this.map_x_offset = 64
         this.map_y_offset = 64
@@ -30,7 +30,7 @@ class BattleScene extends Phaser.Scene {
         this.engineer_start_col = 0
 
 
-        this.map = new ShipMaps().maps["terran_cruiser"]
+        this.map = new ShipMaps().maps["test_map"]
         console.log("loading test map")
         this.map_width = this.map[0].length
         this.map_height = this.map.length
@@ -75,17 +75,17 @@ class BattleScene extends Phaser.Scene {
             tile_size: this.tile_size,
             facing: 0,
         })
-        this.getVisibleTiles(this.player_soldier)
+        this.fovEngine = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
+        this.fovEngine.getVisibleTiles(this.player_soldier)
+        this.enemies = []
+        this.enemies.push(this.add.sprite( this.captain_start_col * this.tile_size + this.map_x_offset, this.captain_start_row * this.tile_size + this.map_y_offset, 'default_enemy_soldier'))
+        
         console.log("attempting to change display")
-        this.changeDisplay()
+        this.changeDisplay(this.fovEngine.map_tiles)
         console.log("done changing display")
-        this.add.sprite( this.captain_start_col * this.tile_size + this.map_x_offset, this.captain_start_row * this.tile_size + this.map_y_offset, 'default_enemy_soldier')
         console.log("building move path")
-        let begin_time = Date.now()
         this.pathfinder = new Pathfinder(this.map)
         this.move_path = this.pathfinder.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
-        let end_time = Date.now()
-        console.log("it took " + (end_time - begin_time) + " to build the move path")
         console.log(this.move_path[0])
     }
 
@@ -97,150 +97,39 @@ class BattleScene extends Phaser.Scene {
                 this.player_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x) + this.map_x_offset, y: this.tile_size * (target_point.y) + this.map_y_offset})
                 if((this.player_soldier.x === target_point.x * this.tile_size + this.map_x_offset && this.player_soldier.y === target_point.y * this.tile_size + this.map_y_offset) && this.move_path.length > 1) {
                     this.move_path.shift()
-                    this.markAllHidden()
                     console.log("getting updated visible tiles")
-                    this.getVisibleTiles(this.player_soldier)
-                    this.changeDisplay()
+                    this.fovEngine.getVisibleTiles(this.player_soldier)
+                    this.changeDisplay(this.fovEngine.map_tiles)
                     this.player_soldier.movement_remaining -= 1
                 }
             }
         }
     }
 
-    changeDisplay() {
+    changeDisplay(visible_tiles) {
         Object.keys(this.map_tiles).forEach(function (key) {
-            if(this.map_tiles[key].is_visible) {
+            if(visible_tiles[key] && visible_tiles[key].is_visible) {
                 this.map_tiles[key].setAlpha(1)
             } else {
                 this.map_tiles[key].setAlpha(0)
             }
         }.bind(this))
-    }
-
-    getVisibleTiles(soldier) {
-        let first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
-        let origin = { x: Math.floor((soldier.x - this.map_x_offset )/ this.tile_size), y: Math.floor((soldier.y - this.map_y_offset)/ this.tile_size) }
-        this.markVisible({depth: 0, column: 0}, origin, 2)
-        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 0)
-        first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
-        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 1)
-        first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
-        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 2)
-        first_row = new ScanRow(1, new Fraction(-1), new Fraction(1))
-        this.scanRowForVisibleTiles(first_row, soldier.senses, origin, 3)
-        console.log("done scanning")
-    }
-
-    scanRowForVisibleTiles(row, max_depth, origin, direction) {
-        // derived from https://www.albertford.com/shadowcasting algo in python
-        if(row.depth > max_depth) {
-            return
-        }
-        let prev_tile = null
-        let tiles = row.getTiles()
-        for(let i = 0; i < tiles.length; i++) {
-            let cur_tile = tiles[i]
-            if(this.isWall(cur_tile, origin, direction) || this.isSymetric(row, cur_tile)) {
-                this.markVisible(cur_tile, origin, direction)
-            }
-            if(prev_tile && this.isWall(prev_tile, origin, direction) && this.isFloor(cur_tile, origin, direction)) {
-                row.start_slope = this.getSlope(cur_tile)
-            }
-            if(prev_tile && this.isFloor(prev_tile, origin, direction) && this.isWall(cur_tile, origin, direction)) {
-                let next_row = row.nextRow()
-                next_row.end_slope = this.getSlope(cur_tile)
-                this.scanRowForVisibleTiles(next_row, max_depth, origin, direction)
-            }
-            prev_tile = cur_tile
-        }
-        if(this.isFloor(prev_tile, origin, direction)) {
-            this.scanRowForVisibleTiles(row.nextRow(), max_depth, origin, direction)
-        }
-    }
-
-    isWall(tile, origin, direction) {
-        let coordinates = this.getMapXYCoordinates(tile, origin, direction)
-        if(coordinates.y >= this.map.length || coordinates.y < 0) {
-            return true
-        }
-        if(coordinates.x >= this.map[coordinates.y].length || coordinates.y < 0) {
-            return true
-        }
-        return this.map[coordinates.y][coordinates.x] === 0
-    }
-
-    isFloor(tile, origin, direction) {
-        if(!tile) {
-            return false
-        }
-        let coordinates = this.getMapXYCoordinates(tile, origin, direction)
-        if(coordinates.y >= this.map.length || coordinates.y < 0) {
-            return false
-        }
-        if(coordinates.x >= this.map[coordinates.y].length || coordinates.x < 0) {
-            return false
-        }
-        return this.map[coordinates.y][coordinates.x] !== 0
-    }
-
-    isSymetric(row, tile) {
-        return (tile.column >= row.depth * row.start_slope && 
-            tile.column <= row.depth * row.end_slope)
-    }
-
-    markVisible(tile, origin, direction) {
-        if(!tile) {
-            return
-        }
-        let coordinates = this.getMapXYCoordinates(tile, origin, direction)
-        if(coordinates.y >= this.map.length || coordinates.y < 0) {
-            return
-        }
-        if(coordinates.x >= this.map[coordinates.y].length || coordinates.x < 0) {
-            return
-        }
-        this.map_tiles[`${coordinates.x}_${coordinates.y}`].is_visible = true
-    }
-
-    markAllHidden() {
-        Object.keys(this.map_tiles).forEach(function(key) {
-            this.map_tiles[key].is_visible = false
-        }.bind(this))
-    }
-
-    getSlope(tile) {
-        return new Fraction((2 * tile.column - 1), (2 * tile.depth))
-    }
-
-    getMapXYCoordinates(tile, origin, direction) {
-        // UP
-        if(direction === 0) {
-            return { x: origin.x + tile.column, y: origin.y - tile.depth }
-        }
-        // RIGHT
-        if(direction === 1) {
-            return { x: origin.x + tile.depth, y: origin.y + tile.column }
-        }
-        // DOWN
-        if(direction === 2) {
-            return { x: origin.x + tile.column, y: origin.y + tile.depth }
-        }
-        // LEFT
-        if(direction === 3) {
-            return { x: origin.x - tile.depth, y: origin.y + tile.column }
-        }
-
-        return { x: origin.x, y: origin.y }
-    }
-
-    logVisibleTiles() {
-        Object.keys(this.map_tiles).forEach(function(key) {
-            if(this.map_tiles[key].is_visible) {
-                console.log(key)
+        this.enemies.forEach(function(enemy) {
+            let unit_map_coords = this.getUnitMapCoordinates(enemy)
+            let key = `${unit_map_coords.x}_${unit_map_coords.y}`
+            if(visible_tiles[key] && visible_tiles[key].is_visible) {
+                enemy.setAlpha(1)
+            } else {
+                enemy.setAlpha(0)
             }
         }.bind(this))
     }
 
+    getUnitMapCoordinates(unit) {
+        return {x: ((unit.x - this.map_x_offset)/ this.tile_size),
+                y: ((unit.y - this.map_y_offset)/ this.tile_size)
+            }
+    }
 
 }
 

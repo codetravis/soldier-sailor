@@ -9,14 +9,14 @@ class FovShadow {
         this.map_offset = map_offset
     }
 
-    getVisibleTiles(soldier) {
-        let first_row = new ScanRow(1, -1, 1)
-        let origin = { x: Math.floor((soldier.x - this.map_offset.x) / this.tile_size), y: Math.floor((soldier.y - this.map_offset.y) / this.tile_size) }
+    getVisibleTiles(unit, vision_type) {
+        this.map_tiles = {}
+        let origin = { x: Math.floor((unit.x - this.map_offset.x) / this.tile_size), y: Math.floor((unit.y - this.map_offset.y) / this.tile_size) }
         this.markVisible({depth: 0, column: 0}, origin, 0)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 0)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 1)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 2)
-        this.scanRowForVisibleTiles(first_row, 5, origin, 3)
+        for(let i = 0; i < 4; i++) {
+            let first_row = new ScanRow(1, -1, 1)
+            this.scanRowForVisibleTiles(first_row, unit.sight_range, origin, i)
+        }
     }
 
     scanRowForVisibleTiles(row, max_depth, origin, direction) {
@@ -87,7 +87,7 @@ class FovShadow {
         if(coordinates.x >= this.map[coordinates.y].length || coordinates.x < 0) {
             return
         }
-        this.map_tiles[`${coordinates.x}_${coordinates.y}`].is_visible = true
+        this.map_tiles[`${coordinates.x}_${coordinates.y}`] = { is_visible: true }
     }
 
     markAllHidden() {
