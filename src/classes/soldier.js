@@ -1,3 +1,4 @@
+import EventDispatcher from './eventDispatcher.js'
 
 class Soldier extends Phaser.GameObjects.Sprite {
     constructor(config) {
@@ -13,6 +14,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.movement_remaining = this.move_speed
         this.facing = config.facing
         config.scene.add.existing(this);
+        this.setInteractive();
+        this.on('pointerdown', this.clicked, this);
+    }
+
+    clicked() {
+        this.emitter = EventDispatcher.getInstance();
+        this.emitter.emit("SOLDIER_CLICKED", this);
     }
 
     moveSoldierTowardTargetPoint(target) {

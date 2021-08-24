@@ -1,7 +1,6 @@
+import EventDispatcher from '../classes/eventDispatcher.js'
 import Soldier from '../classes/soldier.js'
 import ShipMaps from '../classes/shipMaps.js'
-import ScanRow from '../classes/scanRow.js'
-import Fraction from 'fraction.js'
 import Pathfinder from '../classes/pathfinder.js'
 import FovShadow from '../classes/fovShadow.js'
 
@@ -29,6 +28,7 @@ class BattleScene extends Phaser.Scene {
         this.engineer_start_row = 0
         this.engineer_start_col = 0
 
+        this.active_soldier = null
 
         this.map = new ShipMaps().maps["test_map"]
         console.log("loading test map")
@@ -87,6 +87,9 @@ class BattleScene extends Phaser.Scene {
         this.pathfinder = new Pathfinder(this.map)
         this.move_path = this.pathfinder.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
         console.log(this.move_path[0])
+
+        this.emitter = EventDispatcher.getInstance();
+        this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
     }
 
     update() {
@@ -104,6 +107,10 @@ class BattleScene extends Phaser.Scene {
                 }
             }
         }
+    }
+
+    setActiveSoldier(soldier) {
+        this.active_soldier = soldier
     }
 
     changeDisplay(visible_tiles) {
