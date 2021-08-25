@@ -4,15 +4,19 @@ class Soldier extends Phaser.GameObjects.Sprite {
     constructor(config) {
         super(config.scene, config.x, config.y, config.key)
 
+        this.tile_size = config.tile_size
         this.map_x_offset = config.map_x_offset
         this.map_y_offset = config.map_y_offset
-        this.map_tile = { x: (config.x - this.map_x_offset)/config.tile_size, y: (config.y - this.map_y_offset)/config.tile_size}
+        this.setMapTile()
 
+        this.team = config.team
         this.move_speed = 5
         this.senses = 5
         this.sight_range = this.senses * 3
         this.movement_remaining = this.move_speed
         this.facing = config.facing
+        this.angle = this.facing * 45
+
         config.scene.add.existing(this);
         this.setInteractive();
         this.on('pointerdown', this.clicked, this);
@@ -34,6 +38,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
             }
             if(Math.abs(this.x - target.x) <= 1) {
                 this.x = target.x
+                this.setMapTile()
             }
 
             if(target.y > this.y) {
@@ -45,9 +50,18 @@ class Soldier extends Phaser.GameObjects.Sprite {
             }
             if(Math.abs(this.y - target.y) <= 1) {
                 this.y = target.y
+                this.setMapTile()
             }
             this.angle = this.facing * 45
         }
+    }
+
+    setMapTile() {
+        this.map_tile = { x: (this.x - this.map_x_offset)/this.tile_size, y: (this.y - this.map_y_offset)/this.tile_size}
+    }
+
+    beginNewTurn() {
+        this.movement_remaining = this.move_speed
     }
 }
 

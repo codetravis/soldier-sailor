@@ -9,8 +9,10 @@ class FovShadow {
         this.map_offset = map_offset
     }
 
-    getVisibleTiles(unit, vision_type) {
-        this.map_tiles = {}
+    getVisibleTiles(unit, vision_reset) {
+        if(vision_reset) {
+            this.map_tiles = {}
+        }
         let origin = { x: Math.floor((unit.x - this.map_offset.x) / this.tile_size), y: Math.floor((unit.y - this.map_offset.y) / this.tile_size) }
         this.markVisible({depth: 0, column: 0}, origin, 0)
         for(let i = 0; i < 4; i++) {
@@ -87,7 +89,7 @@ class FovShadow {
         if(coordinates.x >= this.map[coordinates.y].length || coordinates.x < 0) {
             return
         }
-        this.map_tiles[`${coordinates.x}_${coordinates.y}`] = { is_visible: true }
+        this.map_tiles[`${coordinates.x}_${coordinates.y}`] = { x: coordinates.x, y: coordinates.y, is_visible: true }
     }
 
     markAllHidden() {

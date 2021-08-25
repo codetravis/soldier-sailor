@@ -13,3 +13,5 @@ class EventDispatcher extends Phaser.Events.EventEmitter {
         return instance;
     }
 }
+
+export default EventDispatcher
