@@ -34,7 +34,7 @@ class BattleScene extends Phaser.Scene {
 
         this.active_soldier = null
 
-        this.map = new ShipMaps().maps["test_map"]
+        this.map = new ShipMaps().maps["terran_cruiser"]
         console.log("loading test map")
         this.map_width = this.map[0].length
         this.map_height = this.map.length
