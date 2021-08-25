@@ -115,17 +115,21 @@ class BattleScene extends Phaser.Scene {
 
     update() {
         if(this.active_soldier && this.move_path.length >= 1 && this.active_soldier.movement_remaining > 0) {
-            let target_point = this.move_path[0]
-            if(this.active_soldier.x !== this.tile_size * (target_point.x) ||
-            this.active_soldier.y !== this.tile_size * (target_point.y)) {
-                this.active_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x) + this.map_x_offset, y: this.tile_size * (target_point.y) + this.map_y_offset})
-                if((this.active_soldier.x === target_point.x * this.tile_size + this.map_x_offset && this.active_soldier.y === target_point.y * this.tile_size + this.map_y_offset) && this.move_path.length > 0) {
-                    this.move_path.shift()
-                    console.log("getting updated visible tiles")
-                    this.playerVision.getVisibleTiles(this.active_soldier, true)
-                    this.changeDisplay(this.playerVision.map_tiles)
-                    this.active_soldier.movement_remaining -= 1
-                }
+            this.performMovement()
+        }
+    }
+
+    performMovement() {
+        let target_point = this.move_path[0]
+        if(this.active_soldier.x !== this.tile_size * (target_point.x) ||
+        this.active_soldier.y !== this.tile_size * (target_point.y)) {
+            this.active_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x) + this.map_x_offset, y: this.tile_size * (target_point.y) + this.map_y_offset})
+            if((this.active_soldier.x === target_point.x * this.tile_size + this.map_x_offset && this.active_soldier.y === target_point.y * this.tile_size + this.map_y_offset) && this.move_path.length > 0) {
+                this.move_path.shift()
+                console.log("getting updated visible tiles")
+                this.playerVision.getVisibleTiles(this.active_soldier, true)
+                this.changeDisplay(this.playerVision.map_tiles)
+                this.active_soldier.movement_remaining -= 1
             }
         }
     }
@@ -143,10 +147,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     showSoldierMovement(soldier) {
-        this.movement_squares.forEach(function(square) {
-            square.destroy()
-        })
-        this.movement_squares = []
+        this.cleanUpMovementSquares()
 
         this.unitMovement.getVisibleTiles(soldier, true)
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
@@ -165,6 +166,13 @@ class BattleScene extends Phaser.Scene {
         }.bind(this))
     }
 
+    cleanUpMovementSquares() {
+        this.movement_squares.forEach(function(square) {
+            square.destroy()
+        })
+        this.movement_squares = []
+    }
+
     getMapDistance(tile_one, tile_two) {
         return Math.abs(tile_one.x - tile_two.x) + Math.abs(tile_one.y - tile_two.y)
     }
@@ -181,12 +189,11 @@ class BattleScene extends Phaser.Scene {
     }
 
     makeMovementPath(movement_box) {
-        this.move_path = this.pathfinder.aStar({x: this.active_soldier.map_tile.x, y: this.active_soldier.map_tile.y}, 
-                                               {x: movement_box.tile.x, y: movement_box.tile.y})
-        this.movement_squares.forEach(function(square) {
-            square.destroy()
-        })
-        this.movement_squares = []
+        if(this.active_soldier) {
+            this.move_path = this.pathfinder.aStar({x: this.active_soldier.map_tile.x, y: this.active_soldier.map_tile.y}, 
+                                                {x: movement_box.tile.x, y: movement_box.tile.y})
+            this.cleanUpMovementSquares()
+        }
     }
 
     changeDisplay(visible_tiles) {
