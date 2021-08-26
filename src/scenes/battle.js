@@ -35,7 +35,6 @@ class BattleScene extends Phaser.Scene {
         this.active_soldier = null
 
         this.map = new ShipMaps().maps["terran_cruiser"]
-        console.log("loading test map")
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
@@ -100,10 +99,7 @@ class BattleScene extends Phaser.Scene {
             })
         )
         
-        console.log("attempting to change display")
         this.changeDisplay(this.playerVision.map_tiles)
-        console.log("done changing display")
-        console.log("building move path")
         this.pathfinder = new Pathfinder(this.map)
         this.move_path = []
         //this.move_path = this.pathfinder.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
@@ -111,11 +107,23 @@ class BattleScene extends Phaser.Scene {
         this.emitter = EventDispatcher.getInstance();
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
+        document.getElementById("endTurn").onclick = function() {
+            this.endTurn()
+        }.bind(this)
     }
 
     update() {
         if(this.active_soldier && this.move_path.length >= 1 && this.active_soldier.movement_remaining > 0) {
             this.performMovement()
+        }
+    }
+
+    endTurn() {
+        console.log("ending turn")
+        if(this.active_team == 1) {
+            this.active_team = 2 
+        } else {
+            this.active_team = 1
         }
     }
 
@@ -126,7 +134,6 @@ class BattleScene extends Phaser.Scene {
             this.active_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x) + this.map_x_offset, y: this.tile_size * (target_point.y) + this.map_y_offset})
             if((this.active_soldier.x === target_point.x * this.tile_size + this.map_x_offset && this.active_soldier.y === target_point.y * this.tile_size + this.map_y_offset) && this.move_path.length > 0) {
                 this.move_path.shift()
-                console.log("getting updated visible tiles")
                 this.playerVision.getVisibleTiles(this.active_soldier, true)
                 this.changeDisplay(this.playerVision.map_tiles)
                 this.active_soldier.movement_remaining -= 1
