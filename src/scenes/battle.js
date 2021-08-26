@@ -154,7 +154,8 @@ class BattleScene extends Phaser.Scene {
             if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.movement_remaining &&
                 this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x] !== 0 && 
                 !this.enemyOnTile(this.unitMovement.map_tiles[key])) {
-                this.movement_squares.push(new SelectionBox({ scene: this,
+                this.movement_squares.push(new SelectionBox({ 
+                        scene: this,
                         x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
                         y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
                         key: 'movement_box',
