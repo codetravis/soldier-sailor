@@ -7,8 +7,8 @@ import BattleScene from './scenes/battle.js'
 const config = {
     type: Phaser.AUTO,
     parent: 'game-div',
-    width: 1200,
-    height: 1200,
+    width: 1100,
+    height: 700,
     scene: [ PreloadScene, MainMenuScene, BattleScene ]
 };
 
