@@ -63,6 +63,10 @@ class Soldier extends Phaser.GameObjects.Sprite {
     beginNewTurn() {
         this.movement_remaining = this.move_speed
     }
+
+    getAttackRange() {
+        return 1
+    }
 }
 
 export default Soldier

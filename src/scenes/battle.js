@@ -84,6 +84,7 @@ class BattleScene extends Phaser.Scene {
         this.playerVision.getVisibleTiles(this.player_soldier, true)
         this.unitMovement = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
         this.movement_squares = []
+        this.attack_squares = []
         this.enemies = []
         this.enemies.push(
             new Soldier({
@@ -107,8 +108,12 @@ class BattleScene extends Phaser.Scene {
         this.emitter = EventDispatcher.getInstance();
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
-        document.getElementById("endTurn").onclick = function() {
+        document.getElementById('endTurn').onclick = function() {
             this.endTurn()
+        }.bind(this)
+
+        document.getElementById('showAttacks').onclick = function () {
+            this.showSoldierAttacks()
         }.bind(this)
     }
 
@@ -155,6 +160,7 @@ class BattleScene extends Phaser.Scene {
 
     showSoldierMovement(soldier) {
         this.cleanUpMovementSquares()
+        this.cleanUpAttackSquares()
 
         this.unitMovement.getVisibleTiles(soldier, true)
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
@@ -172,6 +178,38 @@ class BattleScene extends Phaser.Scene {
                 )
             }
         }.bind(this))
+    }
+
+    showSoldierAttacks() {
+        let soldier = this.active_soldier
+        this.cleanUpAttackSquares()
+        this.cleanUpMovementSquares()
+
+        this.unitMovement.getVisibleTiles(soldier, true)
+        let attack_range = soldier.getAttackRange()
+
+        Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
+            if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= attack_range && 
+                this.enemyOnTile(this.unitMovement.map_tiles[key])) {
+
+                this.attack_squares.push(new SelectionBox({ 
+                        scene: this,
+                        x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
+                        y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
+                        key: 'attack_box',
+                        event_name: 'ATTACK_CLICKED',
+                        tile: { x: this.unitMovement.map_tiles[key].x, y: this.unitMovement.map_tiles[key].y }
+                    })
+                )
+            }
+        }.bind(this))
+    }
+
+    cleanUpAttackSquares() {
+        this.attack_squares.forEach(function(square) {
+            square.destroy()
+        })
+        this.attack_squares = []
     }
 
     cleanUpMovementSquares() {
