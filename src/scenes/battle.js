@@ -108,6 +108,7 @@ class BattleScene extends Phaser.Scene {
         this.emitter = EventDispatcher.getInstance();
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
+        this.emitter.on('ATTACK_CLICKED', this.performAttack.bind(this))
         document.getElementById('endTurn').onclick = function() {
             this.endTurn()
         }.bind(this)
@@ -166,7 +167,7 @@ class BattleScene extends Phaser.Scene {
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
             if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.movement_remaining &&
                 this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x] !== 0 && 
-                !this.enemyOnTile(this.unitMovement.map_tiles[key])) {
+                !this.isEnemyOnTile(this.unitMovement.map_tiles[key])) {
                 this.movement_squares.push(new SelectionBox({ 
                         scene: this,
                         x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
@@ -190,7 +191,7 @@ class BattleScene extends Phaser.Scene {
 
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
             if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= attack_range && 
-                this.enemyOnTile(this.unitMovement.map_tiles[key])) {
+                this.isEnemyOnTile(this.unitMovement.map_tiles[key])) {
 
                 this.attack_squares.push(new SelectionBox({ 
                         scene: this,
@@ -203,6 +204,21 @@ class BattleScene extends Phaser.Scene {
                 )
             }
         }.bind(this))
+    }
+
+    performAttack(attack_box) {
+        let target = this.getEnemyOnTile(attack_box.tile)
+        if(target == null) {
+            return
+        }
+        console.log("performing attack")
+        let attack = this.active_soldier.getSelectedAttack()
+        // calculate hit
+
+        // if hit, apply damage
+        // roll for hit location
+        target.applyDamage(attack, "torso")
+        console.log(target.health)
     }
 
     cleanUpAttackSquares() {
@@ -223,7 +239,7 @@ class BattleScene extends Phaser.Scene {
         return Math.abs(tile_one.x - tile_two.x) + Math.abs(tile_one.y - tile_two.y)
     }
 
-    enemyOnTile(tile) {
+    isEnemyOnTile(tile) {
         for(let i = 0; i < this.enemies.length; i++) {
             let enemy = this.enemies[i]
             if(enemy.map_tile.x === tile.x && enemy.map_tile.y === tile.y) {
@@ -232,6 +248,17 @@ class BattleScene extends Phaser.Scene {
         }
 
         return false
+    }
+
+    getEnemyOnTile(tile) {
+        for(let i = 0; i < this.enemies.length; i++) {
+            let enemy = this.enemies[i]
+            if(enemy.map_tile.x === tile.x && enemy.map_tile.y === tile.y) {
+                return enemy
+            }
+        }
+
+        return null
     }
 
     makeMovementPath(movement_box) {

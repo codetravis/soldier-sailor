@@ -17,6 +17,46 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.facing = config.facing
         this.angle = this.facing * 45
 
+        this.fatigue = 0
+        this.ap = 0
+        this.health = {
+            head: 10,
+            torso: 50,
+            right_arm: 20,
+            left_arm: 20,
+            right_leg: 30,
+            left_leg: 30
+        }
+
+        if(config.weapons) {
+            this.weapons = config.weapons
+        } else {
+            this.weapons = { "unarmed": { 
+                    name: "Unarmed", 
+                    range: 1,   
+                    uses_ammo: false,
+                    attacks: {
+                        "punch": {
+                            ap_cost: 1,
+                            base_damage: 1,
+                            base_accuracy: 10,
+                            fatigue_damage: 1, 
+                            fatigue_cost: 1
+                        },
+                        "kick": {
+                            ap_cost: 2,
+                            base_damage: 2,
+                            base_accuracy: 5,
+                            fatigue_damage: 2, 
+                            fatigue_cost: 2
+                        }
+                    }
+                } 
+            }
+        }
+        this.active_weapon_key = Object.keys(this.weapons)[0]
+        this.selected_attack_key = Object.keys(this.weapons[this.active_weapon_key].attacks)[0]
+
         config.scene.add.existing(this);
         this.setInteractive();
         this.on('pointerdown', this.clicked, this);
@@ -65,7 +105,28 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     getAttackRange() {
-        return 1
+        let weapon = this.weapons[this.active_weapon_key]
+        return weapon.range || 0
+    }
+
+    getSelectedAttack() {
+        return this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
+    }
+
+    changeAttackMode() {
+        let attack_keys = Object.keys(this.weapons[this.active_weapon_key].attacks)
+        let attack_index = attacks.indexOf(this.selected_attack_key)
+
+        if (attack_keys.length - 1 == attack_index) {
+            this.selected_attack_key = attack_keys[0]
+        } else {
+            this.selected_attack_key = attack_keys[attack_index + 1]
+        }
+    }
+
+    applyDamage(attack, location) {
+        this.fatigue += attack.fatigue_damage
+        this.health[location] -= attack.base_damage
     }
 }
 
