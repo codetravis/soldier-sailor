@@ -34,6 +34,20 @@ class BattleScene extends Phaser.Scene {
 
         this.active_soldier = null
 
+        this.hit_locations_by_weight =  {
+            head: 5,
+            torso: 45,
+            right_arm: 10,
+            left_arm: 10,
+            right_leg: 15,
+            left_leg: 15
+        }
+        this.hit_locations = Object.keys(this.hit_locations_by_weight)
+        this.hit_locations_sum = 0
+        this.hit_locations.forEach(function(location) {
+            this.hit_locations_sum += this.hit_locations_by_weight[location]
+        }.bind(this))
+
         this.map = new ShipMaps().maps["terran_cruiser"]
         this.map_width = this.map[0].length
         this.map_height = this.map.length
@@ -213,12 +227,35 @@ class BattleScene extends Phaser.Scene {
         }
         console.log("performing attack")
         let attack = this.active_soldier.getSelectedAttack()
-        // calculate hit
+        // roll for hit
 
         // if hit, apply damage
         // roll for hit location
-        target.applyDamage(attack, "torso")
+        let hit_location = this.getAttackLocation()
+
+        target.applyDamage(attack, hit_location)
         console.log(target.health)
+    }
+
+    getAttackLocation() {
+        let roll = this.randomDiceRoll(this.hit_locations_sum)
+
+        let runningTotal = 0
+        let hit_landed = this.hit_locations[0]
+        let location_selected = false
+        this.hit_locations.forEach(function(location) {
+            runningTotal += this.hit_locations_by_weight[location]
+            if(roll <= runningTotal && !location_selected) {
+                hit_landed = location
+                location_selected = true
+            }
+        }.bind(this))
+        //console.log(hit_landed)
+        return hit_landed
+    }
+
+    randomDiceRoll(dice_size) {
+        return Math.floor(Math.random() * dice_size + 1)
     }
 
     cleanUpAttackSquares() {
