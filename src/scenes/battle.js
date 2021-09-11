@@ -130,6 +130,10 @@ class BattleScene extends Phaser.Scene {
         document.getElementById('showAttacks').onclick = function () {
             this.showSoldierAttacks()
         }.bind(this)
+
+        document.getElementById('changeAttack').onclick = function () {
+            this.changeActiveSoldierAttack()
+        }.bind(this)
     }
 
     update() {
@@ -256,6 +260,13 @@ class BattleScene extends Phaser.Scene {
 
     randomDiceRoll(dice_size) {
         return Math.floor(Math.random() * dice_size + 1)
+    }
+
+    changeActiveSoldierAttack() {
+        if(this.active_soldier) {
+            this.active_soldier.changeAttackMode()
+            console.log(this.active_soldier.selected_attack_key)
+        }
     }
 
     cleanUpAttackSquares() {

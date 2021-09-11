@@ -114,12 +114,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     changeAttackMode() {
-        let attack_keys = Object.keys(this.weapons[this.active_weapon_key].attacks)
-        let attack_index = attacks.indexOf(this.selected_attack_key)
+        let attack_keys = Object.keys(this.weapons[this.active_weapon_key].attacks).sort()
+        console.log(attack_keys)
+        let attack_index = attack_keys.indexOf(this.selected_attack_key)
 
         if (attack_keys.length - 1 == attack_index) {
             this.selected_attack_key = attack_keys[0]
-        } else {
+        } else if (attack_keys.length > 1) {
             this.selected_attack_key = attack_keys[attack_index + 1]
         }
     }
