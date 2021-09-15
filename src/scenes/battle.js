@@ -91,7 +91,16 @@ class BattleScene extends Phaser.Scene {
             map_y_offset: this.map_y_offset,
             tile_size: this.tile_size,
             facing: 4,
-            team: 1
+            team: 1,
+            attributes: {
+                brains: 2,
+                senses: 3,
+                spirit: 3,
+                core: 2,
+                limbs: 3,
+                hands: 2,
+                build: 3
+            }
         })
 
         this.playerVision = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
@@ -110,7 +119,16 @@ class BattleScene extends Phaser.Scene {
                 map_y_offset: this.map_y_offset,
                 tile_size: this.tile_size,
                 facing: 4,
-                team: 2
+                team: 2,
+                attributes: {
+                    brains: 2,
+                    senses: 3,
+                    spirit: 3,
+                    core: 2,
+                    limbs: 3,
+                    hands: 2,
+                    build: 3
+                }
             })
         )
         
@@ -160,7 +178,7 @@ class BattleScene extends Phaser.Scene {
                 this.move_path.shift()
                 this.playerVision.getVisibleTiles(this.active_soldier, true)
                 this.changeDisplay(this.playerVision.map_tiles)
-                this.active_soldier.movement_remaining -= 1
+                this.active_soldier.applyMovementStatChange()
             }
         }
     }
@@ -238,6 +256,7 @@ class BattleScene extends Phaser.Scene {
         let hit_location = this.getAttackLocation()
 
         target.applyDamage(attack, hit_location)
+        this.active_soldier.applyAttackStatChange()
         console.log(target.health)
     }
 

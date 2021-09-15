@@ -10,9 +10,9 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.setMapTile()
 
         this.team = config.team
-        this.move_speed = 5
-        this.senses = 5
-        this.sight_range = this.senses * 3
+
+        this.setAttributes(config.attributes)
+        this.getEffectiveStats()
         this.movement_remaining = this.move_speed
         this.facing = config.facing
         this.angle = this.facing * 45
@@ -35,20 +35,27 @@ class Soldier extends Phaser.GameObjects.Sprite {
                     name: "Unarmed", 
                     range: 1,   
                     uses_ammo: false,
+                    ammo: 0,
+                    max_ammo: 0,
+                    reload_ap: 0,
                     attacks: {
                         "punch": {
                             ap_cost: 1,
                             base_damage: 1,
                             base_accuracy: 10,
                             fatigue_damage: 1, 
-                            fatigue_cost: 1
+                            fatigue_cost: 1,
+                            max_ammo_used: 0,
+                            skill: "unarmed"
                         },
                         "kick": {
                             ap_cost: 2,
                             base_damage: 2,
                             base_accuracy: 5,
                             fatigue_damage: 2, 
-                            fatigue_cost: 2
+                            fatigue_cost: 2,
+                            max_ammo_used: 0,
+                            skill: "unarmed"
                         }
                     }
                 } 
@@ -102,6 +109,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     beginNewTurn() {
         this.movement_remaining = this.move_speed
+        this.fatigue = Math.max(0, this.fatigue - this.fatigue_recovery)
     }
 
     getAttackRange() {
@@ -127,7 +135,42 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     applyDamage(attack, location) {
         this.fatigue += attack.fatigue_damage
+        // TODO: add armor mitigation
         this.health[location] -= attack.base_damage
+    }
+
+    setAttributes(attributes) {
+        this.attributes = {
+            brains: attributes.brains || 0,
+            senses: attributes.senses || 0,
+            spirit: attributes.spirit || 0,
+            core: attributes.core || 0,
+            limbs: attributes.limbs || 0,
+            hands: attributes.hands || 0,
+            build: attributes.build || 0
+        }
+    }
+
+    getEffectiveStats() {
+        this.move_speed = this.attributes.limbs + 1
+        this.sight_range = this.attributes.senses * 3 + 1
+        this.max_fatigue = this.attributes.core * 5 + 10
+        this.fatigue_recovery = this.attributes.core * 2 + 1
+        this.max_morale = this.spirit * 5 + 100
+        this.morale = this.spirit * 2 + 40
+        this.move_fatigue_cost = Math.floor(5 - this.attributes.core/3)
+    }
+
+    applyMovementStatChange() {
+        this.movement_remaining -= 1
+        this.fatigue += this.move_fatigue_cost
+        console.log(this.fatigue)
+    }
+
+    applyAttackStatChange() {
+        let attack = this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
+        this.fatigue += attack.fatigue_cost
+        console.log(this.fatigue)
     }
 }
 
