@@ -11,7 +11,8 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.team = config.team
 
-        this.setAttributes(config.attributes)
+        this.setAllAttributes(config.attributes)
+        this.setAllSkills(config.skills)
         this.getEffectiveStats()
         this.movement_remaining = this.move_speed
         this.facing = config.facing
@@ -32,30 +33,33 @@ class Soldier extends Phaser.GameObjects.Sprite {
             this.weapons = config.weapons
         } else {
             this.weapons = { "unarmed": { 
-                    name: "Unarmed", 
-                    range: 1,   
+                    name: "Unarmed",    
                     uses_ammo: false,
-                    ammo: 0,
+                    ammo: [],
                     max_ammo: 0,
                     reload_ap: 0,
                     attacks: {
                         "punch": {
                             ap_cost: 1,
                             base_damage: 1,
+                            range: 1,
                             base_accuracy: 10,
                             fatigue_damage: 1, 
                             fatigue_cost: 1,
                             max_ammo_used: 0,
-                            skill: "unarmed"
+                            skill: "unarmed",
+                            attack_type: "melee"
                         },
                         "kick": {
                             ap_cost: 2,
                             base_damage: 2,
+                            range: 1,
                             base_accuracy: 5,
                             fatigue_damage: 2, 
                             fatigue_cost: 2,
                             max_ammo_used: 0,
-                            skill: "unarmed"
+                            skill: "unarmed",
+                            attack_type: "melee"
                         }
                     }
                 } 
@@ -113,12 +117,22 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     getAttackRange() {
-        let weapon = this.weapons[this.active_weapon_key]
-        return weapon.range || 0
+        let attack = this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
+        return attack.range || 0
     }
 
     getSelectedAttack() {
-        return this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
+        let attack = this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
+        let modifier = this.skills[attack.skill]
+
+        if(attack.attack_type === "melee") {
+            attack.damage = attack.base_damage + Math.floor(this.attributes.build * attack.base_damage / 3)
+        } else {
+            attack.damage = attack.base_damage
+        }
+
+        attack.accuracy = attack.base_accuracy + this.skills[modifier]
+        return attack
     }
 
     changeAttackMode() {
@@ -134,12 +148,12 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     applyDamage(attack, location) {
-        this.fatigue += attack.fatigue_damage
+        this.fatigue += attack.damage
         // TODO: add armor mitigation
         this.health[location] -= attack.base_damage
     }
 
-    setAttributes(attributes) {
+    setAllAttributes(attributes) {
         this.attributes = {
             brains: attributes.brains || 0,
             senses: attributes.senses || 0,
@@ -148,6 +162,35 @@ class Soldier extends Phaser.GameObjects.Sprite {
             limbs: attributes.limbs || 0,
             hands: attributes.hands || 0,
             build: attributes.build || 0
+        }
+    }
+
+    setAllSkills(skills) {
+        if(!skills) {
+            skills = {}
+        }
+        this.skills = {
+            // general
+            leadership: skills.leadership || 0,
+            battering: skills.battering || 0,
+            stealth: skills.stealth || 0,
+            // tech
+            hacking: skills.hacking || 0,
+            drones: skills.drones || 0,
+            mechanics: skills. mechanics || 0,
+            // medical
+            first_aid: skills.first_aid || 0,
+            field_surgeon: skills.field_surgeon || 0,
+            herbalist: skills.herbalist || 0,
+            // combat
+            marksmanship: skills.marksmanship || 0,
+            recoil_control: skills.recoil_control || 0,
+            handguns: skills.handguns || 0,
+            heavy_weapons: skills.heavy_weapons || 0,
+            slash_and_stab: skills.slash_and_stab || 0,
+            bash_and_bludgeon: skills.bash_and_bludgeon || 0,
+            unarmed: skills.unarmed || 0,
+            throwing: skills.throwing || 0
         }
     }
 
