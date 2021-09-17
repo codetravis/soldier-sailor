@@ -1,4 +1,5 @@
 import EventDispatcher from './eventDispatcher.js'
+import DiceRoller from './diceRoller.js'
 
 class Soldier extends Phaser.GameObjects.Sprite {
     constructor(config) {
@@ -13,7 +14,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.setAllAttributes(config.attributes)
         this.setAllSkills(config.skills)
-        this.getEffectiveStats()
+        this.setEffectiveStats()
         this.movement_remaining = this.move_speed
         this.facing = config.facing
         this.angle = this.facing * 45
@@ -21,50 +22,17 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.fatigue = 0
         this.ap = 0
         this.health = {
-            head: 10,
-            torso: 50,
-            right_arm: 20,
-            left_arm: 20,
-            right_leg: 30,
-            left_leg: 30
+            head: 20,
+            torso: 100,
+            right_arm: 40,
+            left_arm: 40,
+            right_leg: 60,
+            left_leg: 60
         }
 
-        if(config.weapons) {
-            this.weapons = config.weapons
-        } else {
-            this.weapons = { "unarmed": { 
-                    name: "Unarmed",    
-                    uses_ammo: false,
-                    ammo: [],
-                    max_ammo: 0,
-                    reload_ap: 0,
-                    attacks: {
-                        "punch": {
-                            ap_cost: 1,
-                            base_damage: 1,
-                            range: 1,
-                            base_accuracy: 10,
-                            fatigue_damage: 1, 
-                            fatigue_cost: 1,
-                            max_ammo_used: 0,
-                            skill: "unarmed",
-                            attack_type: "melee"
-                        },
-                        "kick": {
-                            ap_cost: 2,
-                            base_damage: 2,
-                            range: 1,
-                            base_accuracy: 5,
-                            fatigue_damage: 2, 
-                            fatigue_cost: 2,
-                            max_ammo_used: 0,
-                            skill: "unarmed",
-                            attack_type: "melee"
-                        }
-                    }
-                } 
-            }
-        }
+        this.setWeapons(config.weapons)
+        this.setArmor(config.armor)
+
         this.active_weapon_key = Object.keys(this.weapons)[0]
         this.selected_attack_key = Object.keys(this.weapons[this.active_weapon_key].attacks)[0]
 
@@ -148,9 +116,41 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     applyDamage(attack, location) {
-        this.fatigue += attack.damage
+        
         // TODO: add armor mitigation
-        this.health[location] -= attack.base_damage
+        let armor = this.armor[location]
+        let fatigue_damage = attack.fatigue_damage
+        let damage = attack.base_damage
+        if(armor) {
+            let coverage_roll = new DiceRoller().randomDiceRoll(100)
+            if(armor.coverage > coverage_roll && armor.durablity > 0) {
+                // attack hit the armor
+                // mitigate damage by attack type and armor rating in relative area
+                if(attack.damage_type === "blunt") {
+                    // padded armor reduces blunt damage and fatigue damage caused by melee
+                    damage = Math.max(1, Math.floor(damage * (100 - armor.padded)/100))
+                    fatigue_damage = Math.max(0, Math.floor(fatigue_damage * (100 - armor.padded)/100))
+                } else if (attack.damage_type === "balistic") {
+                    // balistic armor reduces bullet and bladed damage
+                    damage = Math.max(1, Math.floor(damage * (100 - armor.balistic)/100))
+                } else if (attack.damage_type === "energy") {
+                    // ablative armor reduces energy damage
+                    damage = Math.max(1, Math.floor(damage * (100 - armor.ablative)/100))
+                }
+                // apply damage to armor durability
+                if(damage > armor.durability) {
+                    damage = damage - armor.durability
+                    this.armor[location].durability = 0
+                } else {
+                    this.armor[location].durability -= damage
+                    damage = 0
+                }
+            } else {
+                console.log("Attack hit a gap in the armor")
+            }
+        }
+        this.fatigue += fatigue_damage
+        this.health[location] -= damage
     }
 
     setAllAttributes(attributes) {
@@ -194,14 +194,81 @@ class Soldier extends Phaser.GameObjects.Sprite {
         }
     }
 
-    getEffectiveStats() {
+    setWeapons(weapons) {
+        if(weapons) {
+            this.weapons = weapons
+        } else {
+            this.weapons = { "unarmed": { 
+                    name: "Unarmed",    
+                    uses_ammo: false,
+                    ammo: [],
+                    max_ammo: 0,
+                    reload_ap: 0,
+                    attacks: {
+                        "punch": {
+                            ap_cost: 1,
+                            base_damage: 4,
+                            range: 1,
+                            base_accuracy: 10,
+                            fatigue_damage: 2, 
+                            fatigue_cost: 1,
+                            max_ammo_used: 0,
+                            skill: "unarmed",
+                            attack_type: "melee",
+                            damage_type: "blunt",
+                        },
+                        "kick": {
+                            ap_cost: 2,
+                            base_damage: 8,
+                            range: 1,
+                            base_accuracy: 5,
+                            fatigue_damage: 6,
+                            fatigue_cost: 4,
+                            max_ammo_used: 0,
+                            skill: "unarmed",
+                            attack_type: "melee",
+                            damage_type: "blunt",
+                        }
+                    }
+                } 
+            }
+        }
+    }
+
+    // armor format
+    // { durability: <some number>, max_durability: <some number>, coverage: <1-100>, ablative: <0-100>, balistic: <0-100>, padded: <0-100>, buffs: {}, debuffs: {}}
+    setArmor(armor) {
+        this.armor = {}
+        if(armor) {
+            this.armor.head = armor.head
+            this.armor.left_arm = armor.left_arm
+            this.armor.right_arm = armor.right_arm
+            this.armor.torso = armor.torso
+            this.armor.left_leg = armor.left_leg
+            this.armor.right_leg = armor.right_leg
+        } else {
+            this.armor.head = null
+            this.armor.left_arm = null
+            this.armor.right_arm = null
+            this.armor.torso = null
+            this.armor.left_leg = null
+            this.armor.right_leg = null
+        }
+    }
+
+    equipArmor(location, armor_piece) {
+        this.armor[location] = armor_piece
+    }
+
+    setEffectiveStats() {
+        // TODO: apply buffs and debuffs
         this.move_speed = this.attributes.limbs + 1
         this.sight_range = this.attributes.senses * 3 + 1
         this.max_fatigue = this.attributes.core * 5 + 10
         this.fatigue_recovery = this.attributes.core * 2 + 1
         this.max_morale = this.spirit * 5 + 100
         this.morale = this.spirit * 2 + 40
-        this.move_fatigue_cost = Math.floor(5 - this.attributes.core/3)
+        this.move_fatigue_cost = Math.floor(6 - this.attributes.core/30)
     }
 
     applyMovementStatChange() {
@@ -210,11 +277,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
         console.log(this.fatigue)
     }
 
-    applyAttackStatChange() {
+    payAttackCost() {
         let attack = this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
         this.fatigue += attack.fatigue_cost
         console.log(this.fatigue)
     }
+
+
 }
 
 export default Soldier

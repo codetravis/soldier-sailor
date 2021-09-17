@@ -128,6 +128,28 @@ class BattleScene extends Phaser.Scene {
                     limbs: 3,
                     hands: 2,
                     build: 3
+                },
+                armor: {
+                    torso: {
+                        durability: 30,
+                        max_durability: 30,
+                        coverage: 50,
+                        balistic: 10,
+                        ablative: 0,
+                        padded: 30,
+                        buffs: {},
+                        defuffs: {}
+                    },
+                    left_arm: {
+                        durability: 10,
+                        max_durability: 10,
+                        coverage: 40,
+                        balistic: 10,
+                        ablative: 0,
+                        padded: 30,
+                        buffs: {},
+                        defuffs: {}
+                    },
                 }
             })
         )
@@ -256,7 +278,7 @@ class BattleScene extends Phaser.Scene {
         let hit_location = this.getAttackLocation()
 
         target.applyDamage(attack, hit_location)
-        this.active_soldier.applyAttackStatChange()
+        this.active_soldier.payAttackCost()
         console.log(target.health)
     }
 
