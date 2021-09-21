@@ -32,6 +32,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.setWeapons(config.weapons)
         this.setArmor(config.armor)
+        this.setInventory(config.inventory)
 
         this.active_weapon_key = Object.keys(this.weapons)[0]
         this.selected_attack_key = Object.keys(this.weapons[this.active_weapon_key].attacks)[0]
@@ -82,6 +83,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
     beginNewTurn() {
         this.movement_remaining = this.move_speed
         this.fatigue = Math.max(0, this.fatigue - this.fatigue_recovery)
+        this.refreshAP()
     }
 
     getAttackRange() {
@@ -130,9 +132,9 @@ class Soldier extends Phaser.GameObjects.Sprite {
                     // padded armor reduces blunt damage and fatigue damage caused by melee
                     damage = Math.max(1, Math.floor(damage * (100 - armor.padded)/100))
                     fatigue_damage = Math.max(0, Math.floor(fatigue_damage * (100 - armor.padded)/100))
-                } else if (attack.damage_type === "balistic") {
-                    // balistic armor reduces bullet and bladed damage
-                    damage = Math.max(1, Math.floor(damage * (100 - armor.balistic)/100))
+                } else if (attack.damage_type === "ballistic") {
+                    // ballistic armor reduces bullet and bladed damage
+                    damage = Math.max(1, Math.floor(damage * (100 - armor.ballistic)/100))
                 } else if (attack.damage_type === "energy") {
                     // ablative armor reduces energy damage
                     damage = Math.max(1, Math.floor(damage * (100 - armor.ablative)/100))
@@ -201,6 +203,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
             this.weapons = { "unarmed": { 
                     name: "Unarmed",    
                     uses_ammo: false,
+                    ammo_type: null,
                     ammo: [],
                     max_ammo: 0,
                     reload_ap: 0,
@@ -209,7 +212,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
                             ap_cost: 1,
                             base_damage: 4,
                             range: 1,
-                            base_accuracy: 10,
+                            base_accuracy: 20,
                             fatigue_damage: 2, 
                             fatigue_cost: 1,
                             max_ammo_used: 0,
@@ -221,7 +224,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
                             ap_cost: 2,
                             base_damage: 8,
                             range: 1,
-                            base_accuracy: 5,
+                            base_accuracy: 10,
                             fatigue_damage: 6,
                             fatigue_cost: 4,
                             max_ammo_used: 0,
@@ -236,7 +239,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     // armor format
-    // { durability: <some number>, max_durability: <some number>, coverage: <1-100>, ablative: <0-100>, balistic: <0-100>, padded: <0-100>, buffs: {}, debuffs: {}}
+    // { durability: <some number>, max_durability: <some number>, coverage: <1-100>, ablative: <0-100>, ballistic: <0-100>, padded: <0-100>, buffs: {}, debuffs: {}}
     setArmor(armor) {
         this.armor = {}
         if(armor) {
@@ -260,6 +263,24 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.armor[location] = armor_piece
     }
 
+    setInventory(inventory) {
+        this.inventory = {}
+        let item_keys = Object.keys(inventory)
+        item_keys.forEach( function(key) {
+            this.inventory[key] = inventory[key]
+        }.bind(this))
+    }
+
+    reloadActiveWeapon() {
+        let item_keys = Object.keys(this.inventory)
+        let weapon = this.weapons[this.active_weapon_key]
+        item_keys.forEach( function(key) {
+            if(this.inventory[key].item_type === weapon.ammo_type) {
+                weapon.ammo.push(this.inventory[key])
+            }
+        }.bind(this))
+    }
+
     setEffectiveStats() {
         // TODO: apply buffs and debuffs
         this.move_speed = this.attributes.limbs + 1
@@ -278,11 +299,39 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     payAttackCost() {
-        let attack = this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
+        let weapon = this.weapons[this.active_weapon_key]
+        let attack = weapon.attacks[this.selected_attack_key]
         this.fatigue += attack.fatigue_cost
+        this.ap -= attack.ap_cost
+        if(attack.uses_ammo) {
+            let ammo_used = Math.min(attack.max_ammo_used, weapon.ammo.length)
+            for(let i = 0; i < ammo_used; i++) {
+                weapon.ammo.shift()
+            }
+        }
         console.log(this.fatigue)
     }
 
+    canPayAttackCost() {
+        let weapon = this.weapons[this.active_weapon_key]
+        let attack = weapon.attacks[this.selected_attack_key]
+        let enough_fatigue = this.fatigue + attack.fatigue_cost <= this.max_fatigue
+        let enough_ap = attack.ap_cost <= this.ap
+        let enough_ammo = true
+        if(attack.uses_ammo) {
+            if(weapon.ammo.length === 0) {
+                enough_ammo = false   
+            }
+        }
+
+        return enough_ammo && enough_ap && enough_fatigue
+    }
+
+    refreshAP() {
+        this.ap = 10
+        // apply buffs
+        // apply debuffs
+    }
 
 }
 

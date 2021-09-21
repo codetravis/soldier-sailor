@@ -48,7 +48,7 @@ class BattleScene extends Phaser.Scene {
             this.hit_locations_sum += this.hit_locations_by_weight[location]
         }.bind(this))
 
-        this.map = new ShipMaps().maps["terran_cruiser"]
+        this.map = new ShipMaps().maps["test_map"]
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
@@ -134,7 +134,7 @@ class BattleScene extends Phaser.Scene {
                         durability: 30,
                         max_durability: 30,
                         coverage: 50,
-                        balistic: 10,
+                        ballistic: 10,
                         ablative: 0,
                         padded: 30,
                         buffs: {},
@@ -144,7 +144,7 @@ class BattleScene extends Phaser.Scene {
                         durability: 10,
                         max_durability: 10,
                         coverage: 40,
-                        balistic: 10,
+                        ballistic: 10,
                         ablative: 0,
                         padded: 30,
                         buffs: {},
@@ -188,6 +188,7 @@ class BattleScene extends Phaser.Scene {
             this.active_team = 2 
         } else {
             this.active_team = 1
+            this.player_soldier.beginNewTurn()
         }
     }
 
@@ -212,7 +213,6 @@ class BattleScene extends Phaser.Scene {
             this.active_box.setY(this.active_soldier.y)
             this.active_box.setAlpha(1)
             this.active_box.setDepth(5)
-            soldier.beginNewTurn()
             this.showSoldierMovement(soldier)
         }
     }
@@ -269,17 +269,21 @@ class BattleScene extends Phaser.Scene {
         if(target == null) {
             return
         }
-        console.log("performing attack")
+
         let attack = this.active_soldier.getSelectedAttack()
-        // roll for hit
+        if(this.active_soldier.canPayAttackCost()) {
+            // roll for hit
 
-        // if hit, apply damage
-        // roll for hit location
-        let hit_location = this.getAttackLocation()
+            // if hit, apply damage
+            // roll for hit location
+            let hit_location = this.getAttackLocation()
 
-        target.applyDamage(attack, hit_location)
-        this.active_soldier.payAttackCost()
-        console.log(target.health)
+            target.applyDamage(attack, hit_location)
+            this.active_soldier.payAttackCost()
+            console.log(target.health)
+        } else {
+            console.log("Unable to attack. Either not enough AP, Fatigue, or Ammo")
+        }
     }
 
     getAttackLocation() {
