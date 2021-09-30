@@ -32,9 +32,11 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.setWeapons(config.weapons)
         this.setArmor(config.armor)
-        this.setInventory(config.inventory)
+        //this.setInventory(config.inventory)
 
         this.active_weapon_key = Object.keys(this.weapons)[0]
+        console.log(this.weapons)
+        console.log(this.active_weapon_key)
         this.selected_attack_key = Object.keys(this.weapons[this.active_weapon_key].attacks)[0]
 
         config.scene.add.existing(this);
@@ -197,11 +199,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     setWeapons(weapons) {
-        if(weapons) {
+        if(weapons && Object.keys(weapons).length > 0) {
             this.weapons = weapons
         } else {
             this.weapons = { "unarmed": { 
-                    name: "Unarmed",    
+                    name: "Unarmed",
+                    value: 0,
+                    primary_skill: "unarmed",
                     uses_ammo: false,
                     ammo_type: null,
                     ammo: [],

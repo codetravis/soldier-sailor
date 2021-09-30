@@ -1,5 +1,6 @@
 import EventDispatcher from '../classes/eventDispatcher.js'
 import Soldier from '../classes/soldier.js'
+import SoldierFactory from '../classes/soldierFactory.js'
 import ShipMaps from '../classes/shipMaps.js'
 import Pathfinder from '../classes/pathfinder.js'
 import FovShadow from '../classes/fovShadow.js'
@@ -82,7 +83,8 @@ class BattleScene extends Phaser.Scene {
             }
         }
 
-        this.player_soldier = new Soldier({
+        let soldier_factory = new SoldierFactory()
+        this.player_soldier = soldier_factory.createNewSoldier({
             scene: this, 
             x: this.boarding_start_col * this.tile_size + this.map_x_offset, 
             y: this.boarding_start_row * this.tile_size + this.map_y_offset, 
@@ -92,16 +94,11 @@ class BattleScene extends Phaser.Scene {
             tile_size: this.tile_size,
             facing: 4,
             team: 1,
-            attributes: {
-                brains: 2,
-                senses: 3,
-                spirit: 3,
-                core: 2,
-                limbs: 3,
-                hands: 2,
-                build: 3
-            }
+            background: 'soldier',
+            level: 1,
+            equipment_value: 500
         })
+        console.log(this.player_soldier)
 
         this.playerVision = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
         this.playerVision.getVisibleTiles(this.player_soldier, true)
