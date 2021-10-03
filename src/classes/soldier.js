@@ -22,7 +22,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.fatigue = 0
         this.ap = 0
         this.health = {
-            head: 20,
+            head: 30,
             torso: 100,
             right_arm: 40,
             left_arm: 40,

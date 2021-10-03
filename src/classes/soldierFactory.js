@@ -165,7 +165,7 @@ class SoldierFactory {
             assigned_weapon = 'makeshift_rifle'
         }
         if(background === 'soldier') {
-            assigned_weapon = 'makeshift_rifle'
+            assigned_weapon = 'stinger_smg'
         }
         if(background === 'kickbocker') {
             assigned_weapon = null

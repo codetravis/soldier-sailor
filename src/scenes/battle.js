@@ -83,6 +83,11 @@ class BattleScene extends Phaser.Scene {
             }
         }
 
+        this.teams = [
+                [],
+                [],
+                []
+        ]
         let soldier_factory = new SoldierFactory()
         this.player_soldier = soldier_factory.createNewSoldier({
             scene: this, 
@@ -98,6 +103,7 @@ class BattleScene extends Phaser.Scene {
             level: 1,
             equipment_value: 500
         })
+        this.teams[1].push(this.player_soldier)
         console.log(this.player_soldier)
 
         this.playerVision = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
@@ -106,7 +112,7 @@ class BattleScene extends Phaser.Scene {
         this.movement_squares = []
         this.attack_squares = []
         this.enemies = []
-        this.enemies.push(
+        this.teams[2].push(
             new Soldier({
                 scene: this, 
                 x: this.captain_start_col * this.tile_size + this.map_x_offset, 
@@ -150,6 +156,22 @@ class BattleScene extends Phaser.Scene {
                 }
             })
         )
+
+        this.teams[2].push(soldier_factory.createNewSoldier({
+                scene: this, 
+                x: this.engineer_start_col * this.tile_size + this.map_x_offset, 
+                y: this.engineer_start_row * this.tile_size + this.map_y_offset, 
+                key: 'default_enemy_soldier', 
+                map_x_offset: this.map_x_offset,
+                map_y_offset: this.map_y_offset,
+                tile_size: this.tile_size,
+                facing: 4,
+                team: 2,
+                background: 'farmer',
+                level: 2,
+                equipment_value: 500
+            })
+        )
         
         this.changeDisplay(this.playerVision.map_tiles)
         this.pathfinder = new Pathfinder(this.map)
@@ -185,8 +207,8 @@ class BattleScene extends Phaser.Scene {
             this.active_team = 2 
         } else {
             this.active_team = 1
-            this.player_soldier.beginNewTurn()
         }
+        this.teams[this.active_team][0].beginNewTurn()
     }
 
     performMovement() {
@@ -330,9 +352,10 @@ class BattleScene extends Phaser.Scene {
     }
 
     isEnemyOnTile(tile) {
-        for(let i = 0; i < this.enemies.length; i++) {
-            let enemy = this.enemies[i]
-            if(enemy.map_tile.x === tile.x && enemy.map_tile.y === tile.y) {
+        let units = this.teams.flat()
+        for(let i = 0; i < units.length; i++) {
+            let unit = units[i]
+            if(unit.map_tile.x === tile.x && unit.map_tile.y === tile.y && unit.team !== this.active_team) {
                 return true
             }
         }
@@ -341,10 +364,11 @@ class BattleScene extends Phaser.Scene {
     }
 
     getEnemyOnTile(tile) {
-        for(let i = 0; i < this.enemies.length; i++) {
-            let enemy = this.enemies[i]
-            if(enemy.map_tile.x === tile.x && enemy.map_tile.y === tile.y) {
-                return enemy
+        let units = this.teams.flat()
+        for(let i = 0; i < units.length; i++) {
+            let unit = units[i]
+            if(unit.map_tile.x === tile.x && unit.map_tile.y === tile.y && unit.team !== this.active_team) {
+                return unit
             }
         }
 
