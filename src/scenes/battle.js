@@ -208,7 +208,12 @@ class BattleScene extends Phaser.Scene {
         } else {
             this.active_team = 1
         }
-        this.teams[this.active_team][0].beginNewTurn()
+        this.teams[this.active_team].forEach(function(unit) {
+            unit.beginNewTurn()
+        })
+        this.cleanUpMovementSquares()
+        this.cleanUpAttackSquares()
+        this.active_box.setAlpha(0)
     }
 
     performMovement() {
