@@ -49,7 +49,7 @@ class BattleScene extends Phaser.Scene {
             this.hit_locations_sum += this.hit_locations_by_weight[location]
         }.bind(this))
 
-        this.map = new ShipMaps().maps["test_map"]
+        this.map = new ShipMaps().maps["terran_cruiser"]
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
@@ -203,6 +203,7 @@ class BattleScene extends Phaser.Scene {
 
     endTurn() {
         console.log("ending turn")
+        this.playerVision.markAllHidden()
         if(this.active_team == 1) {
             this.active_team = 2 
         } else {
@@ -210,10 +211,12 @@ class BattleScene extends Phaser.Scene {
         }
         this.teams[this.active_team].forEach(function(unit) {
             unit.beginNewTurn()
-        })
+            this.playerVision.getVisibleTiles(unit, false)
+        }.bind(this))
         this.cleanUpMovementSquares()
         this.cleanUpAttackSquares()
         this.active_box.setAlpha(0)
+        this.changeDisplay(this.playerVision.map_tiles)
     }
 
     performMovement() {
@@ -223,7 +226,10 @@ class BattleScene extends Phaser.Scene {
             this.active_soldier.moveSoldierTowardTargetPoint({ x: this.tile_size * (target_point.x) + this.map_x_offset, y: this.tile_size * (target_point.y) + this.map_y_offset})
             if((this.active_soldier.x === target_point.x * this.tile_size + this.map_x_offset && this.active_soldier.y === target_point.y * this.tile_size + this.map_y_offset) && this.move_path.length > 0) {
                 this.move_path.shift()
-                this.playerVision.getVisibleTiles(this.active_soldier, true)
+                this.playerVision.markAllHidden()
+                this.teams[this.active_team].forEach(function(unit) {
+                    this.playerVision.getVisibleTiles(unit, false)
+                }.bind(this))
                 this.changeDisplay(this.playerVision.map_tiles)
                 this.active_soldier.applyMovementStatChange()
             }
@@ -396,15 +402,21 @@ class BattleScene extends Phaser.Scene {
                 this.map_tiles[key].setAlpha(0)
             }
         }.bind(this))
-        this.enemies.forEach(function(enemy) {
-            let unit_map_coords = this.getUnitMapCoordinates(enemy)
-            let key = `${unit_map_coords.x}_${unit_map_coords.y}`
-            if(visible_tiles[key] && visible_tiles[key].is_visible) {
-                enemy.setAlpha(1)
+        let units = this.teams.flat()
+        for(let i = 0; i < units.length; i++) {
+            let unit = units[i]
+            if(unit.team !== this.active_team) {
+                let unit_map_coords = this.getUnitMapCoordinates(unit)
+                let key = `${unit_map_coords.x}_${unit_map_coords.y}`
+                if(visible_tiles[key] && visible_tiles[key].is_visible) {
+                    unit.setAlpha(1)
+                } else {
+                    unit.setAlpha(0)
+                }
             } else {
-                enemy.setAlpha(0)
+                unit.setAlpha(1)
             }
-        }.bind(this))
+        }
     }
 
     getUnitMapCoordinates(unit) {
