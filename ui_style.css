@@ -1,9 +1,44 @@
-#battle-ui {
-    position: absolute;
-    top: 80%;
-    left: 75%;
+
+#main-view {
+    display: grid;
+    grid-template-columns: repeat(12, 100px);
+    grid-template-rows: 100px;
+
+}
+
+.action-button {
+    border: none;
+    color: white;
+    background-color: #008cba;
+    padding: 15px 32px;
+    border-radius: 9px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+#show-attacks {
+    background-color: #aa0f0f;
 }
 
 #game-div {
-    margin-left: 10%;
+    grid-column: 2 / 10;
+    grid-row: 1 / 6
+}
+
+#battle-ui {
+    background-color: #555555;
+    grid-column: 2 / 12;
+    grid-row: 6 / 8;
+    display: none;
+}
+
+#info-ui {
+    background-color: #555555;
+    grid-column: 10 / 12;
+    grid-row: 1 / 6;
+    display: none;
 }

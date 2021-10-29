@@ -15,6 +15,9 @@ class BattleScene extends Phaser.Scene {
     }
 
     create() {
+        // make HUD / GUI visible
+        document.getElementById('battle-ui').style.display = 'block'
+        document.getElementById('info-ui').style.display = 'block'
         this.tile_size = 32
         this.active_team = 1
         this.active_box = this.add.image(0, 0, 'active_box')
@@ -176,29 +179,43 @@ class BattleScene extends Phaser.Scene {
         this.changeDisplay(this.playerVision.map_tiles)
         this.pathfinder = new Pathfinder(this.map)
         this.move_path = []
-        //this.move_path = this.pathfinder.aStar({x: this.boarding_start_col, y: this.boarding_start_row}, {x: this.weapons_start_col, y: this.weapons_start_row})
+
+        // add camera, controls and boundaries
+        this.cameras.main.setViewport(0, 0, 800, 500);
+        this.cameras.main.setBounds(-100, -100, this.map_width * 34 + 100, this.map_height * 34 + 200);
+
+        this.mainCameraControls = new Phaser.Cameras.Controls.FixedKeyControl({
+            camera: this.cameras.main,
+            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+            speed: 1.0
+        });
+        this.mainCameraControls.start();
 
         this.emitter = EventDispatcher.getInstance();
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
         this.emitter.on('ATTACK_CLICKED', this.performAttack.bind(this))
-        document.getElementById('endTurn').onclick = function() {
+        document.getElementById('end-turn').onclick = function() {
             this.endTurn()
         }.bind(this)
 
-        document.getElementById('showAttacks').onclick = function () {
+        document.getElementById('show-attacks').onclick = function () {
             this.showSoldierAttacks()
         }.bind(this)
 
-        document.getElementById('changeAttack').onclick = function () {
+        document.getElementById('change-attack').onclick = function () {
             this.changeActiveSoldierAttack()
         }.bind(this)
     }
 
-    update() {
+    update(time, delta) {
         if(this.active_soldier && this.move_path.length >= 1 && this.active_soldier.movement_remaining > 0) {
             this.performMovement()
         }
+        this.mainCameraControls.update(delta);
     }
 
     endTurn() {
