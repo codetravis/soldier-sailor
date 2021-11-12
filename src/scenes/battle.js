@@ -260,6 +260,10 @@ class BattleScene extends Phaser.Scene {
             this.active_box.setY(this.active_soldier.y)
             this.active_box.setAlpha(1)
             this.active_box.setDepth(5)
+            console.log(this.active_soldier.texture.getSourceImage(0).src)
+            let img_div = document.getElementById('info-img')
+            img_div.replaceChildren()
+            img_div.appendChild(this.active_soldier.texture.getSourceImage(0))
             this.showSoldierMovement(soldier)
         }
     }

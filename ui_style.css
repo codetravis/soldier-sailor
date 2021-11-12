@@ -42,3 +42,8 @@
     grid-row: 1 / 6;
     display: none;
 }
+
+#info-img {
+    max-width: 90%;
+    max-height: 100px;
+}
