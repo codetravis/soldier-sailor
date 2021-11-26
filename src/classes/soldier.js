@@ -93,6 +93,10 @@ class Soldier extends Phaser.GameObjects.Sprite {
         return attack.range || 0
     }
 
+    getActiveWeapon() {
+        return this.weapons[this.active_weapon_key]
+    }
+
     getSelectedAttack() {
         let attack = this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
         let modifier = this.skills[attack.skill]
@@ -335,6 +339,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.ap = 10
         // apply buffs
         // apply debuffs
+    }
+
+    rest() {
+        if(this.ap > 1) {
+            this.fatigue = Math.max(0, this.fatigue - this.fatigue_recovery * this.ap)
+            this.ap = 0
+        }
     }
 
 }

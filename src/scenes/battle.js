@@ -214,6 +214,7 @@ class BattleScene extends Phaser.Scene {
     update(time, delta) {
         if(this.active_soldier && this.move_path.length >= 1 && this.active_soldier.movement_remaining > 0) {
             this.performMovement()
+            this.setInfoPanelForSoldier(this.active_soldier)
         }
         this.mainCameraControls.update(delta);
     }
@@ -260,12 +261,42 @@ class BattleScene extends Phaser.Scene {
             this.active_box.setY(this.active_soldier.y)
             this.active_box.setAlpha(1)
             this.active_box.setDepth(5)
-            console.log(this.active_soldier.texture.getSourceImage(0).src)
-            let img_div = document.getElementById('info-img')
-            img_div.replaceChildren()
-            img_div.appendChild(this.active_soldier.texture.getSourceImage(0))
             this.showSoldierMovement(soldier)
         }
+        this.setInfoPanelForSoldier(soldier)
+    }
+
+    setInfoPanelForSoldier(soldier) {
+        console.log(soldier.texture.getSourceImage(0).src)
+        let img_div = document.getElementById('info-img')
+        img_div.replaceChildren()
+        img_div.appendChild(soldier.texture.getSourceImage(0))
+
+        let description = document.createElement("p")
+        description.innerText = "AP: " + soldier.ap + " | Fatigue: " + soldier.fatigue + "/" + soldier.max_fatigue
+        let weapon_info = document.createElement("p")
+        weapon_info.innerText = "Selected Weapon: " + soldier.getActiveWeapon().name
+        let attack_info = document.createElement("ul")
+        let attack_name = document.createElement("li")
+        let selected_attack = soldier.getSelectedAttack()
+        attack_name.innerText = "Selected Attack: " + soldier.selected_attack_key
+        attack_info.appendChild(attack_name)
+        let attack_range = document.createElement("li")
+        attack_range.innerText = "Range: " + selected_attack.range
+        attack_info.appendChild(attack_range)
+        let attack_cost = document.createElement("li")
+        attack_cost.innerText = "Cost: AP-" + selected_attack.ap_cost + " | Fatigue-" + selected_attack.fatigue_cost 
+        attack_info.appendChild(attack_cost)
+        let attack_damage = document.createElement("li")
+        attack_damage.innerText = "Damage: " + selected_attack.base_damage + " " + selected_attack.damage_type
+        attack_info.appendChild(attack_damage)
+
+
+        let info_detail = document.getElementById('info-detail')
+        info_detail.replaceChildren()
+        info_detail.appendChild(description)
+        info_detail.appendChild(weapon_info)
+        info_detail.appendChild(attack_info)
     }
 
     showSoldierMovement(soldier) {
@@ -332,6 +363,7 @@ class BattleScene extends Phaser.Scene {
             target.applyDamage(attack, hit_location)
             this.active_soldier.payAttackCost()
             console.log(target.health)
+            this.setInfoPanelForSoldier(this.active_soldier)
         } else {
             console.log("Unable to attack. Either not enough AP, Fatigue, or Ammo")
         }
@@ -361,6 +393,7 @@ class BattleScene extends Phaser.Scene {
     changeActiveSoldierAttack() {
         if(this.active_soldier) {
             this.active_soldier.changeAttackMode()
+            this.setInfoPanelForSoldier(this.active_soldier)
             console.log(this.active_soldier.selected_attack_key)
         }
     }
