@@ -16,8 +16,11 @@ class BattleScene extends Phaser.Scene {
 
     create() {
         // make HUD / GUI visible
-        document.getElementById('battle-ui').style.display = 'block'
+        document.getElementById('control-ui').style.display = 'block'
         document.getElementById('info-ui').style.display = 'block'
+
+        this.buildControlUI()
+
         this.tile_size = 32
         this.active_team = 1
         this.active_box = this.add.image(0, 0, 'active_box')
@@ -219,6 +222,24 @@ class BattleScene extends Phaser.Scene {
         this.mainCameraControls.update(delta);
     }
 
+    buildControlUI() {
+        let ui_block = document.getElementById('control-ui')
+        ui_block.replaceChildren()
+        ui_block.appendChild(this.createUIActionButton("change-weapon", "Change Weapon"))
+        ui_block.appendChild(this.createUIActionButton("change-attack", "Change Attack Mode"))
+        ui_block.appendChild(this.createUIActionButton("show-attacks", "Attack"))
+        ui_block.appendChild(this.createUIActionButton("end-turn", "End Turn >>"))
+    }
+
+    createUIActionButton(identifier, text) {
+        let button = document.createElement("button")
+        button.setAttribute("class", "action-button")
+        button.setAttribute("id", identifier)
+        button.setAttribute("name", identifier)
+        button.innerText = text
+        return button
+    }
+
     endTurn() {
         console.log("ending turn")
         this.playerVision.markAllHidden()
@@ -267,7 +288,6 @@ class BattleScene extends Phaser.Scene {
     }
 
     setInfoPanelForSoldier(soldier) {
-        console.log(soldier.texture.getSourceImage(0).src)
         let img_div = document.getElementById('info-img')
         img_div.replaceChildren()
         img_div.appendChild(soldier.texture.getSourceImage(0))

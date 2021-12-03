@@ -7,8 +7,23 @@ class MainMenuScene extends Phaser.Scene {
     }
 
     create() {
-        this.add.sprite( 32, 32, 'default_soldier')
-        console.log("MainMenuScene")
+        let ui_block = document.getElementById('control-ui')
+        ui_block.style.display = 'block'
+        let button = document.createElement("button")
+        button.setAttribute("class", "action-button")
+        button.setAttribute("id", "start-battle")
+        button.setAttribute("name","start-battle")
+        button.innerText = "Start Battle"
+        ui_block.replaceChildren()
+        ui_block.appendChild(button)
+        
+
+        document.getElementById('start-battle').onclick = function() {
+            this.startBattle()
+        }.bind(this)
+    }
+
+    startBattle() {
         this.scene.start('BattleScene')
     }
 
