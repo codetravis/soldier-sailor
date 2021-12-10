@@ -24,9 +24,8 @@ class MainMenuScene extends Phaser.Scene {
     }
 
     startBattle() {
-        this.scene.start('BattleScene')
+        this.scene.start('BattleScene', {})
     }
 
 }
-
 export default MainMenuScene

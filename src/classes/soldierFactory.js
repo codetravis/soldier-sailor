@@ -15,12 +15,16 @@ class SoldierFactory {
         let skills = this.createRandomSkills(config.level, background)
         let attributes = this.createRandomAttributes(config.level, background)
         let equipment = this.createEquipment(config.equipment_value, background)
+        let key = 'default_soldier'
+        if(config.key) {
+            key = config.key
+        }
 
         let soldier = new Soldier({
             scene: config.scene,
             x: config.x, 
             y: config.y, 
-            key: 'default_soldier', 
+            key: key, 
             map_x_offset: config.map_x_offset,
             map_y_offset: config.map_y_offset,
             tile_size: config.tile_size,

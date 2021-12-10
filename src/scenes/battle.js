@@ -11,6 +11,15 @@ class BattleScene extends Phaser.Scene {
         super({ key: 'BattleScene', active: false })
     }
 
+    init(data) {
+        if(data.soldiers) {
+            this.default_soldiers = false
+            this.soldier_templates = data.soldiers
+        } else {
+            this.default_soldiers = true
+        }
+    }
+
     preload() {
     }
 
@@ -59,6 +68,8 @@ class BattleScene extends Phaser.Scene {
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
+        this.defender_start_positions = {}
+        this.attacker_start_positions = []
         for(let row = 0; row < this.map.length; row++) {
             let tile_color = 0x333333
             for(let col = 0; col < this.map[row].length; col++) {
@@ -68,19 +79,15 @@ class BattleScene extends Phaser.Scene {
                     tile_color = 0xffffff
                 } else if (cell_type === 2) {
                     tile_color = 0x0000ff
-                    this.captain_start_col = col
-                    this.captain_start_row = row
+                    this.defender_start_positions["captain"] = { x: col, y: row }
                 } else if (cell_type === 3) {
                     tile_color = 0x00ff00
-                    this.engineer_start_row = row
-                    this.engineer_start_col = col
+                    this.defender_start_positions["engineer"] = { x: col, y: row }
                 } else if (cell_type === 4) {
                     tile_color = 0xff0000
-                    this.weapons_start_col = col
-                    this.weapons_start_row = row
+                    this.defender_start_positions["weapons"] = { x: col, y: row }
                 } else if (cell_type === 7) {
-                    this.boarding_start_col = col
-                    this.boarding_start_row = row
+                    this.attacker_start_positions.push({ x: col, y: row })
                     tile_color = 0x777777
                 }
 
@@ -95,89 +102,132 @@ class BattleScene extends Phaser.Scene {
                 []
         ]
         let soldier_factory = new SoldierFactory()
-        this.player_soldier = soldier_factory.createNewSoldier({
-            scene: this, 
-            x: this.boarding_start_col * this.tile_size + this.map_x_offset, 
-            y: this.boarding_start_row * this.tile_size + this.map_y_offset, 
-            key: 'default_soldier', 
-            map_x_offset: this.map_x_offset,
-            map_y_offset: this.map_y_offset,
-            tile_size: this.tile_size,
-            facing: 4,
-            team: 1,
-            background: 'soldier',
-            level: 1,
-            equipment_value: 500
-        })
-        this.teams[1].push(this.player_soldier)
-        console.log(this.player_soldier)
+        if(this.default_soldiers) {
+            this.player_soldier = soldier_factory.createNewSoldier({
+                scene: this, 
+                x: this.attacker_start_positions[0].x * this.tile_size + this.map_x_offset, 
+                y: this.attacker_start_positions[0].y * this.tile_size + this.map_y_offset, 
+                key: 'default_soldier', 
+                map_x_offset: this.map_x_offset,
+                map_y_offset: this.map_y_offset,
+                tile_size: this.tile_size,
+                facing: 4,
+                team: 1,
+                background: 'soldier',
+                level: 1,
+                equipment_value: 500
+            })
+            this.teams[1].push(this.player_soldier)
+        } else {
+            this.soldier_templates["1"].forEach( (background, index) => {
+                this.teams[1].push(
+                    soldier_factory.createNewSoldier({
+                        scene: this, 
+                        x: this.attacker_start_positions[index].x * this.tile_size + this.map_x_offset, 
+                        y: this.attacker_start_positions[index].y * this.tile_size + this.map_y_offset, 
+                        key: 'default_soldier',
+                        map_x_offset: this.map_x_offset,
+                        map_y_offset: this.map_y_offset,
+                        tile_size: this.tile_size,
+                        facing: 4,
+                        team: 1,
+                        background: background,
+                        level: 1,
+                        equipment_value: 500
+                    })
+                )
+            })
+        }
 
         this.playerVision = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
-        this.playerVision.getVisibleTiles(this.player_soldier, true)
+        this.playerVision.getVisibleTiles(this.teams[1][0], true)
         this.unitMovement = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
         this.movement_squares = []
         this.attack_squares = []
-        this.enemies = []
-        this.teams[2].push(
-            new Soldier({
-                scene: this, 
-                x: this.captain_start_col * this.tile_size + this.map_x_offset, 
-                y: this.captain_start_row * this.tile_size + this.map_y_offset, 
-                key: 'default_enemy_soldier', 
-                map_x_offset: this.map_x_offset,
-                map_y_offset: this.map_y_offset,
-                tile_size: this.tile_size,
-                facing: 4,
-                team: 2,
-                attributes: {
-                    brains: 2,
-                    senses: 3,
-                    spirit: 3,
-                    core: 2,
-                    limbs: 3,
-                    hands: 2,
-                    build: 3
-                },
-                armor: {
-                    torso: {
-                        durability: 30,
-                        max_durability: 30,
-                        coverage: 50,
-                        ballistic: 10,
-                        ablative: 0,
-                        padded: 30,
-                        buffs: {},
-                        defuffs: {}
-                    },
-                    left_arm: {
-                        durability: 10,
-                        max_durability: 10,
-                        coverage: 40,
-                        ballistic: 10,
-                        ablative: 0,
-                        padded: 30,
-                        buffs: {},
-                        defuffs: {}
-                    },
-                }
-            })
-        )
 
-        this.teams[2].push(soldier_factory.createNewSoldier({
-                scene: this, 
-                x: this.engineer_start_col * this.tile_size + this.map_x_offset, 
-                y: this.engineer_start_row * this.tile_size + this.map_y_offset, 
-                key: 'default_enemy_soldier', 
-                map_x_offset: this.map_x_offset,
-                map_y_offset: this.map_y_offset,
-                tile_size: this.tile_size,
-                facing: 4,
-                team: 2,
-                background: 'farmer',
-                level: 2,
-                equipment_value: 500
+        if(this.default_soldiers) {
+            this.teams[2].push(
+                new Soldier({
+                    scene: this, 
+                    x: this.defender_start_positions["captain"].x * this.tile_size + this.map_x_offset, 
+                    y: this.defender_start_positions["captain"].y * this.tile_size + this.map_y_offset, 
+                    key: 'default_enemy_soldier', 
+                    map_x_offset: this.map_x_offset,
+                    map_y_offset: this.map_y_offset,
+                    tile_size: this.tile_size,
+                    facing: 4,
+                    team: 2,
+                    attributes: {
+                        brains: 2,
+                        senses: 3,
+                        spirit: 3,
+                        core: 2,
+                        limbs: 3,
+                        hands: 2,
+                        build: 3
+                    },
+                    armor: {
+                        torso: {
+                            durability: 30,
+                            max_durability: 30,
+                            coverage: 50,
+                            ballistic: 10,
+                            ablative: 0,
+                            padded: 30,
+                            buffs: {},
+                            defuffs: {}
+                        },
+                        left_arm: {
+                            durability: 10,
+                            max_durability: 10,
+                            coverage: 40,
+                            ballistic: 10,
+                            ablative: 0,
+                            padded: 30,
+                            buffs: {},
+                            defuffs: {}
+                        },
+                    }
+                })
+            )
+
+            this.teams[2].push(soldier_factory.createNewSoldier({
+                    scene: this, 
+                    x: this.defender_start_positions["engineer"].x * this.tile_size + this.map_x_offset, 
+                    y: this.defender_start_positions["engineer"].y * this.tile_size + this.map_y_offset,
+                    key: 'default_enemy_soldier',
+                    map_x_offset: this.map_x_offset,
+                    map_y_offset: this.map_y_offset,
+                    tile_size: this.tile_size,
+                    facing: 4,
+                    team: 2,
+                    background: 'farmer',
+                    level: 2,
+                    equipment_value: 500
+                })
+            )
+        } else {
+            const positions = Object.keys(this.defender_start_positions)
+            this.soldier_templates["2"].forEach( (background, index) => {
+                
+                this.teams[2].push(
+                    soldier_factory.createNewSoldier({
+                        scene: this,
+                        x: this.defender_start_positions[positions[index]].x * this.tile_size + this.map_x_offset, 
+                        y: this.defender_start_positions[positions[index]].y * this.tile_size + this.map_y_offset, 
+                        key: 'default_enemy_soldier', 
+                        map_x_offset: this.map_x_offset,
+                        map_y_offset: this.map_y_offset,
+                        tile_size: this.tile_size,
+                        facing: 4,
+                        team: 1,
+                        background: background,
+                        level: 1,
+                        equipment_value: 500
+                    })
+                )
             })
-        )
+        }
         
         this.changeDisplay(this.playerVision.map_tiles)
         this.pathfinder = new Pathfinder(this.map)
