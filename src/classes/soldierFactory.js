@@ -12,8 +12,9 @@ class SoldierFactory {
 
     createNewSoldier(config) {
         let background = config.background || ''
+        let race = config.race || 'human'
         let skills = this.createRandomSkills(config.level, background)
-        let attributes = this.createRandomAttributes(config.level, background)
+        let attributes = this.createRandomAttributes(config.level, background, race)
         let equipment = this.createEquipment(config.equipment_value, background)
         let key = 'default_soldier'
         if(config.key) {
@@ -30,8 +31,9 @@ class SoldierFactory {
             tile_size: config.tile_size,
             facing: config.facing,
             team: config.team,
+            race: race,
             skills: skills, 
-            attributes: attributes, 
+            attributes: attributes,
             weapons: equipment.weapons 
         })
         return soldier
@@ -124,22 +126,35 @@ class SoldierFactory {
         return skills
     }
 
-    createRandomAttributes(level) {
+    createRandomAttributes(level, background, race) {
         let attributes = {}
         let max_points = 20 + Math.floor(level/5)
-        attributes.brains = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
+
+        let base_brains = race == 'goblin' ? 1 : 0
+        attributes.brains = base_brains + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
         max_points -= attributes.brains
-        attributes.senses = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
+
+        let base_senses = race == 'elf' ? 1 : 0
+        attributes.senses = base_senses + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
         max_points -= attributes.senses
-        attributes.spirit = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
+
+        let base_spirit = race == 'dwarf' ? 1 : 0;
+        attributes.spirit = base_spirit + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
         max_points -= attributes.spirit
-        attributes.core = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
+
+        let base_core = race == 'dwarf' ? 1 : 0
+        attributes.core = base_core + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
         max_points -= attributes.core
+
         attributes.limbs = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
         max_points -= attributes.limbs
-        attributes.hands = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
+
+        let base_hands = race == 'elf' ? 1 : 0
+        attributes.hands = base_hands + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
         max_points -= attributes.hands
-        attributes.build = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
+
+        let base_build = race == 'orc' ? 1 : 0
+        attributes.build = base_build + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
         return attributes
     }
 

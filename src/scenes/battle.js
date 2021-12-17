@@ -113,6 +113,7 @@ class BattleScene extends Phaser.Scene {
                 tile_size: this.tile_size,
                 facing: 4,
                 team: 1,
+                race: 'dwarf',
                 background: 'soldier',
                 level: 1,
                 equipment_value: 500
@@ -157,6 +158,7 @@ class BattleScene extends Phaser.Scene {
                     tile_size: this.tile_size,
                     facing: 4,
                     team: 2,
+                    race: 'orc',
                     attributes: {
                         brains: 2,
                         senses: 3,
@@ -201,6 +203,7 @@ class BattleScene extends Phaser.Scene {
                     tile_size: this.tile_size,
                     facing: 4,
                     team: 2,
+                    race: 'goblin',
                     background: 'farmer',
                     level: 2,
                     equipment_value: 500

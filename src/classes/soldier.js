@@ -11,7 +11,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.setMapTile()
 
         this.team = config.team
-
+        this.race = config.race
         this.setAllAttributes(config.attributes)
         this.setAllSkills(config.skills)
         this.setEffectiveStats()
@@ -21,14 +21,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.fatigue = 0
         this.ap = 0
-        this.health = {
-            head: 30,
-            torso: 100,
-            right_arm: 40,
-            left_arm: 40,
-            right_leg: 60,
-            left_leg: 60
-        }
+        this.set_health_by_race()
 
         this.setWeapons(config.weapons)
         this.setArmor(config.armor)
@@ -44,12 +37,43 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.on('pointerdown', this.clicked, this);
     }
 
+    set_health_by_race() {
+        this.health = {
+            head: 30 + (1 * this.attributes.build),
+            torso: 100 + (1 * this.attributes.core) + (3 * this.attributes.build),
+            right_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
+            left_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
+            right_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
+            left_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build)
+        }
+        if(this.race == "orc") {
+            this.mod_health(5)
+        } else if(this.race == "goblin") {
+            this.mod_health(-5)
+        } else if(this.race == "dwarf") {
+            this.mod_health(2)
+        } else if(this.race == "elf") {
+            this.mod_health(-2)
+        }
+    }
+
+    mod_health(amount) {
+        Object.keys(this.health).forEach((key) => {
+            this.health[key] += amount
+        })
+    }
+
     clicked() {
         this.emitter = EventDispatcher.getInstance();
         this.emitter.emit("SOLDIER_CLICKED", this);
     }
 
     moveSoldierTowardTargetPoint(target) {
+        if(this.fatigue >= this.max_fatigue) {
+            console.log("Too tired to move")
+            this.movement_remaining = 0
+        }
+
         if(this.movement_remaining > 0) {
             if(target.x > this.x) {
                 this.x = this.x + 2
