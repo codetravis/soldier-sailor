@@ -329,6 +329,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     setActiveSoldier(soldier) {
+        this.move_path = []
         if(soldier.team == this.active_team) {
             this.active_soldier = soldier
             this.active_box.setX(this.active_soldier.x)
