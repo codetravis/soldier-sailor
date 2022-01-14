@@ -131,7 +131,11 @@ class Soldier extends Phaser.GameObjects.Sprite {
             attack.damage = attack.base_damage
         }
 
-        attack.accuracy = attack.base_accuracy + this.skills[modifier]
+        attack.accuracy = attack.base_accuracy
+        let skill_modifier = parseInt(this.skills[modifier])
+        if(!isNaN(skill_modifier)) {
+            attack.accuracy += skill_modifier
+        }
         return attack
     }
 

@@ -61,7 +61,8 @@ class Pathfinder {
     }
 
     isFreeTile(x, y) {
-        if(this.map[y][x] === 0) {
+        let tile = this.map[y][x]
+        if( tile === 0 || tile === 8 || tile === 9) {
             return false
         }
         return true

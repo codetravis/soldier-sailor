@@ -64,7 +64,7 @@ class BattleScene extends Phaser.Scene {
             this.hit_locations_sum += this.hit_locations_by_weight[location]
         }.bind(this))
 
-        this.map = new ShipMaps().maps["terran_cruiser"]
+        this.map = new ShipMaps().maps["test_map"]
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
@@ -89,6 +89,12 @@ class BattleScene extends Phaser.Scene {
                 } else if (cell_type === 7) {
                     this.attacker_start_positions.push({ x: col, y: row })
                     tile_color = 0x777777
+                } else if (cell_type === 8) {
+                    // half cover
+                    tile_color = 0x2a2a00
+                } else if (cell_type === 9) {
+                    // full cover
+                    tile_color = 0x2a002a
                 }
 
                 this.map_tiles[col + "_" + row] = this.add.rectangle(col * this.tile_size + this.map_x_offset, row * this.tile_size + this.map_y_offset, this.tile_size-2, this.tile_size-2, tile_color)
@@ -387,8 +393,9 @@ class BattleScene extends Phaser.Scene {
 
         this.unitMovement.getVisibleTiles(soldier, true)
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
+            let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]
             if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.movement_remaining &&
-                this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x] !== 0 && 
+                target_tile !== 0 && target_tile !== 8 && target_tile !== 9 && 
                 !this.isEnemyOnTile(this.unitMovement.map_tiles[key])) {
                 this.movement_squares.push(new SelectionBox({ 
                         scene: this,
@@ -436,7 +443,23 @@ class BattleScene extends Phaser.Scene {
 
         let attack = this.active_soldier.getSelectedAttack()
         if(this.active_soldier.canPayAttackCost()) {
+            // check if target is in cover
+            let cover = this.checkForCover(this.active_soldier, target)
+            if(cover === "full") {
+                attack.accuracy = attack.accuracy * 0.50
+                console.log("Target in full cover, halfing accuracy")
+            } else if (cover === "half") {
+                attack.accuracy = attack.accuracy * 0.75
+                console.log("Target in half cover, accuracy reduced by 25%")
+            }
+
             // roll for hit
+            let hit_roll = this.randomDiceRoll(100)
+            if(attack.accuracy < hit_roll) {
+                console.log("Attack missed: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)
+                return
+            }
+            console.log("Attack Hit: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)
 
             // if hit, apply damage
             // roll for hit location
@@ -449,6 +472,36 @@ class BattleScene extends Phaser.Scene {
         } else {
             console.log("Unable to attack. Either not enough AP, Fatigue, or Ammo")
         }
+    }
+
+    checkForCover(attacker, defender) {
+        let cover_tile = 1
+        let a_tile = attacker.map_tile
+        let d_tile = defender.map_tile
+
+        let x_diff = Math.abs(a_tile.x - d_tile.x)
+        let y_diff = Math.abs(a_tile.y - d_tile.y)
+        if(x_diff > y_diff && x_diff > 1) {
+            if(a_tile.x > d_tile.x) {
+                cover_tile = this.map[d_tile.x + 1][d_tile.y]
+            } else if (a_tile.x < d_tile.x) {
+                cover_tile = this.map[d_tile.x - 1][d_tile.y]
+            }
+        } else if(y_diff > x_diff && y_diff > 1) {
+            if(a_tile.y > d_tile.y) {
+                cover_tile = this.map[d_tile.x][d_tile.y + 1]
+            } else if (a_tile.y < d_tile.y) {
+                cover_tile = this.map[d_tile.x][d_tile.y - 1]
+            }
+        }
+        console.log("Cover tile: " + d_tile.x + "," + d_tile.y + " is " + cover_tile)
+        if(cover_tile === 8) {
+            return "half"
+        } else if(cover_tile === 0 || cover_tile === 9) {
+            return "full"
+        }
+
+        return "none"
     }
 
     getAttackLocation() {
