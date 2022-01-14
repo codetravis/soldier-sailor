@@ -265,6 +265,10 @@ class BattleScene extends Phaser.Scene {
         document.getElementById('change-attack').onclick = function () {
             this.changeActiveSoldierAttack()
         }.bind(this)
+
+        document.getElementById('soldier-rest').onclick = function () {
+            this.activeSoldierRest()
+        }.bind(this)
     }
 
     update(time, delta) {
@@ -281,14 +285,18 @@ class BattleScene extends Phaser.Scene {
         ui_block.appendChild(this.createUIActionButton("change-weapon", "Change Weapon"))
         ui_block.appendChild(this.createUIActionButton("change-attack", "Change Attack Mode"))
         ui_block.appendChild(this.createUIActionButton("show-attacks", "Attack"))
+        ui_block.appendChild(this.createUIActionButton("soldier-rest", "Rest", "Use remaining AP to recover fatigue"))
         ui_block.appendChild(this.createUIActionButton("end-turn", "End Turn >>"))
     }
 
-    createUIActionButton(identifier, text) {
+    createUIActionButton(identifier, text, help_text) {
         let button = document.createElement("button")
         button.setAttribute("class", "action-button")
         button.setAttribute("id", identifier)
         button.setAttribute("name", identifier)
+        if(help_text) {
+            button.setAttribute("title", help_text)
+        }
         button.innerText = text
         return button
     }
@@ -469,6 +477,14 @@ class BattleScene extends Phaser.Scene {
             this.active_soldier.changeAttackMode()
             this.setInfoPanelForSoldier(this.active_soldier)
             console.log(this.active_soldier.selected_attack_key)
+        }
+    }
+
+    activeSoldierRest() {
+        if(this.active_soldier) {
+            let fatigue_recovered = this.active_soldier.rest()
+            console.log("Soldier recovered " + fatigue_recovered + " fatigue")
+            this.setInfoPanelForSoldier(this.active_soldier)
         }
     }
 

@@ -366,10 +366,14 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     rest() {
+        let fatigue_recovered = Math.min(this.fatigue, Math.round(this.fatigue_recovery/2) * this.ap)
         if(this.ap > 1) {
-            this.fatigue = Math.max(0, this.fatigue - this.fatigue_recovery * this.ap)
+            this.fatigue = Math.max(0, this.fatigue - Math.round(this.fatigue_recovery/2) * this.ap)
             this.ap = 0
+            return fatigue_recovered
         }
+
+        return 0
     }
 
 }
