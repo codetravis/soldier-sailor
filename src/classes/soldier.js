@@ -16,6 +16,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.setAllSkills(config.skills)
         this.setEffectiveStats()
         this.movement_remaining = this.move_speed
+        this.movement_completed = 0
         this.facing = config.facing
         this.angle = this.facing * 45
 
@@ -73,6 +74,9 @@ class Soldier extends Phaser.GameObjects.Sprite {
             console.log("Too tired to move")
             this.movement_remaining = 0
         }
+        if(this.ap < this.nextMoveAPCost()) {
+            console.log("Not enough AP left to move another space")
+        }
 
         if(this.movement_remaining > 0) {
             if(target.x > this.x) {
@@ -108,6 +112,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     beginNewTurn() {
         this.movement_remaining = this.move_speed
+        this.movement_completed = 0
         this.fatigue = Math.max(0, this.fatigue - this.fatigue_recovery)
         this.refreshAP()
     }
@@ -327,8 +332,20 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.move_fatigue_cost = Math.floor(6 - this.attributes.core/30)
     }
 
+    nextMoveAPCost() {
+        // adjust this calculation based off of limbs attribute and buffs / debuffs
+        if(this.movement_completed < 2) {
+            return 0
+        }
+        return 1
+    }
+
     applyMovementStatChange() {
         this.movement_remaining -= 1
+        this.movement_completed += 1
+        
+        let move_cost = this.nextMoveAPCost()
+        this.ap -= move_cost
         this.fatigue += this.move_fatigue_cost
         console.log(this.fatigue)
     }

@@ -31,7 +31,7 @@ class BattleScene extends Phaser.Scene {
         this.buildControlUI()
 
         this.tile_size = 32
-        this.active_team = 1
+        this.active_team = 0
         this.active_box = this.add.image(0, 0, 'active_box')
         this.active_box.setAlpha(0)
         this.map_x_offset = 64
@@ -275,6 +275,9 @@ class BattleScene extends Phaser.Scene {
         document.getElementById('soldier-rest').onclick = function () {
             this.activeSoldierRest()
         }.bind(this)
+
+        // begin game by ending neutral team turn
+        this.endTurn()
     }
 
     update(time, delta) {
