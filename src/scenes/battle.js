@@ -445,12 +445,14 @@ class BattleScene extends Phaser.Scene {
         if(this.active_soldier.canPayAttackCost()) {
             // check if target is in cover
             let cover = this.checkForCover(this.active_soldier, target)
-            if(cover === "full") {
-                attack.accuracy = attack.accuracy * 0.50
-                console.log("Target in full cover, halving accuracy")
-            } else if (cover === "half") {
-                attack.accuracy = attack.accuracy * 0.75
-                console.log("Target in half cover, accuracy reduced by 25%")
+            if(attack.damage_type !== "elemental") {
+                if(cover === "full") {
+                    attack.accuracy = attack.accuracy * 0.50
+                    console.log("Target in full cover, halving accuracy")
+                } else if (cover === "half") {
+                    attack.accuracy = attack.accuracy * 0.75
+                    console.log("Target in half cover, accuracy reduced by 25%")
+                }
             }
 
             // roll for hit

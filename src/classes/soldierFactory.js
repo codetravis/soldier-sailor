@@ -15,7 +15,7 @@ class SoldierFactory {
         let race = config.race || 'human'
         let skills = this.createRandomSkills(config.level, background)
         let attributes = this.createRandomAttributes(config.level, background, race)
-        let equipment = this.createEquipment(config.equipment_value, background)
+        let weapons = this.assignWeapon(background)
         let key = 'default_soldier'
         if(config.key) {
             key = config.key
@@ -34,7 +34,7 @@ class SoldierFactory {
             race: race,
             skills: skills, 
             attributes: attributes,
-            weapons: equipment.weapons 
+            weapons: weapons 
         })
         return soldier
     }
@@ -123,6 +123,11 @@ class SoldierFactory {
             skills.heavy_weapons = this.diceRoller.randomDiceRoll(level)
             skills.recoil_control = this.diceRoller.randomDiceRoll(level)
         }
+        if(background === 'pest_control') {
+            // pest_control has heavy_weapons, herbalist
+            skills.heavy_weapons = 2 + this.diceRoller.randomDiceRoll(level)
+            skills.herbalist = this.diceRoller.randomDiceRoll(level)
+        }
         return skills
     }
 
@@ -158,64 +163,36 @@ class SoldierFactory {
         return attributes
     }
 
-    createEquipment(equipment_value, background) {
+    assignWeapon(background) {
         // security, construction, hacker, farmer, nurse, hunter, soldier, kickboxer,
         // manager, surgeon, duelist, hobbyist, thief, mechanic
         let all_weapons = new Weapons().weapons
-        let assigned_weapon = null
+        let background_weapons = {
+            'security': 'security_baton',
+            'construction': 'heavy_tool',
+            'hacker': 'throwing_knife',
+            'farmer': 'heavy_tool',
+            'nurse': 'combat_knife',
+            'hunter': 'makeshift_rifle',
+            'soldier': 'stinger_smg',
+            'kickboxer': null,
+            'manager': null,
+            'surgeon': 'combat_knife',
+            'duelist': 'makeshift_pistol',
+            'hobbyist': 'makeshift_energy_rifle',
+            'thief': 'combat_knife',
+            'mechanic': 'heavy_tool',
+            'pest_control': 'mini_flamethrower',
+        }
 
-
-        if(background === 'security') {
-            assigned_weapon = 'security_baton'
-        }
-        if(background === 'construction') {
-            assigned_weapon = 'heavy_tool'
-        }
-        if(background === 'hacker') {
-            assigned_weapon = 'throwing_knife'
-        }
-        if(background === 'farmer') {
-            assigned_weapon = 'heavy_tool'
-        }
-        if(background === 'nurse') {
-            assigned_weapon = 'combat_knife'
-        }
-        if(background === 'hunter') {
-            assigned_weapon = 'makeshift_rifle'
-        }
-        if(background === 'soldier') {
-            assigned_weapon = 'stinger_smg'
-        }
-        if(background === 'kickbocker') {
-            assigned_weapon = null
-        }
-        if(background === 'manager') {
-            assigned_weapon = null
-        }
-        if(background === 'surgeon') {
-            assigned_weapon = 'combat_knife'
-        }
-        if(background === 'duelist') {
-            assigned_weapon = 'makeshift_pistol'
-        }
-        if(background === 'hobbyist') {
-            assigned_weapon = 'makeshift_energy_rifle'
-        }
-        if(background === 'thief') {
-            assigned_weapon = 'combat_knife'
-        }
-        if(background === 'mechanic') {
-            assigned_weapon = 'heavy_tool'
-        }
+        let assigned_weapon = background_weapons[background]
 
         let weapons = {}
         if(assigned_weapon) {
             weapons[assigned_weapon] = all_weapons[assigned_weapon]
         }
 
-        return {
-            weapons: weapons,
-        }
+        return  weapons
     }
 
 

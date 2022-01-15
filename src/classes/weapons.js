@@ -343,6 +343,31 @@ class Weapons {
                     damage_type: "blunt",
                 },
             },
+        },
+        "mini_flamethrower": {
+            name: "Mini Flamethrower",
+            value: 300,
+            primary_skill: "heavy_weapons",
+            range: 3,
+            uses_ammo: true,
+            ammo_type: "fuel_cell",
+            ammo: [],
+            max_ammo: 5,
+            reload_ap: 3,
+            attacks: {
+                'stream': {
+                    ap_cost: 3,
+                    base_damage: 20,
+                    range: 3,
+                    base_accuracy: 30,
+                    fatigue_damage: 5, 
+                    fatigue_cost: 2,
+                    max_ammo_used: 1,
+                    skill: "heavy_weapons",
+                    attack_type: "ranged",
+                    damage_type: "elemental",
+                },
+            }
         }
     }
 }
