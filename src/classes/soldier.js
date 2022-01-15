@@ -304,11 +304,8 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     setInventory(inventory) {
-        this.inventory = {}
-        let item_keys = Object.keys(inventory)
-        item_keys.forEach( function(key) {
-            this.inventory[key] = inventory[key]
-        }.bind(this))
+        // Inventory limited to 4 slots for now
+        this.inventory = { 1: inventory[1], 2: inventory[2], 3: inventory[3], 4: inventory[4] }
     }
 
     reloadActiveWeapon() {
