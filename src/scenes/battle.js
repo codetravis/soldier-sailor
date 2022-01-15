@@ -447,7 +447,7 @@ class BattleScene extends Phaser.Scene {
             let cover = this.checkForCover(this.active_soldier, target)
             if(cover === "full") {
                 attack.accuracy = attack.accuracy * 0.50
-                console.log("Target in full cover, halfing accuracy")
+                console.log("Target in full cover, halving accuracy")
             } else if (cover === "half") {
                 attack.accuracy = attack.accuracy * 0.75
                 console.log("Target in half cover, accuracy reduced by 25%")
@@ -482,16 +482,18 @@ class BattleScene extends Phaser.Scene {
         let x_diff = Math.abs(a_tile.x - d_tile.x)
         let y_diff = Math.abs(a_tile.y - d_tile.y)
         if(x_diff > y_diff && x_diff > 1) {
+            console.log("Attacker is to the left or right")
             if(a_tile.x > d_tile.x) {
-                cover_tile = this.map[d_tile.x + 1][d_tile.y]
+                cover_tile = this.map[d_tile.y][d_tile.x + 1]
             } else if (a_tile.x < d_tile.x) {
-                cover_tile = this.map[d_tile.x - 1][d_tile.y]
+                cover_tile = this.map[d_tile.y][d_tile.x - 1]
             }
         } else if(y_diff > x_diff && y_diff > 1) {
+            console.log("Attacker is above or below")
             if(a_tile.y > d_tile.y) {
-                cover_tile = this.map[d_tile.x][d_tile.y + 1]
+                cover_tile = this.map[d_tile.y + 1][d_tile.x]
             } else if (a_tile.y < d_tile.y) {
-                cover_tile = this.map[d_tile.x][d_tile.y - 1]
+                cover_tile = this.map[d_tile.y - 1][d_tile.x]
             }
         }
         console.log("Cover tile: " + d_tile.x + "," + d_tile.y + " is " + cover_tile)

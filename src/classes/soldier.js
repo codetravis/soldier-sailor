@@ -153,7 +153,6 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     applyDamage(attack, location) {
         
-        // TODO: add armor mitigation
         let armor = this.armor[location]
         let fatigue_damage = attack.fatigue_damage
         let damage = attack.base_damage
@@ -319,7 +318,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     setEffectiveStats() {
         // TODO: apply buffs and debuffs
-        this.move_speed = this.attributes.limbs + 1
+        this.move_speed = Math.max(1, this.attributes.limbs + 1)
         this.sight_range = this.attributes.senses * 3 + 1
         this.max_fatigue = this.attributes.core * 5 + 10
         this.fatigue_recovery = this.attributes.core * 2 + 1
