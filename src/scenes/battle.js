@@ -51,10 +51,10 @@ class BattleScene extends Phaser.Scene {
         this.active_soldier = null
 
         this.hit_locations_by_weight =  {
-            head: 5,
-            torso: 45,
-            right_arm: 10,
-            left_arm: 10,
+            head: 6,
+            torso: 40,
+            right_arm: 12,
+            left_arm: 12,
             right_leg: 15,
             left_leg: 15
         }
@@ -91,10 +91,10 @@ class BattleScene extends Phaser.Scene {
                     tile_color = 0x777777
                 } else if (cell_type === 8) {
                     // half cover
-                    tile_color = 0x2a2a00
+                    tile_color = 0xfafa00
                 } else if (cell_type === 9) {
                     // full cover
-                    tile_color = 0x2a002a
+                    tile_color = 0xfa00fa
                 }
 
                 this.map_tiles[col + "_" + row] = this.add.rectangle(col * this.tile_size + this.map_x_offset, row * this.tile_size + this.map_y_offset, this.tile_size-2, this.tile_size-2, tile_color)
@@ -475,6 +475,7 @@ class BattleScene extends Phaser.Scene {
             if(attack.accuracy < hit_roll) {
                 console.log("Attack missed: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)
                 this.active_soldier.payAttackCost()
+                this.setInfoPanelForSoldier(this.active_soldier)
                 return
             }
             console.log("Attack Hit: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)

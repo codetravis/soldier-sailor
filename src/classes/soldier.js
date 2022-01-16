@@ -26,7 +26,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.setWeapons(config.weapons)
         this.setArmor(config.armor)
-        //this.setInventory(config.inventory)
+        this.setInventory(config.inventory)
 
         this.active_weapon_key = Object.keys(this.weapons)[0]
         console.log(this.weapons)
@@ -305,7 +305,14 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     setInventory(inventory) {
         // Inventory limited to 4 slots for now
-        this.inventory = { 1: inventory[1], 2: inventory[2], 3: inventory[3], 4: inventory[4] }
+        this.inventory = { 0: null, 1: null, 2: null, 3: null }
+        if(inventory) {
+            for(let i = 0; i < 4; i++) {
+                if(inventory.hasOwnProperty(i)) {
+                    this.inventory[i] = inventory[i]
+                }
+            }
+        }
     }
 
     reloadActiveWeapon() {
@@ -322,8 +329,8 @@ class Soldier extends Phaser.GameObjects.Sprite {
         // TODO: apply buffs and debuffs
         this.move_speed = Math.max(1, this.attributes.limbs + 1)
         this.sight_range = this.attributes.senses * 2 + 3
-        this.max_fatigue = this.attributes.core * 5 + 10
-        this.fatigue_recovery = this.attributes.core * 2 + 1
+        this.max_fatigue = this.attributes.core * 10 + 10
+        this.fatigue_recovery = this.attributes.core * 3 + 5
         this.max_morale = this.spirit * 5 + 100
         this.morale = this.spirit * 2 + 40
         this.move_fatigue_cost = Math.floor(6 - this.attributes.core/30)

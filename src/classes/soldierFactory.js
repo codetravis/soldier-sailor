@@ -16,6 +16,7 @@ class SoldierFactory {
         let skills = this.createRandomSkills(config.level, background)
         let attributes = this.createRandomAttributes(config.level, background, race)
         let weapons = this.assignWeapon(background)
+        let inventory = this.assignItems(background)
         let key = 'default_soldier'
         if(config.key) {
             key = config.key
@@ -34,7 +35,8 @@ class SoldierFactory {
             race: race,
             skills: skills, 
             attributes: attributes,
-            weapons: weapons 
+            weapons: weapons,
+            inventory: inventory
         })
         return soldier
     }
@@ -196,7 +198,74 @@ class SoldierFactory {
         return  weapons
     }
 
+    assignItems(background) {
+        let items = {}
+        if(background === 'nurse') {
+            items[0] = { 
+                'name': 'Medkit',
+                'type': 'heal',
+                'value': 50,
+                'uses': 2,
+                'weight': 10
+            }
+        }
+        if(background === 'surgeon') {
+            items[0] = { 
+                'name': 'Suture Kit', 
+                'type': 'restore', 
+                'value': 25, 
+                'uses': 2, 
+                'weight': 5 
+            }
+        }
+        if(background === 'hunter') {
+            items[0] = { 
+                'name': 'Sport Hunting Rifle Ammo', 
+                'type': 'ballistic_rifle_ammo', 
+                'value': 2, 
+                'uses': 5, 
+                'weight': 1 
+            }
+        }
+        if(background === 'soldier') {
+            items[0] = { 
+                'name': 'Hollow Point Pistol Ammo', 
+                'type': 'ballistic_pistol_ammo', 
+                'value': 1, 
+                'uses': 20, 
+                'weight': 1 
+            }
+        }
+        if(background === 'duelist') {
+            items[0] = { 
+                'name': 'Hollow Point Pistol Ammo', 
+                'type': 'ballistic_pistol_ammo', 
+                'value': 1, 
+                'uses': 10, 
+                'weight': 1 
+            }
+        }
+        if(background === 'hobbyist') {
+            items[0] = { 
+                'name': 'Basic Energy Cell', 
+                'type': 'energy_ammo', 
+                'value': 3, 
+                'uses': 3, 
+                'weight': 3
+            }
+        }
+        if(background === 'pest_control') {
+            items[0] = { 
+                'name': 'Small Fuel Canister', 
+                'type': 'elemental_ammo', 
+                'value': 5, 
+                'uses': 1, 
+                'weight': 5
+            }
+        }
 
+        return items
+    }
 }
 
 export default SoldierFactory
