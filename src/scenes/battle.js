@@ -382,12 +382,24 @@ class BattleScene extends Phaser.Scene {
         attack_damage.innerText = "Damage: " + selected_attack.base_damage + " " + selected_attack.damage_type
         attack_info.appendChild(attack_damage)
 
-
         let info_detail = document.getElementById('info-detail')
         info_detail.replaceChildren()
         info_detail.appendChild(description)
         info_detail.appendChild(weapon_info)
         info_detail.appendChild(attack_info)
+
+        if(this.active_team === soldier.team) {
+            let attribute_label = document.createElement("p")
+            attribute_label.innerText = "Attributes"
+            info_detail.appendChild(attribute_label)
+            let attribute_info = document.createElement("ul")
+            Object.keys(soldier.attributes).forEach((key) => {
+                let attribute_data = document.createElement("li")
+                attribute_data.innerText = key + ": " + soldier.attributes[key]
+                attribute_info.appendChild(attribute_data)
+            })
+            info_detail.appendChild(attribute_info)
+        }
     }
 
     showSoldierMovement(soldier) {
@@ -462,6 +474,7 @@ class BattleScene extends Phaser.Scene {
             let hit_roll = this.randomDiceRoll(100)
             if(attack.accuracy < hit_roll) {
                 console.log("Attack missed: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)
+                this.active_soldier.payAttackCost()
                 return
             }
             console.log("Attack Hit: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)

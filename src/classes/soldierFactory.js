@@ -134,32 +134,33 @@ class SoldierFactory {
     createRandomAttributes(level, background, race) {
         let attributes = {}
         let max_points = 20 + Math.floor(level/5)
+        let random_roles = []
+        for(let i = 0; i < 7; i++) {
+            random_roles.push(this.diceRoller.randomDiceRoll(10))
+        }
+        let random_sum = random_roles.reduce((sum, value) => { 
+            return sum + value
+        }, 0 )
 
         let base_brains = race == 'goblin' ? 1 : 0
-        attributes.brains = base_brains + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
-        max_points -= attributes.brains
+        attributes.brains = base_brains + Math.floor(random_roles[0]/random_sum * max_points)
 
         let base_senses = race == 'elf' ? 1 : 0
-        attributes.senses = base_senses + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
-        max_points -= attributes.senses
+        attributes.senses = base_senses + Math.floor(random_roles[1]/random_sum * max_points)
 
         let base_spirit = race == 'dwarf' ? 1 : 0;
-        attributes.spirit = base_spirit + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
-        max_points -= attributes.spirit
+        attributes.spirit = base_spirit + Math.floor(random_roles[2]/random_sum * max_points)
 
         let base_core = race == 'dwarf' ? 1 : 0
-        attributes.core = base_core + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
-        max_points -= attributes.core
+        attributes.core = base_core + Math.floor(random_roles[3]/random_sum * max_points)
 
-        attributes.limbs = this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
-        max_points -= attributes.limbs
+        attributes.limbs = Math.floor(random_roles[4]/random_sum * max_points)
 
         let base_hands = race == 'elf' ? 1 : 0
-        attributes.hands = base_hands + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
-        max_points -= attributes.hands
+        attributes.hands = base_hands + Math.floor(random_roles[5]/random_sum * max_points)
 
         let base_build = race == 'orc' ? 1 : 0
-        attributes.build = base_build + this.diceRoller.randomDiceRoll(Math.min(max_points, 10))
+        attributes.build = base_build + Math.floor(random_roles[6]/random_sum * max_points)
         return attributes
     }
 

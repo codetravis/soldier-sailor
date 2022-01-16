@@ -321,7 +321,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
     setEffectiveStats() {
         // TODO: apply buffs and debuffs
         this.move_speed = Math.max(1, this.attributes.limbs + 1)
-        this.sight_range = this.attributes.senses * 3 + 1
+        this.sight_range = this.attributes.senses * 2 + 3
         this.max_fatigue = this.attributes.core * 5 + 10
         this.fatigue_recovery = this.attributes.core * 2 + 1
         this.max_morale = this.spirit * 5 + 100
