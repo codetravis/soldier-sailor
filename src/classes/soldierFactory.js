@@ -176,7 +176,7 @@ class SoldierFactory {
             'hacker': 'throwing_knife',
             'farmer': 'heavy_tool',
             'nurse': 'combat_knife',
-            'hunter': 'makeshift_rifle',
+            'hunter': 'hunting_crossbow',
             'soldier': 'stinger_smg',
             'kickboxer': null,
             'manager': null,
@@ -203,7 +203,7 @@ class SoldierFactory {
         if(background === 'nurse') {
             items[0] = { 
                 'name': 'Medkit',
-                'type': 'heal',
+                'item_type': 'heal',
                 'value': 50,
                 'uses': 2,
                 'weight': 10
@@ -212,7 +212,7 @@ class SoldierFactory {
         if(background === 'surgeon') {
             items[0] = { 
                 'name': 'Suture Kit', 
-                'type': 'restore', 
+                'item_type': 'limb_restore', 
                 'value': 25, 
                 'uses': 2, 
                 'weight': 5 
@@ -220,8 +220,8 @@ class SoldierFactory {
         }
         if(background === 'hunter') {
             items[0] = { 
-                'name': 'Sport Hunting Rifle Ammo', 
-                'type': 'ballistic_rifle_ammo', 
+                'name': 'Crossbow Bolt', 
+                'item_type': 'ballistic_bolt_ammo', 
                 'value': 2, 
                 'uses': 5, 
                 'weight': 1 
@@ -230,7 +230,7 @@ class SoldierFactory {
         if(background === 'soldier') {
             items[0] = { 
                 'name': 'Hollow Point Pistol Ammo', 
-                'type': 'ballistic_pistol_ammo', 
+                'item_type': 'ballistic_pistol_ammo', 
                 'value': 1, 
                 'uses': 20, 
                 'weight': 1 
@@ -239,7 +239,7 @@ class SoldierFactory {
         if(background === 'duelist') {
             items[0] = { 
                 'name': 'Hollow Point Pistol Ammo', 
-                'type': 'ballistic_pistol_ammo', 
+                'item_type': 'ballistic_pistol_ammo', 
                 'value': 1, 
                 'uses': 10, 
                 'weight': 1 
@@ -248,7 +248,7 @@ class SoldierFactory {
         if(background === 'hobbyist') {
             items[0] = { 
                 'name': 'Basic Energy Cell', 
-                'type': 'energy_ammo', 
+                'item_type': 'energy_ammo', 
                 'value': 3, 
                 'uses': 3, 
                 'weight': 3
@@ -257,10 +257,28 @@ class SoldierFactory {
         if(background === 'pest_control') {
             items[0] = { 
                 'name': 'Small Fuel Canister', 
-                'type': 'elemental_ammo', 
+                'item_type': 'elemental_ammo', 
                 'value': 5, 
                 'uses': 1, 
                 'weight': 5
+            }
+        }
+        if(background === 'hacker') {
+            items[1] = {
+                'name': 'PDA',
+                'item_type': 'hacker_tool',
+                'value': 10,
+                'uses': 5,
+                'weight': 5
+            }
+        }
+        if(background === 'manager') {
+            items[2] = {
+                'name': 'Basic Stim Patch',
+                'item_type': 'drug',
+                'value': 5,
+                'uses': 2,
+                'weight': 1
             }
         }
 

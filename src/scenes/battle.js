@@ -210,7 +210,7 @@ class BattleScene extends Phaser.Scene {
                     facing: 4,
                     team: 2,
                     race: 'goblin',
-                    background: 'farmer',
+                    background: 'manager',
                     level: 2,
                     equipment_value: 500
                 })
@@ -291,9 +291,9 @@ class BattleScene extends Phaser.Scene {
     buildControlUI() {
         let ui_block = document.getElementById('control-ui')
         ui_block.replaceChildren()
-        ui_block.appendChild(this.createUIActionButton("change-weapon", "Change Weapon"))
-        ui_block.appendChild(this.createUIActionButton("change-attack", "Change Attack Mode"))
-        ui_block.appendChild(this.createUIActionButton("show-attacks", "Attack"))
+        ui_block.appendChild(this.createUIActionButton("change-weapon", "Change Weapon", "Switch between available weapons"))
+        ui_block.appendChild(this.createUIActionButton("change-attack", "Change Attack Mode", "Changes the attack mode of currently selected weapon"))
+        ui_block.appendChild(this.createUIActionButton("show-attacks", "Attack", "Show attacks in range of currently selected weapon"))
         ui_block.appendChild(this.createUIActionButton("soldier-rest", "Rest", "Use remaining AP to recover fatigue"))
         ui_block.appendChild(this.createUIActionButton("end-turn", "End Turn >>"))
     }
@@ -389,6 +389,23 @@ class BattleScene extends Phaser.Scene {
         info_detail.appendChild(attack_info)
 
         if(this.active_team === soldier.team) {
+            let item_label = document.createElement("p")
+            item_label.innerText = "Items"
+            let item_info = document.createElement("ul")
+            Object.keys(soldier.inventory).forEach((key) => {
+                if(soldier.inventory[key]) {
+                    let item_li = document.createElement("li")
+                    let item_button = document.createElement("button")
+                    item_button.setAttribute('class', 'item-button')
+                    item_button.setAttribute('id', 'item_' + key)
+                    item_button.setAttribute('title', 'Uses: ' + soldier.inventory[key]['uses'] + " | Weight: " + soldier.inventory[key]['weight'])
+                    item_button.innerText = soldier.inventory[key]['name']
+                    item_li.appendChild(item_button)
+                    item_info.appendChild(item_li)
+                }
+            })
+            info_detail.appendChild(item_info)
+
             let attribute_label = document.createElement("p")
             attribute_label.innerText = "Attributes"
             info_detail.appendChild(attribute_label)
