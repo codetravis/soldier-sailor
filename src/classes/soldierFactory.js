@@ -144,13 +144,13 @@ class SoldierFactory {
             return sum + value
         }, 0 )
 
-        let base_brains = race == 'goblin' ? 1 : 0
+        let base_brains = race == 'goblin' ? 2 : 0
         attributes.brains = base_brains + Math.floor(random_roles[0]/random_sum * max_points)
 
         let base_senses = race == 'elf' ? 1 : 0
         attributes.senses = base_senses + Math.floor(random_roles[1]/random_sum * max_points)
 
-        let base_spirit = race == 'dwarf' ? 1 : 0;
+        let base_spirit = race == 'dwarf' ? 1 : 0
         attributes.spirit = base_spirit + Math.floor(random_roles[2]/random_sum * max_points)
 
         let base_core = race == 'dwarf' ? 1 : 0
@@ -161,7 +161,7 @@ class SoldierFactory {
         let base_hands = race == 'elf' ? 1 : 0
         attributes.hands = base_hands + Math.floor(random_roles[5]/random_sum * max_points)
 
-        let base_build = race == 'orc' ? 1 : 0
+        let base_build = race == 'orc' ? 2 : 0
         attributes.build = base_build + Math.floor(random_roles[6]/random_sum * max_points)
         return attributes
     }
@@ -220,7 +220,7 @@ class SoldierFactory {
         }
         if(background === 'hunter') {
             items[0] = { 
-                'name': 'Crossbow Bolt', 
+                'name': 'Broadhead Crossbow Bolt', 
                 'item_type': 'ballistic_bolt_ammo', 
                 'value': 2, 
                 'uses': 5, 
@@ -247,7 +247,7 @@ class SoldierFactory {
         }
         if(background === 'hobbyist') {
             items[0] = { 
-                'name': 'Basic Energy Cell', 
+                'name': 'Homemade Energy Cell', 
                 'item_type': 'energy_ammo', 
                 'value': 3, 
                 'uses': 3, 
@@ -275,10 +275,19 @@ class SoldierFactory {
         if(background === 'manager') {
             items[2] = {
                 'name': 'Basic Stim Patch',
-                'item_type': 'drug',
+                'item_type': 'stim',
                 'value': 5,
                 'uses': 2,
                 'weight': 1
+            }
+        }
+        if(background === 'mechanic') {
+            items[0] = {
+                'name': 'Simple Repair Kit',
+                'item_type': 'repair',
+                'value': 15,
+                'uses': 1,
+                'weight': 10
             }
         }
 

@@ -391,6 +391,8 @@ class BattleScene extends Phaser.Scene {
         if(this.active_team === soldier.team) {
             let item_label = document.createElement("p")
             item_label.innerText = "Items"
+            info_detail.appendChild(item_label)
+
             let item_info = document.createElement("ul")
             Object.keys(soldier.inventory).forEach((key) => {
                 if(soldier.inventory[key]) {
