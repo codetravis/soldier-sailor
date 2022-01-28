@@ -5,6 +5,7 @@ import ShipMaps from '../classes/shipMaps.js'
 import Pathfinder from '../classes/pathfinder.js'
 import FovShadow from '../classes/fovShadow.js'
 import SelectionBox from '../classes/selectionBox.js'
+import Items from '../classes/items.js'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -195,6 +196,15 @@ class BattleScene extends Phaser.Scene {
                             buffs: {},
                             defuffs: {}
                         },
+                    },
+                    inventory: {
+                        0: { 
+                            'name': 'Medkit',
+                            'item_type': 'heal',
+                            'value': 50,
+                            'uses': 2,
+                            'weight': 10
+                        }
                     }
                 })
             )
@@ -210,7 +220,7 @@ class BattleScene extends Phaser.Scene {
                     facing: 4,
                     team: 2,
                     race: 'goblin',
-                    background: 'manager',
+                    background: 'nurse',
                     level: 2,
                     equipment_value: 500
                 })
@@ -275,6 +285,12 @@ class BattleScene extends Phaser.Scene {
         document.getElementById('soldier-rest').onclick = function () {
             this.activeSoldierRest()
         }.bind(this)
+
+        document.addEventListener('click', (e) => {
+            if(e.target.className === 'item-button') {
+                this.itemClicked(e.target.id)
+            }
+        })
 
         // begin game by ending neutral team turn
         this.endTurn()
@@ -388,6 +404,7 @@ class BattleScene extends Phaser.Scene {
         info_detail.appendChild(weapon_info)
         info_detail.appendChild(attack_info)
 
+        // Show items if this is current player's soldier
         if(this.active_team === soldier.team) {
             let item_label = document.createElement("p")
             item_label.innerText = "Items"
@@ -660,6 +677,34 @@ class BattleScene extends Phaser.Scene {
         return {x: ((unit.x - this.map_x_offset)/ this.tile_size),
                 y: ((unit.y - this.map_y_offset)/ this.tile_size)
             }
+    }
+
+    itemClicked(item_key) {
+        let key = item_key.substring(5)
+        console.log(key + " clicked")
+        
+        // set selected item if slot is not empty
+        let item = this.active_soldier.inventory[key]
+        if(item) {
+            console.log(item)
+            // clear any move and attack actions
+            // check for item type
+            let all_items = new Items().items
+            let clicked_item = all_items[item['name']]
+            if(clicked_item['apply']) {
+                if(item['item_type'] === 'heal') {
+                    // find units that can be healed in adjoining squares (plus self)
+                    let possible_targets = []
+                    let source_tile = this.active_soldier.map_tile
+                    this.teams[this.active_soldier.team].forEach( (soldier) => {
+                        if(this.getMapDistance(source_tile, soldier.map_tile) < 2) {
+                            console.log("heal can reach friendly " + soldier.race)
+                            possible_targets.push(soldier)
+                        }
+                    })
+                }
+            }
+        }
     }
 
 }
