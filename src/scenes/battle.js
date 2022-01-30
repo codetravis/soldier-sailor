@@ -152,6 +152,8 @@ class BattleScene extends Phaser.Scene {
         this.unitMovement = new FovShadow(this.map, this.tile_size, {x: this.map_x_offset, y: this.map_y_offset})
         this.movement_squares = []
         this.attack_squares = []
+        this.use_item_squares = []
+        this.selected_item = null
 
         if(this.default_soldiers) {
             this.teams[2].push(
@@ -270,6 +272,8 @@ class BattleScene extends Phaser.Scene {
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
         this.emitter.on('ATTACK_CLICKED', this.performAttack.bind(this))
+        this.emitter.on('HEAL_ITEM_CLICKED', this.useSelectedItem.bind(this))
+        
         document.getElementById('end-turn').onclick = function() {
             this.endTurn()
         }.bind(this)
@@ -338,8 +342,8 @@ class BattleScene extends Phaser.Scene {
             unit.beginNewTurn()
             this.playerVision.getVisibleTiles(unit, false)
         }.bind(this))
-        this.cleanUpMovementSquares()
-        this.cleanUpAttackSquares()
+        this.cleanUpAllActionSquares()
+        this.move_path = []
         this.active_box.setAlpha(0)
         this.changeDisplay(this.playerVision.map_tiles)
     }
@@ -439,8 +443,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     showSoldierMovement(soldier) {
-        this.cleanUpMovementSquares()
-        this.cleanUpAttackSquares()
+        this.cleanUpAllActionSquares()
 
         this.unitMovement.getVisibleTiles(soldier, true)
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
@@ -463,8 +466,7 @@ class BattleScene extends Phaser.Scene {
 
     showSoldierAttacks() {
         let soldier = this.active_soldier
-        this.cleanUpAttackSquares()
-        this.cleanUpMovementSquares()
+        this.cleanUpAllActionSquares()
 
         this.unitMovement.getVisibleTiles(soldier, true)
         let attack_range = soldier.getAttackRange()
@@ -578,6 +580,11 @@ class BattleScene extends Phaser.Scene {
         return hit_landed
     }
 
+    useSelectedItem(item_square) {
+
+        this.cleanUpUseItemSquares()
+    }
+
     randomDiceRoll(dice_size) {
         return Math.floor(Math.random() * dice_size + 1)
     }
@@ -598,6 +605,12 @@ class BattleScene extends Phaser.Scene {
         }
     }
 
+    cleanUpAllActionSquares() {
+        this.cleanUpAttackSquares()
+        this.cleanUpMovementSquares()
+        this.cleanUpUseItemSquares()
+    }
+
     cleanUpAttackSquares() {
         this.attack_squares.forEach(function(square) {
             square.destroy()
@@ -610,6 +623,13 @@ class BattleScene extends Phaser.Scene {
             square.destroy()
         })
         this.movement_squares = []
+    }
+
+    cleanUpUseItemSquares() {
+        this.use_item_squares.forEach(function(square) {
+            square.destroy()
+        })
+        this.use_item_squares = []
     }
 
     getMapDistance(tile_one, tile_two) {
@@ -680,6 +700,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     itemClicked(item_key) {
+        this.cleanUpAllActionSquares()
         let key = item_key.substring(5)
         console.log(key + " clicked")
         
@@ -694,12 +715,18 @@ class BattleScene extends Phaser.Scene {
             if(clicked_item['apply']) {
                 if(item['item_type'] === 'heal') {
                     // find units that can be healed in adjoining squares (plus self)
-                    let possible_targets = []
                     let source_tile = this.active_soldier.map_tile
                     this.teams[this.active_soldier.team].forEach( (soldier) => {
                         if(this.getMapDistance(source_tile, soldier.map_tile) < 2) {
                             console.log("heal can reach friendly " + soldier.race)
-                            possible_targets.push(soldier)
+                            this.use_item_squares.push(new SelectionBox({ 
+                                scene: this,
+                                x: soldier.x, 
+                                y: soldier.y,
+                                key: 'attack_box',
+                                event_name: 'HEAL_ITEM_CLICKED',
+                                tile: { x: soldier.map_tile.x, y: soldier.map_tile.y }
+                            }))
                         }
                     })
                 }
