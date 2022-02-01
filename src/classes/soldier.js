@@ -47,21 +47,52 @@ class Soldier extends Phaser.GameObjects.Sprite {
             right_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
             left_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build)
         }
+        this.max_health = {
+            head: 30 + (1 * this.attributes.build),
+            torso: 100 + (1 * this.attributes.core) + (3 * this.attributes.build),
+            right_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
+            left_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
+            right_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
+            left_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build)
+        }
         if(this.race == "orc") {
-            this.mod_health(5)
+            this.modMaxHealth(5)
         } else if(this.race == "goblin") {
-            this.mod_health(-5)
+            this.modMaxHealth(-5)
         } else if(this.race == "dwarf") {
-            this.mod_health(2)
+            this.modMaxHealth(2)
         } else if(this.race == "elf") {
-            this.mod_health(-2)
+            this.modMaxhealth(-2)
         }
     }
 
-    mod_health(amount) {
+    modMaxHealth(amount) {
         Object.keys(this.health).forEach((key) => {
             this.health[key] += amount
+            this.max_health[key] += amount
         })
+    }
+
+    applyHeal(amount) {
+        let heal_order = ['head', 'torso', 'right_leg', 'left_leg', 'right_arm', 'left_arm']
+        heal_order.forEach( (part) => {
+            let missing_health = this.max_health[part] - this.health[part]
+            if(missing_health > 0 && amount > 0) {
+                if(missing_health < amount) {
+                    this.health[part] += missing_health
+                    amount -= missing_health
+                } else {
+                    this.health[part] += amount
+                    amount = 0
+                }
+            }
+        })
+    }
+
+    useItem(key, amount) {
+        if(this.inventory[key]) {
+            this.inventory[key].uses -= amount
+        }
     }
 
     clicked() {

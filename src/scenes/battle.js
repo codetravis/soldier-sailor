@@ -50,6 +50,8 @@ class BattleScene extends Phaser.Scene {
         this.engineer_start_col = 0
 
         this.active_soldier = null
+        this.selected_item = null
+        this.selected_item_key = null
 
         this.hit_locations_by_weight =  {
             head: 6,
@@ -153,7 +155,6 @@ class BattleScene extends Phaser.Scene {
         this.movement_squares = []
         this.attack_squares = []
         this.use_item_squares = []
-        this.selected_item = null
 
         if(this.default_soldiers) {
             this.teams[2].push(
@@ -272,7 +273,7 @@ class BattleScene extends Phaser.Scene {
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
         this.emitter.on('ATTACK_CLICKED', this.performAttack.bind(this))
-        this.emitter.on('HEAL_ITEM_CLICKED', this.useSelectedItem.bind(this))
+        this.emitter.on('HEAL_ITEM_CLICKED', this.useHealItem.bind(this))
         
         document.getElementById('end-turn').onclick = function() {
             this.endTurn()
@@ -580,8 +581,16 @@ class BattleScene extends Phaser.Scene {
         return hit_landed
     }
 
-    useSelectedItem(item_square) {
-
+    useHealItem(item_square) {
+        if(this.selected_item.uses > 0) {
+            this.teams[this.active_soldier.team].forEach( (soldier) => {
+                if(item_square.map_tile.x === soldier.map_tile.x && item_square.map_tile.y === soldier.map_tile.y) {
+                    console.log("healing friendly soldier")
+                    soldier.applyHeal(this.selected_item['heal_amount'])
+                    this.active_soldier.useItem(this.selected_item_key, 1)
+                }
+            })
+        }
         this.cleanUpUseItemSquares()
     }
 
@@ -701,19 +710,19 @@ class BattleScene extends Phaser.Scene {
 
     itemClicked(item_key) {
         this.cleanUpAllActionSquares()
-        let key = item_key.substring(5)
+        this.selected_item_key = item_key.substring(5)
         console.log(key + " clicked")
         
         // set selected item if slot is not empty
-        let item = this.active_soldier.inventory[key]
-        if(item) {
-            console.log(item)
+        this.selected_item = this.active_soldier.inventory[this.selected_item_key]
+        if(this.selected_item) {
+            console.log(this.selected_item)
             // clear any move and attack actions
             // check for item type
             let all_items = new Items().items
-            let clicked_item = all_items[item['name']]
+            let clicked_item = all_items[this.selected_item['name']]
             if(clicked_item['apply']) {
-                if(item['item_type'] === 'heal') {
+                if(this.selected_item['item_type'] === 'heal') {
                     // find units that can be healed in adjoining squares (plus self)
                     let source_tile = this.active_soldier.map_tile
                     this.teams[this.active_soldier.team].forEach( (soldier) => {
