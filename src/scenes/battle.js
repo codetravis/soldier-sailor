@@ -205,7 +205,7 @@ class BattleScene extends Phaser.Scene {
                             'name': 'Medkit',
                             'item_type': 'heal',
                             'value': 50,
-                            'uses': 2,
+                            'uses': 60,
                             'weight': 10
                         }
                     }
@@ -511,7 +511,7 @@ class BattleScene extends Phaser.Scene {
 
             // roll for hit
             let hit_roll = this.randomDiceRoll(100)
-            if(attack.accuracy < hit_roll) {
+            if(attack.accuracy < 0) {// < hit_roll) {
                 console.log("Attack missed: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)
                 this.active_soldier.payAttackCost()
                 this.setInfoPanelForSoldier(this.active_soldier)
@@ -582,12 +582,15 @@ class BattleScene extends Phaser.Scene {
     }
 
     useHealItem(item_square) {
-        if(this.selected_item.uses > 0) {
+        if(this.selected_item['uses'] > 0) {
+            let did_heal = 0
             this.teams[this.active_soldier.team].forEach( (soldier) => {
-                if(item_square.map_tile.x === soldier.map_tile.x && item_square.map_tile.y === soldier.map_tile.y) {
+                if(item_square.tile.x === soldier.map_tile.x && item_square.tile.y === soldier.map_tile.y) {
                     console.log("healing friendly soldier")
-                    soldier.applyHeal(this.selected_item['heal_amount'])
-                    this.active_soldier.useItem(this.selected_item_key, 1)
+                    let heal_item = new Items().items[this.selected_item['name']]
+                    did_heal = soldier.applyHeal(heal_item['heal_amount'])
+                    console.log("Healed for: " + did_heal)
+                    this.active_soldier.useItem(this.selected_item_key, did_heal)
                 }
             })
         }
@@ -711,7 +714,7 @@ class BattleScene extends Phaser.Scene {
     itemClicked(item_key) {
         this.cleanUpAllActionSquares()
         this.selected_item_key = item_key.substring(5)
-        console.log(key + " clicked")
+        console.log(this.selected_item_key + " clicked")
         
         // set selected item if slot is not empty
         this.selected_item = this.active_soldier.inventory[this.selected_item_key]

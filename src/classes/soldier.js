@@ -73,20 +73,29 @@ class Soldier extends Phaser.GameObjects.Sprite {
         })
     }
 
-    applyHeal(amount) {
+    applyHeal(max_amount) {
+        max_amount = parseInt(max_amount)
+        console.log("Able to heal: " + max_amount)
         let heal_order = ['head', 'torso', 'right_leg', 'left_leg', 'right_arm', 'left_arm']
+        let healed_amount = 0
         heal_order.forEach( (part) => {
             let missing_health = this.max_health[part] - this.health[part]
-            if(missing_health > 0 && amount > 0) {
-                if(missing_health < amount) {
+            console.log(part + " is missing " + missing_health)
+            if(missing_health > 0 && max_amount > 0) {
+                console.log("healing " + part)
+                if(missing_health < max_amount) {
                     this.health[part] += missing_health
                     amount -= missing_health
+                    healed_amount += missing_health
                 } else {
-                    this.health[part] += amount
-                    amount = 0
+                    this.health[part] += max_amount
+                    healed_amount += max_amount
+                    max_amount = 0
                 }
+                console.log(part + " healed " + this.health[part] + "/" + this.max_health[part])
             }
         })
+        return healed_amount
     }
 
     useItem(key, amount) {

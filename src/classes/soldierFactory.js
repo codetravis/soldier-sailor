@@ -205,7 +205,7 @@ class SoldierFactory {
                 'name': 'Medkit',
                 'item_type': 'heal',
                 'value': 50,
-                'uses': 2,
+                'uses': 60,
                 'weight': 10
             }
         }
