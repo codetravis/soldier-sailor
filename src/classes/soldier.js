@@ -1,10 +1,12 @@
 import EventDispatcher from './eventDispatcher.js'
 import DiceRoller from './diceRoller.js'
+import { v4 as uuidv4 } from 'uuid';
 
 class Soldier extends Phaser.GameObjects.Sprite {
     constructor(config) {
         super(config.scene, config.x, config.y, config.key)
 
+        this.id = uuidv4();
         this.tile_size = config.tile_size
         this.map_x_offset = config.map_x_offset
         this.map_y_offset = config.map_y_offset
@@ -12,6 +14,8 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.team = config.team
         this.race = config.race
+        this.level = config.level || 1
+        this.experience = config.experience || 0
         this.setAllAttributes(config.attributes)
         this.setAllSkills(config.skills)
         this.setEffectiveStats()
@@ -177,10 +181,17 @@ class Soldier extends Phaser.GameObjects.Sprite {
         }
 
         attack.accuracy = attack.base_accuracy
+
+        // modify accuracy based on soldier skill
         let skill_modifier = parseInt(this.skills[modifier])
         if(!isNaN(skill_modifier)) {
             attack.accuracy += skill_modifier
         }
+
+        // modify accuracy based on solider morale
+        let morale_modifier = Math.floor(((this.morale - 40) / 10)) * 5
+        attack.accuracy += morale_modifier
+
         return attack
     }
 
@@ -372,8 +383,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.max_fatigue = this.attributes.core * 10 + 20
         this.fatigue_recovery = this.attributes.core * 3 + 5
         this.max_morale = this.spirit * 5 + 80
-        this.morale = this.spirit * 2 + 30
+        this.morale = this.spirit * 2 + 35
         this.move_fatigue_cost = Math.floor(6 - this.attributes.core/30)
+        this.calculateInitiative()
+    }
+
+    calculateInitiative() {
+        this.initiative = Math.floor(this.level + (this.spirit / 3) + (this.limbs / 3) + (this.morale / 10))
     }
 
     nextMoveAPCost() {

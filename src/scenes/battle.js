@@ -205,7 +205,7 @@ class BattleScene extends Phaser.Scene {
                             'name': 'Medkit',
                             'item_type': 'heal',
                             'value': 50,
-                            'uses': 60,
+                            'uses': 2,
                             'weight': 10
                         }
                     }
@@ -296,6 +296,8 @@ class BattleScene extends Phaser.Scene {
                 this.itemClicked(e.target.id)
             }
         })
+
+        this.initiativeQueue = []
 
         // begin game by ending neutral team turn
         this.endTurn()
@@ -589,8 +591,12 @@ class BattleScene extends Phaser.Scene {
                     console.log("healing friendly soldier")
                     let heal_item = new Items().items[this.selected_item['name']]
                     did_heal = soldier.applyHeal(heal_item['heal_amount'])
-                    console.log("Healed for: " + did_heal)
-                    this.active_soldier.useItem(this.selected_item_key, did_heal)
+                    if(did_heal > 0) {
+                        console.log("Healed for: " + did_heal)
+                        this.active_soldier.useItem(this.selected_item_key, 1)
+                    } else {
+                        console.log("Target is not injured, no action taken.")
+                    }
                 }
             })
         }
