@@ -297,7 +297,8 @@ class BattleScene extends Phaser.Scene {
             }
         })
 
-        this.initiativeQueue = []
+        this.initiative_queue = []
+        this.initiative_soldier_id = null
 
         // begin game by ending neutral team turn
         this.endTurn()
@@ -335,20 +336,51 @@ class BattleScene extends Phaser.Scene {
 
     endTurn() {
         console.log("ending turn")
-        this.playerVision.markAllHidden()
-        if(this.active_team == 1) {
-            this.active_team = 2 
-        } else {
-            this.active_team = 1
+        if(this.initiative_queue.length === 0) {
+            console.log("beginning new round")
+            this.createInitiativeQueue()
+            this.teams.flat().forEach((unit) => {
+                unit.beginNewTurn()
+            })
         }
+        let initiative_unit = this.initiative_queue.pop()
+        this.playerVision.markAllHidden()
+        this.active_team = initiative_unit.team
+        this.initiative_soldier_id = initiative_unit.id
         this.teams[this.active_team].forEach(function(unit) {
-            unit.beginNewTurn()
             this.playerVision.getVisibleTiles(unit, false)
         }.bind(this))
         this.cleanUpAllActionSquares()
         this.move_path = []
         this.active_box.setAlpha(0)
         this.changeDisplay(this.playerVision.map_tiles)
+    }
+
+    createInitiativeQueue() {
+        let all_soldiers = this.teams.flat()
+        this.initiative_queue = []
+        all_soldiers.sort(this.compare_initiative)
+        all_soldiers.forEach((soldier) => {
+            this.initiative_queue.push({id: soldier.id, team: soldier.team})
+        })
+    }
+
+    compare_initiative(soldier_a, soldier_b) {
+        if(soldier_a.initiative > soldier_b.initiative) {
+            return 1
+        } else if (soldier_a.initiative < soldier_b.initiative) {
+            return -1
+        } else if (soldier_a.initiative === soldier_b.initiative) {
+            if(soldier_a.spirit > soldier_b.spirit) {
+                return 1
+            } else if (soldier_a.spirit < soldier_b.spirit) {
+                return -1
+            } else {
+                return 0
+            }
+        } else {
+            return 0
+        }
     }
 
     performMovement() {
@@ -370,7 +402,7 @@ class BattleScene extends Phaser.Scene {
 
     setActiveSoldier(soldier) {
         this.move_path = []
-        if(soldier.team == this.active_team) {
+        if(soldier.id === this.initiative_soldier_id) {
             this.active_soldier = soldier
             this.active_box.setX(this.active_soldier.x)
             this.active_box.setY(this.active_soldier.y)
