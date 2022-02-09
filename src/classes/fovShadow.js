@@ -20,6 +20,10 @@ class FovShadow {
         this.map_offset = map_offset
     }
 
+    updateMap(new_map) {
+        this.map = new_map
+    }
+
     getVisibleTiles(unit, vision_reset) {
         if(vision_reset) {
             this.map_tiles = {}

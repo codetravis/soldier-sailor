@@ -826,6 +826,22 @@ class BattleScene extends Phaser.Scene {
         }
     }
 
+    toggleDoor(target_tile) {
+
+        if(this.map[target_tile.y][target_tile.x] === DOOR_CLOSED) {
+            // open door
+            this.map[target_tile.y][target_tile.x] = DOOR_OPEN
+            this.map_tiles[target_tile.x + "_" + target_tile.y].color = 0x00a0a0
+        } else if(this.map[target_tile.y][target_tile.x] === DOOR_OPEN) {
+            // close door
+            this.map[target_tile.y][target_tile.x] = DOOR_CLOSED
+            this.map_tiles[target_tile.x + "_" + target_tile.y].color = 0x00fafa
+        }
+
+        this.playerVision.updateMap(this.map)
+        this.unitMovement.updateMap(this.map)
+    }
+
 }
 
 export default BattleScene
