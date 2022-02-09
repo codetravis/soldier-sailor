@@ -421,7 +421,8 @@ class BattleScene extends Phaser.Scene {
         img_div.appendChild(soldier.texture.getSourceImage(0))
 
         let description = document.createElement("p")
-        description.innerText = "AP: " + soldier.ap + " | Fatigue: " + soldier.fatigue + "/" + soldier.max_fatigue
+        description.innerText = "AP: " + soldier.ap + " | Fatigue: " + soldier.fatigue + "/" + soldier.max_fatigue + 
+            " | Morale: " + soldier.morale + "/" + soldier.max_morale
         let weapon_info = document.createElement("p")
         weapon_info.innerText = "Selected Weapon: " + soldier.getActiveWeapon().name
         let attack_info = document.createElement("ul")
@@ -441,7 +442,9 @@ class BattleScene extends Phaser.Scene {
 
         let info_detail = document.getElementById('info-detail')
         info_detail.replaceChildren()
-        info_detail.appendChild(description)
+        if(this.active_team === soldier.team) {
+            info_detail.appendChild(description)
+        }
         info_detail.appendChild(weapon_info)
         info_detail.appendChild(attack_info)
 
@@ -487,7 +490,7 @@ class BattleScene extends Phaser.Scene {
             let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]
             if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.movement_remaining &&
                 target_tile !== 0 && target_tile !== 8 && target_tile !== 9 && 
-                !this.isEnemyOnTile(this.unitMovement.map_tiles[key])) {
+                !this.isOtherUnitOnTile(this.unitMovement.map_tiles[key])) {
                 this.movement_squares.push(new SelectionBox({ 
                         scene: this,
                         x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
@@ -650,6 +653,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     changeActiveSoldierAttack() {
+        this.cleanUpAllActionSquares()
         if(this.active_soldier) {
             this.active_soldier.changeAttackMode()
             this.setInfoPanelForSoldier(this.active_soldier)
@@ -696,11 +700,23 @@ class BattleScene extends Phaser.Scene {
         return Math.abs(tile_one.x - tile_two.x) + Math.abs(tile_one.y - tile_two.y)
     }
 
+    isOtherUnitOnTile(tile) {
+        let units = this.teams.flat()
+        for(let i = 0; i < units.length; i++) {
+            let unit = units[i]
+            if(unit.map_tile.x === tile.x && unit.map_tile.y === tile.y && unit.id !== this.active_soldier.id) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     isEnemyOnTile(tile) {
         let units = this.teams.flat()
         for(let i = 0; i < units.length; i++) {
             let unit = units[i]
-            if(unit.map_tile.x === tile.x && unit.map_tile.y === tile.y && unit.team !== this.active_team) {
+            if(unit.map_tile.x === tile.x && unit.map_tile.y === tile.y && unit.team !== this.active_soldier.team) {
                 return true
             }
         }

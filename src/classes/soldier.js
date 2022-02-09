@@ -408,8 +408,8 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.sight_range = this.attributes.senses * 2 + 3
         this.max_fatigue = this.attributes.core * 10 + 20
         this.fatigue_recovery = this.attributes.core * 3 + 5
-        this.max_morale = this.spirit * 5 + 80
-        this.morale = this.spirit * 2 + 35
+        this.max_morale = this.attributes.spirit * 5 + 80
+        this.morale = this.attributes.spirit * 2 + 35
         this.move_fatigue_cost = Math.floor(6 - this.attributes.core/30)
         this.calculateInitiative()
     }
