@@ -240,8 +240,34 @@ class Soldier extends Phaser.GameObjects.Sprite {
                 console.log("Attack hit a gap in the armor")
             }
         }
+
+        if(damage > 0) {
+            this.reduceMorale(6)
+        }
         this.fatigue += fatigue_damage
         this.health[location] -= damage
+    }
+
+    isDown() {
+        if(this.health.head <= 0 || this.health.torso <= 0) {
+            return true
+        }
+        return false
+    }
+
+    reduceMorale(amount) {
+        if(this.race === 'drone') {
+            return
+        }
+        amount = Math.floor(amount - this.attributes.spirit/2)
+        this.morale = Math.max(0, this.morale - amount)
+    }
+
+    increaseMorale(amount) {
+        if(this.race === 'drone') {
+            return
+        }
+        this.morale = Math.min(this.max_morale, this.morale + amount)
     }
 
     setAllAttributes(attributes) {

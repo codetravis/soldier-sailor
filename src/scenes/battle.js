@@ -361,7 +361,9 @@ class BattleScene extends Phaser.Scene {
         this.initiative_queue = []
         all_soldiers.sort(this.compare_initiative)
         all_soldiers.forEach((soldier) => {
-            this.initiative_queue.push({id: soldier.id, team: soldier.team})
+            if(!soldier.isDown()) {
+                this.initiative_queue.push({id: soldier.id, team: soldier.team})
+            }
         })
     }
 
@@ -558,6 +560,14 @@ class BattleScene extends Phaser.Scene {
             let hit_location = this.getAttackLocation()
 
             target.applyDamage(attack, hit_location)
+            if(target.isDown()) {
+                this.teams[target.team].forEach( (unit) => {
+                    unit.reduceMorale(10)
+                })
+                this.teams[this.active_soldier.team].forEach( (unit) => {
+                    unit.increaseMorale(10)
+                })
+            }
             this.active_soldier.payAttackCost()
             console.log(target.health)
             this.setInfoPanelForSoldier(this.active_soldier)
