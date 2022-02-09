@@ -1,6 +1,17 @@
 import ScanRow from './scanRow.js'
 import Fraction from 'fraction.js'
 
+const WALL = 0
+const FLOOR = 1
+const CAPTAIN = 2
+const ENGINEER = 3
+const WEAPONS = 4
+const DOOR_CLOSED = 5
+const DOOR_OPEN = 6
+const BOARDING = 7
+const HALF_COVER = 8
+const FULL_COVER = 9
+
 class FovShadow {
     constructor(two_d_map, tile_size, map_offset) {
         this.map_tiles = {}
@@ -56,7 +67,7 @@ class FovShadow {
         if(coordinates.x >= this.map[coordinates.y].length || coordinates.y < 0) {
             return true
         }
-        return this.map[coordinates.y][coordinates.x] === 0
+        return (this.map[coordinates.y][coordinates.x] === WALL || this.map[coordinates.y][coordinates.x] === DOOR_CLOSED)
     }
 
     isFloor(tile, origin, direction) {
@@ -70,7 +81,7 @@ class FovShadow {
         if(coordinates.x >= this.map[coordinates.y].length || coordinates.x < 0) {
             return false
         }
-        return this.map[coordinates.y][coordinates.x] !== 0
+        return (this.map[coordinates.y][coordinates.x] !== WALL && this.map[coordinates.y][coordinates.x] !== DOOR_CLOSED)
     }
 
     isSymetric(row, tile) {

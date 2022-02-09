@@ -1,3 +1,14 @@
+const WALL = 0
+const FLOOR = 1
+const CAPTAIN = 2
+const ENGINEER = 3
+const WEAPONS = 4
+const DOOR_CLOSED = 5
+const DOOR_OPEN = 6
+const BOARDING = 7
+const HALF_COVER = 8
+const FULL_COVER = 9
+
 
 class Pathfinder {
 
@@ -62,7 +73,7 @@ class Pathfinder {
 
     isFreeTile(x, y) {
         let tile = this.map[y][x]
-        if( tile === 0 || tile === 8 || tile === 9) {
+        if( tile === WALL || tile === HALF_COVER || tile === FULL_COVER || tile === DOOR_CLOSED) {
             return false
         }
         return true

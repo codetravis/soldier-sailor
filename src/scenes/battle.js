@@ -7,6 +7,18 @@ import FovShadow from '../classes/fovShadow.js'
 import SelectionBox from '../classes/selectionBox.js'
 import Items from '../classes/items.js'
 
+const WALL = 0
+const FLOOR = 1
+const CAPTAIN = 2
+const ENGINEER = 3
+const WEAPONS = 4
+const DOOR_CLOSED = 5
+const DOOR_OPEN = 6
+const BOARDING = 7
+const HALF_COVER = 8
+const FULL_COVER = 9
+
+
 class BattleScene extends Phaser.Scene {
     constructor() {
         super({ key: 'BattleScene', active: false })
@@ -78,26 +90,30 @@ class BattleScene extends Phaser.Scene {
             for(let col = 0; col < this.map[row].length; col++) {
                 const cell_type = this.map[row][col]
                 tile_color = 0x333333
-                if (cell_type === 1) {
+                if (cell_type === FLOOR) {
                     tile_color = 0xffffff
-                } else if (cell_type === 2) {
+                } else if (cell_type === CAPTAIN) {
                     tile_color = 0x0000ff
                     this.defender_start_positions["captain"] = { x: col, y: row }
-                } else if (cell_type === 3) {
+                } else if (cell_type === ENGINEER) {
                     tile_color = 0x00ff00
                     this.defender_start_positions["engineer"] = { x: col, y: row }
-                } else if (cell_type === 4) {
+                } else if (cell_type === WEAPONS) {
                     tile_color = 0xff0000
                     this.defender_start_positions["weapons"] = { x: col, y: row }
-                } else if (cell_type === 7) {
+                } else if (cell_type === BOARDING) {
                     this.attacker_start_positions.push({ x: col, y: row })
                     tile_color = 0x777777
-                } else if (cell_type === 8) {
+                } else if (cell_type === HALF_COVER) {
                     // half cover
                     tile_color = 0xfafa00
-                } else if (cell_type === 9) {
+                } else if (cell_type === FULL_COVER) {
                     // full cover
                     tile_color = 0xfa00fa
+                } else if (cell_type === DOOR_CLOSED) {
+                    tile_color = 0x00fafa
+                } else if (cell_type === DOOR_OPEN) {
+                    tile_color = 0x00a0a0
                 }
 
                 this.map_tiles[col + "_" + row] = this.add.rectangle(col * this.tile_size + this.map_x_offset, row * this.tile_size + this.map_y_offset, this.tile_size-2, this.tile_size-2, tile_color)
@@ -489,7 +505,7 @@ class BattleScene extends Phaser.Scene {
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
             let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]
             if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.movement_remaining &&
-                target_tile !== 0 && target_tile !== 8 && target_tile !== 9 && 
+                target_tile !== WALL && target_tile !== HALF_COVER && target_tile !== FULL_COVER && target_tile !== DOOR_CLOSED &&
                 !this.isOtherUnitOnTile(this.unitMovement.map_tiles[key])) {
                 this.movement_squares.push(new SelectionBox({ 
                         scene: this,
@@ -602,9 +618,9 @@ class BattleScene extends Phaser.Scene {
             }
         }
         console.log("Cover tile: " + d_tile.x + "," + d_tile.y + " is " + cover_tile)
-        if(cover_tile === 8) {
+        if(cover_tile === HALF_COVER) {
             return "half"
-        } else if(cover_tile === 0 || cover_tile === 9) {
+        } else if(cover_tile === WALL || cover_tile === FULL_COVER) {
             return "full"
         }
 
