@@ -171,6 +171,7 @@ class BattleScene extends Phaser.Scene {
         this.movement_squares = []
         this.attack_squares = []
         this.use_item_squares = []
+        this.door_toggle_squares = []
 
         if(this.default_soldiers) {
             this.teams[2].push(
@@ -290,6 +291,7 @@ class BattleScene extends Phaser.Scene {
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
         this.emitter.on('ATTACK_CLICKED', this.performAttack.bind(this))
         this.emitter.on('HEAL_ITEM_CLICKED', this.useHealItem.bind(this))
+        this.emitter.on('DOOR_TOGGLE_CLICKED', this.toggleDoor.bind(this))
         
         document.getElementById('end-turn').onclick = function() {
             this.endTurn()
@@ -310,6 +312,8 @@ class BattleScene extends Phaser.Scene {
         document.addEventListener('click', (e) => {
             if(e.target.className === 'item-button') {
                 this.itemClicked(e.target.id)
+            } else if (e.target.id === 'door-toggle') {
+                this.showDoorToggleOptions()
             }
         })
 
@@ -689,6 +693,7 @@ class BattleScene extends Phaser.Scene {
         this.cleanUpAttackSquares()
         this.cleanUpMovementSquares()
         this.cleanUpUseItemSquares()
+        this.cleanUpSquares(this.door_toggle_squares)
     }
 
     cleanUpAttackSquares() {
@@ -710,6 +715,13 @@ class BattleScene extends Phaser.Scene {
             square.destroy()
         })
         this.use_item_squares = []
+    }
+
+    cleanUpSquares(square_list) {
+        square_list.forEach( (square) => {
+            square.destroy()
+        })
+        square_list = []
     }
 
     getMapDistance(tile_one, tile_two) {
@@ -826,16 +838,51 @@ class BattleScene extends Phaser.Scene {
         }
     }
 
-    toggleDoor(target_tile) {
+    showDoorToggleOptions() {
+        let position = this.active_soldier.tile
+        if(position.x > 0) {
+            let left_side = this.map[position.y][position.x - 1]
+            this.addDoorToggleActionBox(position, left_side)
+        }
+        if(this.active_soldier.tile.y > 0) {
+            let top_side = this.map[position.y - 1][position.x]
+            this.addDoorToggleActionBox(position, top_side)
+        }
+        if(this.active_soldier.tile.x < this.map_width) {
+            let right_side = this.map[position.y][position.x + 1]
+            this.addDoorToggleActionBox(position, right_side)
+        }
+        if(this.active_soldier.tile.y < this.map_height) {
+            let down_side = this.map[position.y][position.x - 1]
+            this.addDoorToggleActionBox(position, down_side)
+        }
+    }
 
-        if(this.map[target_tile.y][target_tile.x] === DOOR_CLOSED) {
+    addDoorToggleActionBox(position, map_tile) {
+        if(map_tile === DOOR_CLOSED || map_tile === DOOR_OPEN) {
+            let key = position.x + "_" + position.y
+            this.door_toggle_squares.push(new SelectionBox({ 
+                scene: this,
+                x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
+                y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
+                key: 'movement_box',
+                event_name: 'DOOR_TOGGLE_CLICKED',
+                tile: { x: this.unitMovement.map_tiles[key].x, y: this.unitMovement.map_tiles[key].y }
+                })
+            )
+        }
+    }
+
+    toggleDoor(target_box) {
+
+        if(this.map[target_box.tile.y][target_box.tile.x] === DOOR_CLOSED) {
             // open door
-            this.map[target_tile.y][target_tile.x] = DOOR_OPEN
-            this.map_tiles[target_tile.x + "_" + target_tile.y].color = 0x00a0a0
-        } else if(this.map[target_tile.y][target_tile.x] === DOOR_OPEN) {
+            this.map[target_box.tile.y][target_box.tile.x] = DOOR_OPEN
+            this.map_tiles[target_box.tile.x + "_" + target_tile.y].color = 0x00a0a0
+        } else if(this.map[target_box.tile.y][target_box.tile.x] === DOOR_OPEN) {
             // close door
-            this.map[target_tile.y][target_tile.x] = DOOR_CLOSED
-            this.map_tiles[target_tile.x + "_" + target_tile.y].color = 0x00fafa
+            this.map[target_box.tile.y][target_box.tile.x] = DOOR_CLOSED
+            this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].color = 0x00fafa
         }
 
         this.playerVision.updateMap(this.map)
