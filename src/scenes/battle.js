@@ -898,6 +898,7 @@ class BattleScene extends Phaser.Scene {
             this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].fillColor = 0x00fafa
         }
 
+        // refactor this into its own function
         this.playerVision.updateMap(this.map)
         this.unitMovement.updateMap(this.map)
         this.playerVision.markAllHidden()
@@ -905,6 +906,7 @@ class BattleScene extends Phaser.Scene {
             this.playerVision.getVisibleTiles(unit, false)
         }.bind(this))
         this.changeDisplay(this.playerVision.map_tiles)
+
         this.cleanUpAllActionSquares()
     }
 
