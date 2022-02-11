@@ -312,7 +312,7 @@ class BattleScene extends Phaser.Scene {
         document.addEventListener('click', (e) => {
             if(e.target.className === 'item-button') {
                 this.itemClicked(e.target.id)
-            } else if (e.target.id === 'door-toggle') {
+            } else if (e.target.id === 'toggle-door') {
                 this.showDoorToggleOptions()
             }
         })
@@ -339,6 +339,7 @@ class BattleScene extends Phaser.Scene {
         ui_block.appendChild(this.createUIActionButton("change-attack", "Change Attack Mode", "Changes the attack mode of currently selected weapon"))
         ui_block.appendChild(this.createUIActionButton("show-attacks", "Attack", "Show attacks in range of currently selected weapon"))
         ui_block.appendChild(this.createUIActionButton("soldier-rest", "Rest", "Use remaining AP to recover fatigue"))
+        ui_block.appendChild(this.createUIActionButton("toggle-door", "Open/Close Doors", "Show doors that can be opened or closed nearby"))
         ui_block.appendChild(this.createUIActionButton("end-turn", "End Turn >>"))
     }
 
@@ -839,22 +840,31 @@ class BattleScene extends Phaser.Scene {
     }
 
     showDoorToggleOptions() {
-        let position = this.active_soldier.tile
+        this.cleanUpAllActionSquares()
+        let position = this.active_soldier.map_tile
         if(position.x > 0) {
-            let left_side = this.map[position.y][position.x - 1]
+            position.x -= 1
+            let left_side = this.map[position.y][position.x]
             this.addDoorToggleActionBox(position, left_side)
+            position.x += 1
         }
-        if(this.active_soldier.tile.y > 0) {
-            let top_side = this.map[position.y - 1][position.x]
+        if(position.y > 0) {
+            position.y -= 1
+            let top_side = this.map[position.y][position.x]
             this.addDoorToggleActionBox(position, top_side)
+            position.y += 1
         }
-        if(this.active_soldier.tile.x < this.map_width) {
-            let right_side = this.map[position.y][position.x + 1]
+        if(position.x < this.map_width) {
+            position.x += 1
+            let right_side = this.map[position.y][position.x]
             this.addDoorToggleActionBox(position, right_side)
+            position.x -= 1
         }
-        if(this.active_soldier.tile.y < this.map_height) {
-            let down_side = this.map[position.y][position.x - 1]
+        if(position.y < this.map_height) {
+            position.y += 1
+            let down_side = this.map[position.y][position.x]
             this.addDoorToggleActionBox(position, down_side)
+            position.y -= 1
         }
     }
 
@@ -865,11 +875,14 @@ class BattleScene extends Phaser.Scene {
                 scene: this,
                 x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
                 y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
-                key: 'movement_box',
+                key: 'attack_box',
                 event_name: 'DOOR_TOGGLE_CLICKED',
                 tile: { x: this.unitMovement.map_tiles[key].x, y: this.unitMovement.map_tiles[key].y }
                 })
             )
+            console.log(this.door_toggle_squares)
+        } else {
+            console.log("map tile at " + position.x + " " + position.y + " recorded as: " + map_tile)
         }
     }
 
@@ -878,15 +891,21 @@ class BattleScene extends Phaser.Scene {
         if(this.map[target_box.tile.y][target_box.tile.x] === DOOR_CLOSED) {
             // open door
             this.map[target_box.tile.y][target_box.tile.x] = DOOR_OPEN
-            this.map_tiles[target_box.tile.x + "_" + target_tile.y].color = 0x00a0a0
+            this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].fillColor = 0x00a0a0
         } else if(this.map[target_box.tile.y][target_box.tile.x] === DOOR_OPEN) {
             // close door
             this.map[target_box.tile.y][target_box.tile.x] = DOOR_CLOSED
-            this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].color = 0x00fafa
+            this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].fillColor = 0x00fafa
         }
 
         this.playerVision.updateMap(this.map)
         this.unitMovement.updateMap(this.map)
+        this.playerVision.markAllHidden()
+        this.teams[this.active_team].forEach(function(unit) {
+            this.playerVision.getVisibleTiles(unit, false)
+        }.bind(this))
+        this.changeDisplay(this.playerVision.map_tiles)
+        this.cleanUpAllActionSquares()
     }
 
 }
