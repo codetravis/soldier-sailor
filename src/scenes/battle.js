@@ -892,10 +892,21 @@ class BattleScene extends Phaser.Scene {
             // open door
             this.map[target_box.tile.y][target_box.tile.x] = DOOR_OPEN
             this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].fillColor = 0x00a0a0
+            // pay action point cost
         } else if(this.map[target_box.tile.y][target_box.tile.x] === DOOR_OPEN) {
-            // close door
-            this.map[target_box.tile.y][target_box.tile.x] = DOOR_CLOSED
-            this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].fillColor = 0x00fafa
+            // check that no units are on the tile
+            let occupied = false
+            this.teams.flat().forEach( (unit) => {
+                if(unit.map_tile.x === target_box.tile.x && unit.map_tile.y === target_box.tile.y) {
+                    occupied = true
+                }
+            })
+            // close door if not occupied
+            if(!occupied) {
+                this.map[target_box.tile.y][target_box.tile.x] = DOOR_CLOSED
+                this.map_tiles[target_box.tile.x + "_" + target_box.tile.y].fillColor = 0x00fafa
+                // pay action point cost
+            }
         }
 
         // refactor this into its own function
