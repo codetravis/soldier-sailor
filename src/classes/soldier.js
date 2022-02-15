@@ -393,13 +393,20 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     reloadActiveWeapon() {
+        // TODO limit this by AP cost
         let item_keys = Object.keys(this.inventory)
         let weapon = this.weapons[this.active_weapon_key]
-        item_keys.forEach( function(key) {
-            if(this.inventory[key].item_type === weapon.ammo_type) {
-                weapon.ammo.push(this.inventory[key])
+        item_keys.forEach( (key) => {
+            if(this.inventory[key]) {
+                if(this.inventory[key].item_type === weapon.ammo_type && this.inventory[key].uses > 0) {
+                    while(this.inventory[key].uses > 0 && weapon.ammo.length < weapon.max_ammo) {
+                        console.log("adding ammo to active weapon")
+                        weapon.ammo.push(this.inventory[key])
+                        this.inventory[key].uses -= 1
+                    }
+                }
             }
-        }.bind(this))
+        })
     }
 
     setEffectiveStats() {
@@ -441,11 +448,12 @@ class Soldier extends Phaser.GameObjects.Sprite {
         let attack = weapon.attacks[this.selected_attack_key]
         this.fatigue += attack.fatigue_cost
         this.ap -= attack.ap_cost
-        if(attack.uses_ammo) {
+        if(weapon.uses_ammo) {
             let ammo_used = Math.min(attack.max_ammo_used, weapon.ammo.length)
             for(let i = 0; i < ammo_used; i++) {
                 weapon.ammo.shift()
             }
+            console.log("Weapon ammo after attack: " + weapon.ammo.length + "/" + weapon.max_ammo)
         }
         console.log(this.fatigue)
     }
@@ -456,7 +464,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         let enough_fatigue = this.fatigue + attack.fatigue_cost <= this.max_fatigue
         let enough_ap = attack.ap_cost <= this.ap
         let enough_ammo = true
-        if(attack.uses_ammo) {
+        if(attack.max_ammo_used > 0) {
             if(weapon.ammo.length === 0) {
                 enough_ammo = false   
             }

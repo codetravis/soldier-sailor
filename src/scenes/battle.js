@@ -309,6 +309,10 @@ class BattleScene extends Phaser.Scene {
             this.activeSoldierRest()
         }.bind(this)
 
+        document.getElementById('reload-weapon').onclick = function () {
+            this.attemptReload()
+        }.bind(this)
+
         document.addEventListener('click', (e) => {
             if(e.target.className === 'item-button') {
                 this.itemClicked(e.target.id)
@@ -339,6 +343,7 @@ class BattleScene extends Phaser.Scene {
         ui_block.appendChild(this.createUIActionButton("change-attack", "Change Attack Mode", "Changes the attack mode of currently selected weapon"))
         ui_block.appendChild(this.createUIActionButton("show-attacks", "Attack", "Show attacks in range of currently selected weapon"))
         ui_block.appendChild(this.createUIActionButton("soldier-rest", "Rest", "Use remaining AP to recover fatigue"))
+        ui_block.appendChild(this.createUIActionButton("reload-weapon", "Reload Weapon", "Attempt to reload currently selected weapon from inventory"))
         ui_block.appendChild(this.createUIActionButton("toggle-door", "Open/Close Doors", "Show doors that can be opened or closed nearby"))
         ui_block.appendChild(this.createUIActionButton("end-turn", "End Turn >>"))
     }
@@ -919,6 +924,13 @@ class BattleScene extends Phaser.Scene {
         this.changeDisplay(this.playerVision.map_tiles)
 
         this.cleanUpAllActionSquares()
+    }
+
+    attemptReload() {
+        if(this.active_soldier) {
+            console.log("attempting reload")
+            this.active_soldier.reloadActiveWeapon()
+        }
     }
 
 }

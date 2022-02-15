@@ -34,7 +34,7 @@ class Items {
       'base_damage': 8,
     },
     'Homemade Energy Cell': {
-      'item_type': 'energy_ammo',
+      'item_type': 'energy_cell',
       'apply': false,
       'energy_charge': 5,
     },
