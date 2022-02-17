@@ -21,6 +21,8 @@ class MainMenuScene extends Phaser.Scene {
         document.getElementById('start-battle').onclick = function() {
             this.startBattle()
         }.bind(this)
+
+        this.add.text(100, 100, "Main Menu")
     }
 
     startBattle() {

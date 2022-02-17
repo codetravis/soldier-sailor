@@ -325,6 +325,9 @@ class BattleScene extends Phaser.Scene {
         this.initiative_soldier_id = null
 
         // begin game by ending neutral team turn
+        this.turns_passed = 0
+        this.max_turns = 5
+
         this.endTurn()
     }
 
@@ -364,10 +367,16 @@ class BattleScene extends Phaser.Scene {
         console.log("ending turn")
         if(this.initiative_queue.length === 0) {
             console.log("beginning new round")
+            this.turns_passed += 1
             this.createInitiativeQueue()
             this.teams.flat().forEach((unit) => {
                 unit.beginNewTurn()
             })
+        }
+
+        if(this.turns_passed >= this.max_turns) {
+            // Go to battle over scene
+            this.scene.start('PostBattleScene', { winner: "draw" })
         }
         let initiative_unit = this.initiative_queue.pop()
         this.playerVision.markAllHidden()
