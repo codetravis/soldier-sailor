@@ -193,11 +193,11 @@ class BattleScene extends Phaser.Scene {
                         core: 2,
                         limbs: 3,
                         hands: 2,
-                        build: 3
+                        build: 1
                     },
                     armor: {
                         torso: {
-                            durability: 30,
+                            durability: 0,
                             max_durability: 30,
                             coverage: 50,
                             ballistic: 10,
@@ -241,7 +241,7 @@ class BattleScene extends Phaser.Scene {
                     team: 2,
                     race: 'goblin',
                     background: 'nurse',
-                    level: 2,
+                    level: 1,
                     equipment_value: 500
                 })
             )
@@ -326,7 +326,7 @@ class BattleScene extends Phaser.Scene {
 
         // begin game by ending neutral team turn
         this.turns_passed = 0
-        this.max_turns = 5
+        this.max_turns = 30
 
         this.endTurn()
     }
@@ -365,6 +365,7 @@ class BattleScene extends Phaser.Scene {
 
     endTurn() {
         console.log("ending turn")
+        this.checkForDominationVictory()
         if(this.initiative_queue.length === 0) {
             console.log("beginning new round")
             this.turns_passed += 1
@@ -378,6 +379,7 @@ class BattleScene extends Phaser.Scene {
             // Go to battle over scene
             this.scene.start('PostBattleScene', { winner: "draw" })
         }
+
         let initiative_unit = this.initiative_queue.pop()
         this.playerVision.markAllHidden()
         this.active_team = initiative_unit.team
@@ -389,6 +391,24 @@ class BattleScene extends Phaser.Scene {
         this.move_path = []
         this.active_box.setAlpha(0)
         this.changeDisplay(this.playerVision.map_tiles)
+    }
+
+    getActiveTeams() {
+        let active_teams = []
+        this.teams.forEach( (team) => {
+            let active_units = team.filter( (unit) => !unit.isDown() )
+            if(active_units.length > 0) {
+                active_teams.push(team[0].team)
+            }
+        })
+        return active_teams
+    }
+
+    checkForDominationVictory() {
+        const active_teams = this.getActiveTeams()
+        if(active_teams.length === 1) {
+            this.scene.start('PostBattleScene', { winner: 'Team ' + active_teams[0] })
+        }
     }
 
     createInitiativeQueue() {
@@ -575,10 +595,10 @@ class BattleScene extends Phaser.Scene {
             let cover = this.checkForCover(this.active_soldier, target)
             if(attack.damage_type !== "elemental") {
                 if(cover === "full") {
-                    attack.accuracy = attack.accuracy * 0.50
+                    attack.accuracy = Math.floor(attack.accuracy * 0.50)
                     console.log("Target in full cover, halving accuracy")
                 } else if (cover === "half") {
-                    attack.accuracy = attack.accuracy * 0.75
+                    attack.accuracy = Math.floor(attack.accuracy * 0.75)
                     console.log("Target in half cover, accuracy reduced by 25%")
                 }
             }
@@ -586,12 +606,12 @@ class BattleScene extends Phaser.Scene {
             // roll for hit
             let hit_roll = this.randomDiceRoll(100)
             if(attack.accuracy < 0) {// < hit_roll) {
-                console.log("Attack missed: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)
+                console.log("Attack missed: Hit Chance => " + attack.accuracy + " | Roll => " + hit_roll)
                 this.active_soldier.payAttackCost()
                 this.setInfoPanelForSoldier(this.active_soldier)
                 return
             }
-            console.log("Attack Hit: Hit Chance - " + attack.accuracy + " | Roll - " + hit_roll)
+            console.log("Attack Hit: Hit Chance => " + attack.accuracy + " | Roll => " + hit_roll)
 
             // if hit, apply damage
             // roll for hit location
@@ -607,11 +627,13 @@ class BattleScene extends Phaser.Scene {
                 })
             }
             this.active_soldier.payAttackCost()
-            console.log(target.health)
+            //console.log(target.health)
             this.setInfoPanelForSoldier(this.active_soldier)
         } else {
             console.log("Unable to attack. Either not enough AP, Fatigue, or Ammo")
         }
+
+        this.checkForDominationVictory()
     }
 
     checkForCover(attacker, defender) {
@@ -680,7 +702,7 @@ class BattleScene extends Phaser.Scene {
                 }
             })
         }
-        this.cleanUpUseItemSquares()
+        this.cleanUpAllActionSquares()
     }
 
     randomDiceRoll(dice_size) {
@@ -705,31 +727,10 @@ class BattleScene extends Phaser.Scene {
     }
 
     cleanUpAllActionSquares() {
-        this.cleanUpAttackSquares()
-        this.cleanUpMovementSquares()
-        this.cleanUpUseItemSquares()
+        this.cleanUpSquares(this.attack_squares)
+        this.cleanUpSquares(this.movement_squares)
+        this.cleanUpSquares(this.use_item_squares)
         this.cleanUpSquares(this.door_toggle_squares)
-    }
-
-    cleanUpAttackSquares() {
-        this.attack_squares.forEach(function(square) {
-            square.destroy()
-        })
-        this.attack_squares = []
-    }
-
-    cleanUpMovementSquares() {
-        this.movement_squares.forEach(function(square) {
-            square.destroy()
-        })
-        this.movement_squares = []
-    }
-
-    cleanUpUseItemSquares() {
-        this.use_item_squares.forEach(function(square) {
-            square.destroy()
-        })
-        this.use_item_squares = []
     }
 
     cleanUpSquares(square_list) {
@@ -783,7 +784,7 @@ class BattleScene extends Phaser.Scene {
         if(this.active_soldier) {
             this.move_path = this.pathfinder.aStar({x: this.active_soldier.map_tile.x, y: this.active_soldier.map_tile.y}, 
                                                 {x: movement_box.tile.x, y: movement_box.tile.y})
-            this.cleanUpMovementSquares()
+            this.cleanUpAllActionSquares()
         }
     }
 

@@ -189,9 +189,11 @@ class Soldier extends Phaser.GameObjects.Sprite {
         }
 
         // modify accuracy based on solider morale
-        let morale_modifier = Math.floor(((this.morale - 40) / 10)) * 5
+        let morale_modifier = Math.floor(((this.morale - 40) / 10)) * 3
         attack.accuracy += morale_modifier
 
+        // minimum chance to hit is 1
+        attack.accuracy = Math.min(1, attack.accuracy)
         return attack
     }
 
@@ -245,6 +247,10 @@ class Soldier extends Phaser.GameObjects.Sprite {
             this.reduceMorale(6)
         }
         this.fatigue += fatigue_damage
+        // pass damage to missing limbs onto torso
+        if(this.health[location] <= 0) {
+            location = 'torso'
+        }
         this.health[location] -= damage
     }
 
@@ -440,7 +446,6 @@ class Soldier extends Phaser.GameObjects.Sprite {
         let move_cost = this.nextMoveAPCost()
         this.ap -= move_cost
         this.fatigue += this.move_fatigue_cost
-        console.log(this.fatigue)
     }
 
     payAttackCost() {
@@ -455,7 +460,6 @@ class Soldier extends Phaser.GameObjects.Sprite {
             }
             console.log("Weapon ammo after attack: " + weapon.ammo.length + "/" + weapon.max_ammo)
         }
-        console.log(this.fatigue)
     }
 
     canPayAttackCost() {

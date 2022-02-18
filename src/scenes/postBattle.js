@@ -7,7 +7,11 @@ class PostBattleScene extends Phaser.Scene {
   }
 
   create(data) {
-    this.winner = data.winner
+    if(data) {
+      this.winner = data.winner
+    } else {
+      this.winner = 'inconclusive'
+    }
     console.log(this.winner)
     let ui_block = document.getElementById('control-ui')
     ui_block.style.display = 'block'
@@ -19,6 +23,7 @@ class PostBattleScene extends Phaser.Scene {
     ui_block.replaceChildren()
     ui_block.appendChild(button)
     
+    this.add.text(100, 100, "Post Battle Result: " + this.winner)
 
     document.getElementById('main-menu').onclick = function() {
         this.returnMainMenu()
