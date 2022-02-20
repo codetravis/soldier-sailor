@@ -332,7 +332,7 @@ class BattleScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        if(this.active_soldier && this.move_path.length >= 1 && this.active_soldier.movement_remaining > 0) {
+        if(this.active_soldier && this.move_path.length >= 1) {
             this.performMovement()
             this.setInfoPanelForSoldier(this.active_soldier)
         }
@@ -454,6 +454,10 @@ class BattleScene extends Phaser.Scene {
                 this.changeDisplay(this.playerVision.map_tiles)
                 this.active_soldier.applyMovementStatChange()
             }
+
+            if(this.active_soldier.getMovementRange() ===0) {
+                this.move_path = []
+            }
         }
     }
 
@@ -543,7 +547,7 @@ class BattleScene extends Phaser.Scene {
         this.unitMovement.getVisibleTiles(soldier, true)
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
             let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]
-            if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.movement_remaining &&
+            if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.getMovementRange() &&
                 target_tile !== WALL && target_tile !== HALF_COVER && target_tile !== FULL_COVER && target_tile !== DOOR_CLOSED &&
                 !this.isOtherUnitOnTile(this.unitMovement.map_tiles[key])) {
                 this.movement_squares.push(new SelectionBox({ 

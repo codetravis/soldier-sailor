@@ -19,13 +19,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.setAllAttributes(config.attributes)
         this.setAllSkills(config.skills)
         this.setEffectiveStats()
-        this.movement_remaining = this.move_speed
-        this.movement_completed = 0
         this.facing = config.facing
         this.angle = this.facing * 45
 
         this.fatigue = 0
         this.ap = 0
+        this.movement_completed = 0
+        this.move_ap_paid = 0
         this.set_health_by_race()
 
         this.setWeapons(config.weapons)
@@ -114,15 +114,12 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     moveSoldierTowardTargetPoint(target) {
-        if(this.fatigue >= this.max_fatigue) {
-            console.log("Too tired to move")
-            this.movement_remaining = 0
-        }
-        if(this.ap < this.nextMoveAPCost()) {
+
+        if(this.ap <= 0) {
             console.log("Not enough AP left to move another space")
         }
 
-        if(this.movement_remaining > 0) {
+        if(this.getMovementRange() > 0) {
             if(target.x > this.x) {
                 this.x = this.x + 2
                 this.facing = 2
@@ -154,11 +151,22 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.map_tile = { x: (this.x - this.map_x_offset)/this.tile_size, y: (this.y - this.map_y_offset)/this.tile_size}
     }
 
-    beginNewTurn() {
-        this.movement_remaining = this.move_speed
+    beginNewTurn() { 
         this.movement_completed = 0
+        this.move_ap_paid = 0
         this.fatigue = Math.max(0, this.fatigue - this.fatigue_recovery)
         this.refreshAP()
+    }
+
+    getMovementRange() {
+        if(this.fatigue >= this.max_fatigue) {
+            return 0
+        }
+        if(this.ap <= 0) {
+            return 0
+        }
+
+        return Math.floor(this.ap * this.move_speed)
     }
 
     getAttackRange() {
@@ -193,7 +201,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         attack.accuracy += morale_modifier
 
         // minimum chance to hit is 1
-        attack.accuracy = Math.min(1, attack.accuracy)
+        attack.accuracy = Math.max(1, attack.accuracy)
         return attack
     }
 
@@ -417,7 +425,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     setEffectiveStats() {
         // TODO: apply buffs and debuffs
-        this.move_speed = Math.max(1, this.attributes.limbs + 1)
+        this.move_speed = this.attributes.limbs * 0.2 + 0.1
         this.sight_range = this.attributes.senses * 2 + 3
         this.max_fatigue = this.attributes.core * 10 + 20
         this.fatigue_recovery = this.attributes.core * 3 + 5
@@ -433,18 +441,24 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     nextMoveAPCost() {
         // adjust this calculation based off of limbs attribute and buffs / debuffs
-        if(this.movement_completed < 2) {
-            return 0
+        // should be movement_completed 
+        let ap_cost = 1
+        if(this.move_speed < 1) {
+            ap_cost = Math.floor(1 / this.move_speed)
         }
-        return 1
+
+        if(Math.floor(this.movement_completed / this.move_speed) < this.move_ap_paid) {
+            ap_cost = 0
+        }
+
+        return ap_cost
     }
 
     applyMovementStatChange() {
-        this.movement_remaining -= 1
         this.movement_completed += 1
-        
         let move_cost = this.nextMoveAPCost()
         this.ap -= move_cost
+        this.move_ap_paid += move_cost
         this.fatigue += this.move_fatigue_cost
     }
 
@@ -478,6 +492,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     refreshAP() {
+        // may calculate this from attributes
         this.ap = 10
         // apply buffs
         // apply debuffs
