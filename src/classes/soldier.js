@@ -2,6 +2,8 @@ import EventDispatcher from './eventDispatcher.js'
 import DiceRoller from './diceRoller.js'
 import { v4 as uuidv4 } from 'uuid';
 
+const DRONE = 'drone'
+
 class Soldier extends Phaser.GameObjects.Sprite {
     constructor(config) {
         super(config.scene, config.x, config.y, config.key)
@@ -14,6 +16,12 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         this.team = config.team
         this.race = config.race
+        this.parts = {}
+        if(this.race === DRONE) {
+            this.parts = config.parts
+            config.attributes = this.getAttributesFromParts(this.parts)
+            config.skills = this.parts.head.skills
+        }
         this.level = config.level || 1
         this.experience = config.experience || 0
         this.setAllAttributes(config.attributes)
@@ -51,14 +59,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
             right_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
             left_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build)
         }
-        this.max_health = {
-            head: 30 + (1 * this.attributes.build),
-            torso: 100 + (1 * this.attributes.core) + (3 * this.attributes.build),
-            right_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
-            left_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
-            right_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
-            left_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build)
-        }
+        this.max_health = this.health
         if(this.race == "orc") {
             this.modMaxHealth(5)
         } else if(this.race == "goblin") {
@@ -67,6 +68,18 @@ class Soldier extends Phaser.GameObjects.Sprite {
             this.modMaxHealth(2)
         } else if(this.race == "elf") {
             this.modMaxhealth(-2)
+        }
+
+        if(this.race === DRONE) {
+            this.health = {
+                head: this.parts.head.health,
+                torso: this.parts.torso.health,
+                right_arm: this.parts.right_arm.health,
+                left_arm: this.parts.left_arm.health,
+                right_leg: this.parts.right_leg.health,
+                left_leg: this.parts.left_leg.health
+            }
+            this.max_health = this.health
         }
     }
 
@@ -294,6 +307,19 @@ class Soldier extends Phaser.GameObjects.Sprite {
             hands: attributes.hands || 0,
             build: attributes.build || 0
         }
+    }
+
+    getAttributesFromParts(parts) {
+        let part_attributes = {
+            brains: parts.head.brains || 0,
+            senses: parts.head.senses || 0,
+            spirit: parts.head.spirit || 0,
+            core: parts.torso.core || 0,
+            limbs: Math.min(parts.left_leg.limbs, parts.right_leg.limbs),
+            hands: Math.min(parts.left_arm.hands, parts.right_arm.hands),
+            build: parts.torso.build || 0
+        }
+        return part_attributes
     }
 
     setAllSkills(skills) {

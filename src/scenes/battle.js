@@ -144,6 +144,24 @@ class BattleScene extends Phaser.Scene {
                 equipment_value: 500
             })
             this.teams[1].push(this.player_soldier)
+
+            let player_drone = soldier_factory.createNewSoldier({
+                scene: this, 
+                x: this.attacker_start_positions[1].x * this.tile_size + this.map_x_offset, 
+                y: this.attacker_start_positions[1].y * this.tile_size + this.map_y_offset, 
+                key: 'default_soldier', 
+                map_x_offset: this.map_x_offset,
+                map_y_offset: this.map_y_offset,
+                tile_size: this.tile_size,
+                facing: 4,
+                team: 1,
+                race: 'drone',
+                background: 'soldier',
+                level: 1,
+                drone_model: 'ACD-001',
+                equipment_value: 500
+            })
+            this.teams[1].push(player_drone)
         } else {
             this.soldier_templates["1"].forEach( (background, index) => {
                 this.teams[1].push(
@@ -544,6 +562,7 @@ class BattleScene extends Phaser.Scene {
     showSoldierMovement(soldier) {
         this.cleanUpAllActionSquares()
 
+        // TODO: change this from simple distance calc to pathfinding crawl
         this.unitMovement.getVisibleTiles(soldier, true)
         Object.keys(this.unitMovement.map_tiles).forEach(function(key) {
             let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]

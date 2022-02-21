@@ -1,6 +1,9 @@
 import Soldier from './soldier.js'
 import DiceRoller from './diceRoller.js'
 import Weapons from './weapons.js'
+import DroneParts from './droneParts.js'
+
+const DRONE = 'drone'
 
 class SoldierFactory {
     // possible backgrounds
@@ -13,8 +16,6 @@ class SoldierFactory {
     createNewSoldier(config) {
         let background = config.background || ''
         let race = config.race || 'human'
-        let skills = this.createRandomSkills(config.level, background)
-        let attributes = this.createRandomAttributes(config.level, background, race)
         let weapons = this.assignWeapon(background)
         let inventory = this.assignItems(background)
         let key = 'default_soldier'
@@ -22,6 +23,31 @@ class SoldierFactory {
             key = config.key
         }
 
+        if(race === DRONE) {
+            let drone_model = config.drone_model || 'ACD-001'
+            let parts = this.getDronePartsForModel(drone_model)
+
+            let soldier = new Soldier({
+                scene: config.scene,
+                x: config.x, 
+                y: config.y, 
+                key: key, 
+                map_x_offset: config.map_x_offset,
+                map_y_offset: config.map_y_offset,
+                tile_size: config.tile_size,
+                facing: config.facing,
+                team: config.team,
+                race: race,
+                parts: parts,
+                weapons: weapons,
+                inventory: inventory
+            })
+            return soldier
+        }
+
+        let skills = this.createRandomSkills(config.level, background)
+        let attributes = this.createRandomAttributes(config.level, background, race)
+        
         let soldier = new Soldier({
             scene: config.scene,
             x: config.x, 
@@ -39,6 +65,20 @@ class SoldierFactory {
             inventory: inventory
         })
         return soldier
+    }
+
+    getDronePartsForModel(model) {
+        let all_parts = new DroneParts().parts
+        let parts = {
+            head: all_parts.head[model],
+            torso: all_parts.torso[model],
+            right_arm: all_parts.right_arm[model],
+            left_arm: all_parts.left_arm[model],
+            right_leg: all_parts.right_leg[model],
+            left_leg: all_parts.left_leg[model]
+        }
+
+        return parts
     }
 
     createRandomSkills(level, background) {
