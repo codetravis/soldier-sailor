@@ -21,6 +21,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
             this.parts = config.parts
             config.attributes = this.getAttributesFromParts(this.parts)
             config.skills = this.parts.head.skills
+            config.armor = this.getArmorFromParts(this.parts)
         }
         this.level = config.level || 1
         this.experience = config.experience || 0
@@ -237,7 +238,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         let damage = attack.base_damage
         if(armor) {
             let coverage_roll = new DiceRoller().randomDiceRoll(100)
-            if(armor.coverage > coverage_roll && armor.durablity > 0) {
+            if(armor.coverage >= coverage_roll && armor.durablity > 0) {
                 // attack hit the armor
                 // mitigate damage by attack type and armor rating in relative area
                 if(attack.damage_type === "blunt") {
@@ -320,6 +321,19 @@ class Soldier extends Phaser.GameObjects.Sprite {
             build: parts.torso.build || 0
         }
         return part_attributes
+    }
+
+    getArmorFromParts(parts) {
+        let part_armor = {
+            head: parts.head.armor || 0,
+            torso: parts.torso.armor || 0,
+            left_arm: parts.left_arm.armor || 0,
+            right_arm: parts.right_arm.armor || 0,
+            left_leg: parts.left_leg.armor || 0,
+            right_leg: parts.right_leg.armor || 0
+        }
+
+        return part_armor
     }
 
     setAllSkills(skills) {
@@ -433,12 +447,17 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     reloadActiveWeapon() {
-        // TODO limit this by AP cost
         let item_keys = Object.keys(this.inventory)
         let weapon = this.weapons[this.active_weapon_key]
+        if(this.ap < weapon.reload_ap) {
+            console.log('Not enough AP to reload')
+            return
+        }
         item_keys.forEach( (key) => {
             if(this.inventory[key]) {
-                if(this.inventory[key].item_type === weapon.ammo_type && this.inventory[key].uses > 0) {
+                if(this.inventory[key].item_type === weapon.ammo_type && 
+                    this.inventory[key].uses > 0) {
+                    this.ap -= weapon.reload_ap
                     while(this.inventory[key].uses > 0 && weapon.ammo.length < weapon.max_ammo) {
                         console.log("adding ammo to active weapon")
                         weapon.ammo.push(this.inventory[key])
@@ -466,7 +485,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     nextMoveAPCost() {
-        // adjust this calculation based off of limbs attribute and buffs / debuffs
+        // adjust this calculation based off buffs / debuffs
         // should be movement_completed 
         let ap_cost = 1
         if(this.move_speed < 1) {

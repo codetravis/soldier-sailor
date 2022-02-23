@@ -11,7 +11,17 @@ class DroneParts {
           marksmanship: 2,
           unarmed: 1,
         },
-        health: 20
+        health: 20,
+        armor: {
+          durability: 5,
+          max_durability: 5,
+          coverage: 90,
+          ballistic: 5,
+          ablative: 5,
+          padded: 5,
+          buffs: {},
+          defuffs: {}
+        }
       }
     },
     torso: {
@@ -21,6 +31,16 @@ class DroneParts {
         core: 2,
         build: 1,
         health: 40,
+        armor: {
+          durability: 10,
+          max_durability: 10,
+          coverage: 90,
+          ballistic: 5,
+          ablative: 5,
+          padded: 5,
+          buffs: {},
+          defuffs: {}
+        }
       }
     },
     right_arm: {
@@ -29,6 +49,16 @@ class DroneParts {
         model: 'ACD-001',
         hands: 1,
         health: 10,
+        armor: {
+          durability: 5,
+          max_durability: 5,
+          coverage: 100,
+          ballistic: 5,
+          ablative: 5,
+          padded: 5,
+          buffs: {},
+          defuffs: {}
+        }
       }
     },
     left_arm: {
@@ -37,6 +67,16 @@ class DroneParts {
         model: 'ACD-001',
         hands: 1,
         health: 10,
+        armor: {
+          durability: 5,
+          max_durability: 5,
+          coverage: 100,
+          ballistic: 5,
+          ablative: 5,
+          padded: 5,
+          buffs: {},
+          defuffs: {}
+        }
       }
     },
     right_leg: {
@@ -45,6 +85,16 @@ class DroneParts {
         model: 'ACD-001',
         limbs: 1,
         health: 15,
+        armor: {
+          durability: 5,
+          max_durability: 5,
+          coverage: 100,
+          ballistic: 5,
+          ablative: 5,
+          padded: 5,
+          buffs: {},
+          defuffs: {}
+        }
       }
     },
     left_leg: {
@@ -53,6 +103,16 @@ class DroneParts {
         model: 'ACD-001',
         limbs: 1,
         health: 15,
+        armor: {
+          durability: 5,
+          max_durability: 5,
+          coverage: 100,
+          ballistic: 5,
+          ablative: 5,
+          padded: 5,
+          buffs: {},
+          defuffs: {}
+        }
       }
     }
   }
