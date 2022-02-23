@@ -169,6 +169,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.movement_completed = 0
         this.move_ap_paid = 0
         this.fatigue = Math.max(0, this.fatigue - this.fatigue_recovery)
+        this.setEffectiveStats()
         this.refreshAP()
     }
 
@@ -213,6 +214,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
         // modify accuracy based on solider morale
         let morale_modifier = Math.floor(((this.morale - 40) / 10)) * 3
         attack.accuracy += morale_modifier
+
+        // modify accuracy based on if arm health is 0 or less
+        if(this.health.left_arm <= 0 && this.health.right_arm <= 0) {
+            attack.accuracy = Math.floor(attack.accuracy * 0.75)
+        } else if (this.health.left_arm <= 0 || this.health.right_arm <= 0) {
+            attack.accuracy = Math.floor(attack.accuracy * 0.33)
+        }
 
         // minimum chance to hit is 1
         attack.accuracy = Math.max(1, attack.accuracy)
@@ -471,6 +479,11 @@ class Soldier extends Phaser.GameObjects.Sprite {
     setEffectiveStats() {
         // TODO: apply buffs and debuffs
         this.move_speed = this.attributes.limbs * 0.2 + 0.1
+        if(this.health.left_leg <= 0 && this.health.right_leg <= 0) {
+            this.move_speed = this.move_speed * 0.80
+        } else if (this.health.left_leg <= 0 || this.health.right_leg <= 0) {
+            this.move_speed = this.move_speed * 0.50
+        }
         this.sight_range = this.attributes.senses * 2 + 3
         this.max_fatigue = this.attributes.core * 10 + 20
         this.fatigue_recovery = this.attributes.core * 3 + 5
