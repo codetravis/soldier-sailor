@@ -18,6 +18,7 @@ const BOARDING = 7
 const HALF_COVER = 8
 const FULL_COVER = 9
 
+const DRONE = 'drone'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -242,6 +243,13 @@ class BattleScene extends Phaser.Scene {
                             'value': 50,
                             'uses': 2,
                             'weight': 10
+                        },
+                        1: {
+                            'name': 'Neuro Restore',
+                            'item_type': 'revive',
+                            'value': 200,
+                            'uses': 1,
+                            'weight': 5
                         }
                     }
                 })
@@ -263,6 +271,31 @@ class BattleScene extends Phaser.Scene {
                     equipment_value: 500
                 })
             )
+            let down_soldier = new Soldier({
+                scene: this, 
+                x: this.defender_start_positions["weapons"].x * this.tile_size + this.map_x_offset, 
+                y: this.defender_start_positions["weapons"].y * this.tile_size + this.map_y_offset, 
+                key: 'default_enemy_soldier', 
+                map_x_offset: this.map_x_offset,
+                map_y_offset: this.map_y_offset,
+                tile_size: this.tile_size,
+                facing: 4,
+                team: 2,
+                race: 'goblin',
+                attributes: {
+                    brains: 1,
+                    senses: 1,
+                    spirit: 1,
+                    core: 1,
+                    limbs: 1,
+                    hands: 1,
+                    build: 1
+                },
+            })
+            down_soldier.health.head = 0
+            console.log(down_soldier.health)
+            console.log(down_soldier.max_health)
+            this.teams[2].push(down_soldier)
         } else {
             const positions = Object.keys(this.defender_start_positions)
             this.soldier_templates["2"].forEach( (background, index) => {
@@ -310,6 +343,7 @@ class BattleScene extends Phaser.Scene {
         this.emitter.on('ATTACK_CLICKED', this.performAttack.bind(this))
         this.emitter.on('HEAL_ITEM_CLICKED', this.useHealItem.bind(this))
         this.emitter.on('DOOR_TOGGLE_CLICKED', this.toggleDoor.bind(this))
+        this.emitter.on('REVIVE_ITEM_CLICKED', this.useReviveItem.bind(this))
         
         document.getElementById('end-turn').onclick = function() {
             this.endTurn()
@@ -728,6 +762,30 @@ class BattleScene extends Phaser.Scene {
         this.cleanUpAllActionSquares()
     }
 
+    useReviveItem(item_square) {
+        console.log('attempting revive')
+        if(this.selected_item['uses'] > 0) {
+            let did_revive = false
+            this.teams[this.active_soldier.team].forEach( (soldier) => {
+                if(item_square.tile.x === soldier.map_tile.x && 
+                   item_square.tile.y === soldier.map_tile.y && 
+                   soldier.isDown() &&
+                   soldier.race !== DRONE) {
+                        console.log("reviving friendly soldier")
+                        let revive_item = new Items().items[this.selected_item['name']]
+                        did_revive = soldier.applyRevive(revive_item['revive_amount'])
+                        if(did_revive) {
+                            console.log("Revived friendly unit: " + did_revive)
+                            this.active_soldier.useItem(this.selected_item_key, 1)
+                        } else {
+                            console.log("Target is not down, no action taken.")
+                        }
+                }
+            })
+        }
+        this.cleanUpAllActionSquares()
+    }
+
     randomDiceRoll(dice_size) {
         return Math.floor(Math.random() * dice_size + 1)
     }
@@ -868,6 +926,22 @@ class BattleScene extends Phaser.Scene {
                                 y: soldier.y,
                                 key: 'attack_box',
                                 event_name: 'HEAL_ITEM_CLICKED',
+                                tile: { x: soldier.map_tile.x, y: soldier.map_tile.y }
+                            }))
+                        }
+                    })
+                } else if (this.selected_item['item_type'] === 'revive') {
+                    // find units that can be revived in adjoining squares (plus self)
+                    let source_tile = this.active_soldier.map_tile
+                    this.teams[this.active_soldier.team].forEach( (soldier) => {
+                        if(this.getMapDistance(source_tile, soldier.map_tile) < 2 && soldier.isDown()) {
+                            console.log("revive can reach friendly " + soldier.race)
+                            this.use_item_squares.push(new SelectionBox({ 
+                                scene: this,
+                                x: soldier.x, 
+                                y: soldier.y,
+                                key: 'attack_box',
+                                event_name: 'REVIVE_ITEM_CLICKED',
                                 tile: { x: soldier.map_tile.x, y: soldier.map_tile.y }
                             }))
                         }

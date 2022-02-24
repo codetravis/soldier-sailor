@@ -27,6 +27,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.experience = config.experience || 0
         this.setAllAttributes(config.attributes)
         this.setAllSkills(config.skills)
+        this.set_health_by_race()
         this.setEffectiveStats()
         this.facing = config.facing
         this.angle = this.facing * 45
@@ -35,7 +36,6 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.ap = 0
         this.movement_completed = 0
         this.move_ap_paid = 0
-        this.set_health_by_race()
 
         this.setWeapons(config.weapons)
         this.setArmor(config.armor)
@@ -60,7 +60,10 @@ class Soldier extends Phaser.GameObjects.Sprite {
             right_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
             left_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build)
         }
-        this.max_health = this.health
+        this.max_health = {}
+        Object.keys(this.health).forEach( (key) => {
+            this.max_health[key] = this.health[key]
+        })
         if(this.race == "orc") {
             this.modMaxHealth(5)
         } else if(this.race == "goblin") {
@@ -94,26 +97,37 @@ class Soldier extends Phaser.GameObjects.Sprite {
     applyHeal(max_amount) {
         max_amount = parseInt(max_amount)
         console.log("Able to heal: " + max_amount)
-        let heal_order = ['head', 'torso', 'right_leg', 'left_leg', 'right_arm', 'left_arm']
+        const heal_order = ['head', 'torso', 'right_leg', 'left_leg', 'right_arm', 'left_arm']
         let healed_amount = 0
-        heal_order.forEach( (part) => {
-            let missing_health = this.max_health[part] - this.health[part]
-            console.log(part + " is missing " + missing_health)
+        heal_order.forEach( (location) => {
+            let missing_health = this.max_health[location] - this.health[location]
+            console.log(location + " is missing " + missing_health)
             if(missing_health > 0 && max_amount > 0) {
-                console.log("healing " + part)
+                console.log("healing " + location)
                 if(missing_health < max_amount) {
-                    this.health[part] += missing_health
+                    this.health[location] += missing_health
                     amount -= missing_health
                     healed_amount += missing_health
                 } else {
-                    this.health[part] += max_amount
+                    this.health[location] += max_amount
                     healed_amount += max_amount
                     max_amount = 0
                 }
-                console.log(part + " healed " + this.health[part] + "/" + this.max_health[part])
+                console.log(location + " healed " + this.health[location] + "/" + this.max_health[location])
             }
         })
         return healed_amount
+    }
+
+    applyRevive(revive_amount) {
+        revive_amount = parseInt(revive_amount)
+        const locations = ['head', 'torso']
+        locations.forEach( (location) => {
+            console.log('revive healing ' + location + ' for soldier ' + this.id)
+            this.health[location] = Math.min(this.health[location] + revive_amount, this.max_health[location])
+            console.log(location + ' ' + this.health[location] + '/' + this.max_health[location])
+        })
+        return true
     }
 
     useItem(key, amount) {
