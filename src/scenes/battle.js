@@ -357,6 +357,10 @@ class BattleScene extends Phaser.Scene {
             this.changeActiveSoldierAttack()
         }.bind(this)
 
+        document.getElementById('change-weapon').onclick = function () {
+            this.changeActiveSoldierWeapon()
+        }.bind(this)
+
         document.getElementById('soldier-rest').onclick = function () {
             this.activeSoldierRest()
         }.bind(this)
@@ -796,6 +800,14 @@ class BattleScene extends Phaser.Scene {
             this.active_soldier.changeAttackMode()
             this.setInfoPanelForSoldier(this.active_soldier)
             console.log(this.active_soldier.selected_attack_key)
+        }
+    }
+
+    changeActiveSoldierWeapon() {
+        this.cleanUpAllActionSquares()
+        if(this.active_soldier) {
+            this.active_soldier.changeActiveWeapon()
+            this.setInfoPanelForSoldier(this.active_soldier)
         }
     }
 

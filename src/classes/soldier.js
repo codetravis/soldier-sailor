@@ -3,6 +3,43 @@ import DiceRoller from './diceRoller.js'
 import { v4 as uuidv4 } from 'uuid';
 
 const DRONE = 'drone'
+const UNARMED = { 
+    name: "Unarmed",
+    value: 0,
+    primary_skill: "unarmed",
+    uses_ammo: false,
+    ammo_type: null,
+    ammo: [],
+    max_ammo: 0,
+    reload_ap: 0,
+    attacks: {
+        "punch": {
+            ap_cost: 1,
+            base_damage: 4,
+            range: 1,
+            base_accuracy: 20,
+            fatigue_damage: 2, 
+            fatigue_cost: 1,
+            max_ammo_used: 0,
+            skill: "unarmed",
+            attack_type: "melee",
+            damage_type: "blunt",
+        },
+        "kick": {
+            ap_cost: 2,
+            base_damage: 8,
+            range: 1,
+            base_accuracy: 10,
+            fatigue_damage: 6,
+            fatigue_cost: 4,
+            max_ammo_used: 0,
+            skill: "unarmed",
+            attack_type: "melee",
+            damage_type: "blunt",
+        }
+    }
+}
+
 
 class Soldier extends Phaser.GameObjects.Sprite {
     constructor(config) {
@@ -207,14 +244,26 @@ class Soldier extends Phaser.GameObjects.Sprite {
         return this.weapons[this.active_weapon_key]
     }
 
+    changeActiveWeapon() {
+        if(this.active_weapon_key < 2) {
+            this.active_weapon_key += 1
+        } else {
+            this.active_weapon_key = 0
+        }
+    }
+
     getSelectedAttack() {
         let attack = this.weapons[this.active_weapon_key].attacks[this.selected_attack_key]
         let modifier = this.skills[attack.skill]
 
         if(attack.attack_type === "melee") {
-            attack.damage = attack.base_damage + Math.floor(this.attributes.build * attack.base_damage / 3)
+            attack.damage = attack.base_damage + Math.floor(this.attributes.build / 3 * attack.base_damage)
         } else {
             attack.damage = attack.base_damage
+        }
+
+        if(attack.skill === "unarmed") {
+            attack.damage += modifier
         }
 
         attack.accuracy = attack.base_accuracy
@@ -222,7 +271,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         // modify accuracy based on soldier skill
         let skill_modifier = parseInt(this.skills[modifier])
         if(!isNaN(skill_modifier)) {
-            attack.accuracy += skill_modifier
+            attack.accuracy += skill_modifier * 5
         }
 
         // modify accuracy based on solider morale
@@ -388,47 +437,32 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     setWeapons(weapons) {
-        if(weapons && Object.keys(weapons).length > 0) {
-            this.weapons = weapons
-        } else {
-            this.weapons = { "unarmed": { 
-                    name: "Unarmed",
-                    value: 0,
-                    primary_skill: "unarmed",
-                    uses_ammo: false,
-                    ammo_type: null,
-                    ammo: [],
-                    max_ammo: 0,
-                    reload_ap: 0,
-                    attacks: {
-                        "punch": {
-                            ap_cost: 1,
-                            base_damage: 4,
-                            range: 1,
-                            base_accuracy: 20,
-                            fatigue_damage: 2, 
-                            fatigue_cost: 1,
-                            max_ammo_used: 0,
-                            skill: "unarmed",
-                            attack_type: "melee",
-                            damage_type: "blunt",
-                        },
-                        "kick": {
-                            ap_cost: 2,
-                            base_damage: 8,
-                            range: 1,
-                            base_accuracy: 10,
-                            fatigue_damage: 6,
-                            fatigue_cost: 4,
-                            max_ammo_used: 0,
-                            skill: "unarmed",
-                            attack_type: "melee",
-                            damage_type: "blunt",
-                        }
-                    }
-                } 
+        this.weapons = { 0: UNARMED, 1: UNARMED, 2: UNARMED }
+        if(weapons) {
+            for(let i = 0; i < 3; i++) {
+                if(weapons.hasOwnProperty(i)) {
+                    this.weapons[i] = weapons[i]
+                }
             }
         }
+    }
+
+    addWeapon(weapon) {
+        for(let i = 0; i < 3; i++) {
+            if(this.weapons[i].name === "Unarmed") {
+                this.weapons[i] = weapon
+                break
+            }
+        }
+    }
+
+    removeWeapon(index_key) {
+        const current_weapon = this.weapons[index_key]
+        if(current_weapon.name === "Unarmed") {
+            return null
+        }
+        this.weapons[index_key] = UNARMED
+        return current_weapon
     }
 
     // armor format
@@ -464,6 +498,21 @@ class Soldier extends Phaser.GameObjects.Sprite {
                 if(inventory.hasOwnProperty(i)) {
                     this.inventory[i] = inventory[i]
                 }
+            }
+        }
+    }
+
+    removeItemFromInventory(item_index) {
+        const target_item = this.inventory[item_index]
+        this.inventory[item_index] = null
+        return target_item
+    }
+
+    addItemToInventory(item) {
+        for(let i = 0; i < 4; i++) {
+            if(!this.inventory[i]) {
+                this.inventory[i] = item
+                break
             }
         }
     }

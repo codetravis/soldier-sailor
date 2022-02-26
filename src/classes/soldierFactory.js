@@ -232,10 +232,10 @@ class SoldierFactory {
 
         let weapons = {}
         if(assigned_weapon) {
-            weapons[assigned_weapon] = all_weapons[assigned_weapon]
+            weapons[0] = all_weapons[assigned_weapon]
         }
 
-        return  weapons
+        return weapons
     }
 
     assignItems(background) {
