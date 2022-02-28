@@ -324,18 +324,7 @@ class BattleScene extends Phaser.Scene {
         this.move_path = []
 
         // add camera, controls and boundaries
-        this.cameras.main.setViewport(0, 0, 800, 500);
-        this.cameras.main.setBounds(-100, -100, this.map_width * 34 + 100, this.map_height * 34 + 200);
-
-        this.mainCameraControls = new Phaser.Cameras.Controls.FixedKeyControl({
-            camera: this.cameras.main,
-            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-            speed: 1.0
-        });
-        this.mainCameraControls.start();
+        this.setupCamera()
 
         this.emitter = EventDispatcher.getInstance();
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
@@ -380,6 +369,8 @@ class BattleScene extends Phaser.Scene {
         this.initiative_queue = []
         this.initiative_soldier_id = null
 
+        this.loose_items = []
+
         // begin game by ending neutral team turn
         this.turns_passed = 0
         this.max_turns = 30
@@ -393,6 +384,22 @@ class BattleScene extends Phaser.Scene {
             this.setInfoPanelForSoldier(this.active_soldier)
         }
         this.mainCameraControls.update(delta);
+    }
+
+    setupCamera() {
+        // add camera, controls and boundaries
+        this.cameras.main.setViewport(0, 0, 800, 500);
+        this.cameras.main.setBounds(-100, -100, this.map_width * 34 + 100, this.map_height * 34 + 200);
+
+        this.mainCameraControls = new Phaser.Cameras.Controls.FixedKeyControl({
+            camera: this.cameras.main,
+            up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+            left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+            down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+            right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+            speed: 1.0
+        });
+        this.mainCameraControls.start();
     }
 
     buildControlUI() {
@@ -1049,6 +1056,35 @@ class BattleScene extends Phaser.Scene {
         if(this.active_soldier) {
             console.log("attempting reload")
             this.active_soldier.reloadActiveWeapon()
+        }
+    }
+
+    attemptLoot() {
+        this.cleanUpAllActionSquares()
+        let position = this.active_soldier.map_tile
+        if(position.x > 0) {
+            position.x -= 1
+            let left_side = this.map[position.y][position.x]
+            //this.addLootToggleActionBox(position, left_side)
+            position.x += 1
+        }
+        if(position.y > 0) {
+            position.y -= 1
+            let top_side = this.map[position.y][position.x]
+            //this.addLootToggleActionBox(position, top_side)
+            position.y += 1
+        }
+        if(position.x < this.map_width) {
+            position.x += 1
+            let right_side = this.map[position.y][position.x]
+            //this.addLootToggleActionBox(position, right_side)
+            position.x -= 1
+        }
+        if(position.y < this.map_height) {
+            position.y += 1
+            let down_side = this.map[position.y][position.x]
+            //this.addLootToggleActionBox(position, down_side)
+            position.y -= 1
         }
     }
 

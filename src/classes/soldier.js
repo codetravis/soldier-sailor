@@ -557,7 +557,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
     }
 
     calculateInitiative() {
-        this.initiative = Math.floor(this.level + (this.spirit / 3) + (this.limbs / 3) + (this.morale / 10))
+        this.initiative = Math.floor(this.level + this.spirit + (this.limbs / 3) + (this.morale / 10))
     }
 
     nextMoveAPCost() {
