@@ -517,6 +517,14 @@ class Soldier extends Phaser.GameObjects.Sprite {
         }
     }
 
+    calculateLootActionCost() {
+        return Math.max(1, Math.floor(5 - this.attributes.hands / 2))
+    }
+
+    payLootCost() {
+        this.ap -= this.calculateLootActionCost()
+    }
+
     reloadActiveWeapon() {
         let item_keys = Object.keys(this.inventory)
         let weapon = this.weapons[this.active_weapon_key]

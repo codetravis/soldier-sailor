@@ -1059,7 +1059,82 @@ class BattleScene extends Phaser.Scene {
         }
     }
 
+    checkTileForLoot(tile) {
+        // TODO: check loose loot
+
+        // check for down soldier
+        this.teams.flat().forEach( (unit) => {
+            if(unit.map_tile.x === tile.x && unit.map_tile.y === tile.y && unit.isDown()) {
+                return unit
+            }
+        })
+    }
+
+    showAvailableLoot(loot) {
+        let info_detail = document.getElementById('info-detail')
+        info_detail.replaceChildren()
+
+        let weapon_label = document.createElement("p")
+        weapon_label.innerText = "Weapons"
+        info_detail.appendChild(weapon_label)
+
+        let weapon_info = document.createElement("ul")
+        Object.keys(loot.weapons).foreach((key) => {
+            if(loot.weapons[key]) {
+                let weapon_li = document.createElement("li")
+                let weapon_button = document.createElement("button")
+                weapon_button.setAttribute('class', 'loot-weapon-button')
+                weapon_button.setAttribute('id', 'loot_weapon_' + key)
+                weapon_button.setAttribute('title', loot.weapons[key]['name'] + " | Primary Skill: " + loot.weapons[key]['primary_skill'])
+                weapon_button.innerText = loot.weapons[key]['name']
+                weapon_li.appendChild(weapon_button)
+                weapon_info.appendChild(weapon_li)
+            }
+        })
+
+        let item_label = document.createElement("p")
+        item_label.innerText = "Items"
+        info_detail.appendChild(item_label)
+
+        let item_info = document.createElement("ul")
+        Object.keys(loot.inventory).forEach((key) => {
+            if(loot.inventory[key]) {
+                let item_li = document.createElement("li")
+                let item_button = document.createElement("button")
+                item_button.setAttribute('class', 'loot-item-button')
+                item_button.setAttribute('id', 'loot_item_' + key)
+                item_button.setAttribute('title', 'Uses: ' + loot.inventory[key]['uses'] + " | Weight: " + loot.inventory[key]['weight'])
+                item_button.innerText = loot.inventory[key]['name']
+                item_li.appendChild(item_button)
+                item_info.appendChild(item_li)
+            }
+        })
+        info_detail.appendChild(item_info)
+
+    }
+
+    pickUpLootFromUnit(unit, loot_type, loot_key) {
+        let loot = null
+        if(unit.isDown()) {
+            if(loot_type === 'weapon') {
+                loot = unit.removeWeapon(loot_key)
+                this.active_soldier.addWeapon(weapon)
+
+            } else if (loot_type === 'item') {
+                loot = unit.removeItemFromInventory(loot_key)
+                this.active_soldier.addItemToInventory(item)
+            }
+
+            if(loot) {
+                this.active_soldier.payLootCost()
+            }
+        }
+    }
+
     attemptLoot() {
+        if(this.active_soldier.ap < this.active_soldier.calculateLootActionCost()) {
+            return
+        }
         this.cleanUpAllActionSquares()
         let position = this.active_soldier.map_tile
         if(position.x > 0) {
