@@ -191,6 +191,7 @@ class BattleScene extends Phaser.Scene {
         this.attack_squares = []
         this.use_item_squares = []
         this.door_toggle_squares = []
+        this.loot_action_squares = []
 
         if(this.default_soldiers) {
             this.teams[2].push(
@@ -291,6 +292,15 @@ class BattleScene extends Phaser.Scene {
                     hands: 1,
                     build: 1
                 },
+                inventory: {
+                    1: {
+                        'name': 'Neuro Restore',
+                        'item_type': 'revive',
+                        'value': 200,
+                        'uses': 1,
+                        'weight': 5
+                    }
+                }
             })
             down_soldier.health.head = 0
             console.log(down_soldier.health)
@@ -333,6 +343,7 @@ class BattleScene extends Phaser.Scene {
         this.emitter.on('HEAL_ITEM_CLICKED', this.useHealItem.bind(this))
         this.emitter.on('DOOR_TOGGLE_CLICKED', this.toggleDoor.bind(this))
         this.emitter.on('REVIVE_ITEM_CLICKED', this.useReviveItem.bind(this))
+        this.emitter.on('LOOT_TILE_CLICKED', this.showAvailableLoot.bind(this))
         
         document.getElementById('end-turn').onclick = function() {
             this.endTurn()
@@ -358,11 +369,17 @@ class BattleScene extends Phaser.Scene {
             this.attemptReload()
         }.bind(this)
 
+        document.getElementById('attempt-loot').onclick = function () {
+            this.attemptLoot()
+        }.bind(this)
+
         document.addEventListener('click', (e) => {
             if(e.target.className === 'item-button') {
                 this.itemClicked(e.target.id)
             } else if (e.target.id === 'toggle-door') {
                 this.showDoorToggleOptions()
+            } else if (e.target.className === 'loot-item-button') {
+                this.pickUpLootFromUnit(e.target.id)
             }
         })
 
@@ -370,6 +387,7 @@ class BattleScene extends Phaser.Scene {
         this.initiative_soldier_id = null
 
         this.loose_items = []
+        this.loot_target = ''
 
         // begin game by ending neutral team turn
         this.turns_passed = 0
@@ -411,6 +429,7 @@ class BattleScene extends Phaser.Scene {
         ui_block.appendChild(this.createUIActionButton("soldier-rest", "Rest", "Use remaining AP to recover fatigue"))
         ui_block.appendChild(this.createUIActionButton("reload-weapon", "Reload Weapon", "Attempt to reload currently selected weapon from inventory"))
         ui_block.appendChild(this.createUIActionButton("toggle-door", "Open/Close Doors", "Show doors that can be opened or closed nearby"))
+        ui_block.appendChild(this.createUIActionButton("attempt-loot", "Loot Area", "Look for loot on the ground or downed units"))
         ui_block.appendChild(this.createUIActionButton("end-turn", "End Turn >>"))
     }
 
@@ -831,6 +850,7 @@ class BattleScene extends Phaser.Scene {
         this.cleanUpSquares(this.movement_squares)
         this.cleanUpSquares(this.use_item_squares)
         this.cleanUpSquares(this.door_toggle_squares)
+        this.cleanUpSquares(this.loot_action_squares)
     }
 
     cleanUpSquares(square_list) {
@@ -1059,18 +1079,28 @@ class BattleScene extends Phaser.Scene {
         }
     }
 
-    checkTileForLoot(tile) {
+    checkTileForLoot(select_box) {
         // TODO: check loose loot
-
+        console.log(select_box.tile)
         // check for down soldier
+        let loot = { weapons: {}, inventory: {} }
+        this.loot_target = 'loose_loot'
         this.teams.flat().forEach( (unit) => {
-            if(unit.map_tile.x === tile.x && unit.map_tile.y === tile.y && unit.isDown()) {
-                return unit
+            if(unit.map_tile.x === select_box.tile.x && unit.map_tile.y === select_box.tile.y && unit.isDown()) {
+                console.log("looting unit " + unit.id)
+                loot.weapons = unit.weapons
+                loot.inventory = unit.inventory
+                this.loot_target = unit.id
             }
         })
+
+        return loot
     }
 
-    showAvailableLoot(loot) {
+    showAvailableLoot(tile) {
+        this.cleanUpAllActionSquares()
+        let loot = this.checkTileForLoot(tile)
+        console.log(loot)
         let info_detail = document.getElementById('info-detail')
         info_detail.replaceChildren()
 
@@ -1079,7 +1109,7 @@ class BattleScene extends Phaser.Scene {
         info_detail.appendChild(weapon_label)
 
         let weapon_info = document.createElement("ul")
-        Object.keys(loot.weapons).foreach((key) => {
+        Object.keys(loot.weapons).forEach((key) => {
             if(loot.weapons[key]) {
                 let weapon_li = document.createElement("li")
                 let weapon_button = document.createElement("button")
@@ -1113,22 +1143,32 @@ class BattleScene extends Phaser.Scene {
 
     }
 
-    pickUpLootFromUnit(unit, loot_type, loot_key) {
+    pickUpLootFromUnit(button_id) {
+        let [action, loot_type, loot_key] = button_id.split('_')
+        console.log("attempting to transfer loot " + loot_type + " " + loot_key)
         let loot = null
-        if(unit.isDown()) {
+        let loot_unit = null
+        this.teams.flat().forEach( (unit) => {
+            if(this.loot_target === unit.id) {
+                loot_unit = unit
+            }
+        })
+        if(loot_unit.isDown()) {
             if(loot_type === 'weapon') {
-                loot = unit.removeWeapon(loot_key)
-                this.active_soldier.addWeapon(weapon)
+                loot = loot_unit.removeWeapon(loot_key)
+                this.active_soldier.addWeapon(loot)
 
             } else if (loot_type === 'item') {
-                loot = unit.removeItemFromInventory(loot_key)
-                this.active_soldier.addItemToInventory(item)
+                loot = loot_unit.removeItemFromInventory(loot_key)
+                this.active_soldier.addItemToInventory(loot)
             }
 
             if(loot) {
                 this.active_soldier.payLootCost()
             }
         }
+
+        this.setActiveSoldier(this.active_soldier)
     }
 
     attemptLoot() {
@@ -1139,28 +1179,37 @@ class BattleScene extends Phaser.Scene {
         let position = this.active_soldier.map_tile
         if(position.x > 0) {
             position.x -= 1
-            let left_side = this.map[position.y][position.x]
-            //this.addLootToggleActionBox(position, left_side)
+            this.addLootToggleActionBox(position)
             position.x += 1
         }
         if(position.y > 0) {
             position.y -= 1
-            let top_side = this.map[position.y][position.x]
-            //this.addLootToggleActionBox(position, top_side)
+            this.addLootToggleActionBox(position)
             position.y += 1
         }
         if(position.x < this.map_width) {
             position.x += 1
-            let right_side = this.map[position.y][position.x]
-            //this.addLootToggleActionBox(position, right_side)
+            this.addLootToggleActionBox(position)
             position.x -= 1
         }
         if(position.y < this.map_height) {
             position.y += 1
-            let down_side = this.map[position.y][position.x]
-            //this.addLootToggleActionBox(position, down_side)
+            this.addLootToggleActionBox(position)
             position.y -= 1
         }
+    }
+
+    addLootToggleActionBox(position) {
+        let key = position.x + "_" + position.y
+        this.loot_action_squares.push(new SelectionBox({ 
+            scene: this,
+            x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
+            y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
+            key: 'active_box',
+            event_name: 'LOOT_TILE_CLICKED',
+            tile: { x: this.unitMovement.map_tiles[key].x, y: this.unitMovement.map_tiles[key].y }
+            })
+        )
     }
 
 }
