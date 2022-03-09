@@ -3,6 +3,8 @@ import DiceRoller from './diceRoller.js'
 import { v4 as uuidv4 } from 'uuid';
 
 const DRONE = 'drone'
+const LOOT = 'loot'
+
 const UNARMED = { 
     name: "Unarmed",
     value: 0,
@@ -119,6 +121,16 @@ class Soldier extends Phaser.GameObjects.Sprite {
                 left_arm: this.parts.left_arm.health,
                 right_leg: this.parts.right_leg.health,
                 left_leg: this.parts.left_leg.health
+            }
+            this.max_health = this.health
+        } else if (this.race === LOOT) {
+            this.health = {
+                head: 0,
+                torso: 0,
+                right_arm: 0,
+                left_arm: 0,
+                right_leg: 0,
+                left_leg: 0
             }
             this.max_health = this.health
         }
@@ -554,6 +566,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
             this.move_speed = this.move_speed * 0.80
         } else if (this.health.left_leg <= 0 || this.health.right_leg <= 0) {
             this.move_speed = this.move_speed * 0.50
+        }
+        if(this.health.left_arm <= 0 && this.health.right_arm <= 0) {
+            this.throw_range = 0
+            this.throw_accuracy = 0
+        } else {
+            this.throw_range = this.attributes.build + Math.floor(this.attributes.limbs / 3) + 1
+            this.throw_accuracy = this.skills.throwing * 6 + this.attributes.hands * 3 + 5
         }
         this.sight_range = this.attributes.senses * 2 + 3
         this.max_fatigue = this.attributes.core * 10 + 20

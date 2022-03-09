@@ -19,6 +19,7 @@ const HALF_COVER = 8
 const FULL_COVER = 9
 
 const DRONE = 'drone'
+const LOOT = 'loot'
 
 class BattleScene extends Phaser.Scene {
     constructor() {
@@ -294,11 +295,61 @@ class BattleScene extends Phaser.Scene {
                 },
                 inventory: {
                     1: {
-                        'name': 'Neuro Restore',
-                        'item_type': 'revive',
+                        'name': 'HE Grenade',
+                        'item_type': 'throwable',
                         'value': 200,
                         'uses': 1,
                         'weight': 5
+                    }
+                },
+                weapons: {
+                    0: { name: "Makeshift Pistol",
+                        value: 200,
+                        primary_skill: "handguns",
+                        range: 3,
+                        uses_ammo: true,
+                        ammo_type: "ballistic_pistol_ammo",
+                        ammo: [],
+                        max_ammo: 1,
+                        reload_ap: 3,
+                        attacks: {
+                            'snap shot': {
+                                ap_cost: 1,
+                                base_damage: 10,
+                                range: 4,
+                                base_accuracy: 5,
+                                fatigue_damage: 2, 
+                                fatigue_cost: 1,
+                                max_ammo_used: 1,
+                                skill: "handguns",
+                                attack_type: "ranged",
+                                damage_type: "ballistic",
+                            },
+                            'aimed shot': {
+                                ap_cost: 3,
+                                base_damage: 10,
+                                range: 4,
+                                base_accuracy: 20,
+                                fatigue_damage: 2, 
+                                fatigue_cost: 1,
+                                max_ammo_used: 1,
+                                skill: "handguns",
+                                attack_type: "ranged",
+                                damage_type: "ballistic",
+                            },
+                            'smack': {
+                                ap_cost: 1,
+                                base_damage: 4,
+                                range: 1,
+                                base_accuracy: 10,
+                                fatigue_damage: 5, 
+                                fatigue_cost: 2,
+                                max_ammo_used: 0,
+                                skill: "bash_and_bludgeon",
+                                attack_type: "melee",
+                                damage_type: "blunt",
+                            }
+                        }
                     }
                 }
             })
@@ -344,6 +395,7 @@ class BattleScene extends Phaser.Scene {
         this.emitter.on('DOOR_TOGGLE_CLICKED', this.toggleDoor.bind(this))
         this.emitter.on('REVIVE_ITEM_CLICKED', this.useReviveItem.bind(this))
         this.emitter.on('LOOT_TILE_CLICKED', this.showAvailableLoot.bind(this))
+        this.emitter.on('THROWABLE_ITEM_CLICKED', this.throwItem.bind(this))
         
         document.getElementById('end-turn').onclick = function() {
             this.endTurn()
@@ -816,6 +868,41 @@ class BattleScene extends Phaser.Scene {
         this.cleanUpAllActionSquares()
     }
 
+    throwItem(item_square) {
+        if(this.selected_item['uses'] > 0) {
+            this.selected_item['uses'] -= 1
+            let throwable_item = new Items().items[this.selected_item['name']]
+            let hit_roll = this.randomDiceRoll(100)
+            if(throwable_item['damage_type'] === 'explosive') {
+                if(hit_roll <= this.active_soldier.throw_accuracy) {
+                    let random_x = this.randomDiceRoll(3) - 2
+                    let random_y = this.randomDiceRoll(3) - 2
+                    let random_distance = this.randomDiceRoll(3) - 1
+                    let actual_x = item_square.map_tile.x + random_x * random_distance
+                    let actual_y = item_square.map_tile.y + random_y * random_distance
+                    this.teams.flat().forEach((soldier) => {
+                        let distance = this.getMapDistance(soldier.map_tile, {x: actual_x, y: actual_y})
+                        if(distance <= throwable_item['damage_radius']) {
+                            let damage = throwable_item['damage_amount']
+                            if(distance > 0) {
+                                damage = Math.floor(damage / 2)
+                            }
+                            let attack = {
+                                base_damage: damage,
+                                damage_type: throwable_item['damage_type'],
+                                fatigue_damage: 5
+                            }
+                            soldier.health.forEach((location) => {
+                                soldier.applyDamage(attack, location)
+                            })
+                        }
+                    })
+                }
+            }
+        }
+        this.cleanUpAllActionSquares()
+    }
+
     randomDiceRoll(dice_size) {
         return Math.floor(Math.random() * dice_size + 1)
     }
@@ -983,6 +1070,28 @@ class BattleScene extends Phaser.Scene {
                                 event_name: 'REVIVE_ITEM_CLICKED',
                                 tile: { x: soldier.map_tile.x, y: soldier.map_tile.y }
                             }))
+                        }
+                    })
+                } else if (this.selected_item['item_type'] === 'throwable') {
+                    const start_tile = this.active_soldier.map_tile
+                    const throw_range = this.active_soldier.throw_range
+                    this.cleanUpAllActionSquares()
+
+                    this.unitMovement.getVisibleTiles(this.active_soldier, true)
+                    Object.keys(this.unitMovement.map_tiles).forEach( (key) => {
+                        let soldier = this.active_soldier
+                        let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]
+                        if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.getMovementRange() &&
+                            target_tile !== WALL && target_tile !== HALF_COVER && target_tile !== FULL_COVER && target_tile !== DOOR_CLOSED) {
+                            this.use_item_squares.push(new SelectionBox({ 
+                                    scene: this,
+                                    x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
+                                    y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
+                                    key: 'attack_box',
+                                    event_name: 'THROWABLE_ITEM_CLICKED',
+                                    tile: { x: this.unitMovement.map_tiles[key].x, y: this.unitMovement.map_tiles[key].y }
+                                })
+                            )
                         }
                     })
                 }

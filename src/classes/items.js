@@ -73,6 +73,13 @@ class Items {
       'repair_type': 'instant',
       'repair_amount': 15
     },
+    'HE Grenade': {
+      'item_type': 'throwable',
+      'apply': false,
+      'damage_type': 'explosive',
+      'damage_radius': 1,
+      'damage_amount': 10
+    } 
   }
 }
 
