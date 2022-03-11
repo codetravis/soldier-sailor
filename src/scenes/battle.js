@@ -298,7 +298,7 @@ class BattleScene extends Phaser.Scene {
                         'name': 'HE Grenade',
                         'item_type': 'throwable',
                         'value': 200,
-                        'uses': 1,
+                        'uses': 2,
                         'weight': 5
                     }
                 },
@@ -874,30 +874,35 @@ class BattleScene extends Phaser.Scene {
             let throwable_item = new Items().items[this.selected_item['name']]
             let hit_roll = this.randomDiceRoll(100)
             if(throwable_item['damage_type'] === 'explosive') {
+                let actual_x = item_square.tile.x
+                let actual_y = item_square.tile.y
+                console.log("Throwing object at tile " + actual_x + "," + actual_y)
                 if(hit_roll <= this.active_soldier.throw_accuracy) {
+                    console.log("Throw was off")
                     let random_x = this.randomDiceRoll(3) - 2
                     let random_y = this.randomDiceRoll(3) - 2
                     let random_distance = this.randomDiceRoll(3) - 1
-                    let actual_x = item_square.map_tile.x + random_x * random_distance
-                    let actual_y = item_square.map_tile.y + random_y * random_distance
-                    this.teams.flat().forEach((soldier) => {
-                        let distance = this.getMapDistance(soldier.map_tile, {x: actual_x, y: actual_y})
-                        if(distance <= throwable_item['damage_radius']) {
-                            let damage = throwable_item['damage_amount']
-                            if(distance > 0) {
-                                damage = Math.floor(damage / 2)
-                            }
-                            let attack = {
-                                base_damage: damage,
-                                damage_type: throwable_item['damage_type'],
-                                fatigue_damage: 5
-                            }
-                            soldier.health.forEach((location) => {
-                                soldier.applyDamage(attack, location)
-                            })
-                        }
-                    })
+                    actual_x = actual_x + random_x * random_distance
+                    actual_y = actual_y + random_y * random_distance
+                    console.log("Object landed in tile: " + actual_x + "," + actual_y)
                 }
+                this.teams.flat().forEach((soldier) => {
+                    let distance = this.getMapDistance(soldier.map_tile, {x: actual_x, y: actual_y})
+                    if(distance <= throwable_item['damage_radius']) {
+                        let damage = throwable_item['damage_amount']
+                        if(distance > 0) {
+                            damage = Math.floor(damage / 2)
+                        }
+                        let attack = {
+                            base_damage: damage,
+                            damage_type: throwable_item['damage_type'],
+                            fatigue_damage: 5
+                        }
+                        Object.keys(soldier.health).forEach( (location) => {
+                            soldier.applyDamage(attack, location)
+                        })
+                    }
+                })
             }
         }
         this.cleanUpAllActionSquares()
@@ -1072,29 +1077,27 @@ class BattleScene extends Phaser.Scene {
                             }))
                         }
                     })
-                } else if (this.selected_item['item_type'] === 'throwable') {
-                    const start_tile = this.active_soldier.map_tile
-                    const throw_range = this.active_soldier.throw_range
-                    this.cleanUpAllActionSquares()
+                } 
+            } else if (this.selected_item['item_type'] === 'throwable') {
+                this.cleanUpAllActionSquares()
 
-                    this.unitMovement.getVisibleTiles(this.active_soldier, true)
-                    Object.keys(this.unitMovement.map_tiles).forEach( (key) => {
-                        let soldier = this.active_soldier
-                        let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]
-                        if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.getMovementRange() &&
-                            target_tile !== WALL && target_tile !== HALF_COVER && target_tile !== FULL_COVER && target_tile !== DOOR_CLOSED) {
-                            this.use_item_squares.push(new SelectionBox({ 
-                                    scene: this,
-                                    x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
-                                    y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
-                                    key: 'attack_box',
-                                    event_name: 'THROWABLE_ITEM_CLICKED',
-                                    tile: { x: this.unitMovement.map_tiles[key].x, y: this.unitMovement.map_tiles[key].y }
-                                })
-                            )
-                        }
-                    })
-                }
+                this.unitMovement.getVisibleTiles(this.active_soldier, true)
+                Object.keys(this.unitMovement.map_tiles).forEach( (key) => {
+                    let soldier = this.active_soldier
+                    let target_tile = this.map[this.unitMovement.map_tiles[key].y][this.unitMovement.map_tiles[key].x]
+                    if(this.getMapDistance(soldier.map_tile, this.unitMovement.map_tiles[key]) <= soldier.throw_range &&
+                        target_tile !== WALL && target_tile !== HALF_COVER && target_tile !== FULL_COVER && target_tile !== DOOR_CLOSED) {
+                        this.use_item_squares.push(new SelectionBox({ 
+                                scene: this,
+                                x: this.unitMovement.map_tiles[key].x * this.tile_size + this.map_x_offset, 
+                                y: this.unitMovement.map_tiles[key].y * this.tile_size + this.map_y_offset,
+                                key: 'attack_box',
+                                event_name: 'THROWABLE_ITEM_CLICKED',
+                                tile: { x: this.unitMovement.map_tiles[key].x, y: this.unitMovement.map_tiles[key].y }
+                            })
+                        )
+                    }
+                })
             }
         }
     }

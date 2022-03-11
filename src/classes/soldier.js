@@ -155,7 +155,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
                 console.log("healing " + location)
                 if(missing_health < max_amount) {
                     this.health[location] += missing_health
-                    amount -= missing_health
+                    max_amount -= missing_health
                     healed_amount += missing_health
                 } else {
                     this.health[location] += max_amount
