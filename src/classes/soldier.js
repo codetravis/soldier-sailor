@@ -110,7 +110,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         } else if(this.race == "dwarf") {
             this.modMaxHealth(2)
         } else if(this.race == "elf") {
-            this.modMaxhealth(-2)
+            this.modMaxHealth(-2)
         }
 
         if(this.race === DRONE) {
@@ -431,7 +431,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
             // tech
             hacking: skills.hacking || 0,
             drones: skills.drones || 0,
-            mechanics: skills. mechanics || 0,
+            mechanics: skills.mechanics || 0,
             // medical
             first_aid: skills.first_aid || 0,
             field_surgeon: skills.field_surgeon || 0,

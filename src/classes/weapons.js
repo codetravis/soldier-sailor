@@ -10,6 +10,7 @@ class Weapons {
             ammo: [],
             max_ammo: 0,
             reload_ap: 0,
+            draft_rarity: 'common',
             attacks: {
                 'slash': {
                     ap_cost: 1,
@@ -47,6 +48,7 @@ class Weapons {
             ammo: [],
             max_ammo: 0,
             reload_ap: 0,
+            draft_rarity: 'common',
             attacks: {
                 'smash': {
                     ap_cost: 3,
@@ -72,6 +74,7 @@ class Weapons {
             ammo: [],
             max_ammo: 0,
             reload_ap: 0,
+            draft_rarity: 'common',
             attacks: {
                 'smash': {
                     ap_cost: 2,
@@ -97,6 +100,7 @@ class Weapons {
             ammo: [],
             max_ammo: 1,
             reload_ap: 3,
+            draft_rarity: 'common',
             attacks: {
                 'snap shot': {
                     ap_cost: 1,
@@ -146,6 +150,7 @@ class Weapons {
             ammo: [],
             max_ammo: 1,
             reload_ap: 4,
+            draft_rarity: 'common',
             attacks: {
                 'snap shot': {
                     ap_cost: 1,
@@ -195,6 +200,7 @@ class Weapons {
             ammo: [],
             max_ammo: 1,
             reload_ap: 6,
+            draft_rarity: 'common',
             attacks: {
                 'snap shot': {
                     ap_cost: 1,
@@ -244,6 +250,7 @@ class Weapons {
             ammo: [],
             max_ammo: 5,
             reload_ap: 4,
+            draft_rarity: 'common',
             attacks: {
                 'snap shot': {
                     ap_cost: 1,
@@ -293,6 +300,7 @@ class Weapons {
             ammo: [],
             max_ammo: 1,
             reload_ap: 0,
+            draft_rarity: 'common',
             attacks: {
                 'quick throw': {
                     ap_cost: 2,
@@ -332,6 +340,56 @@ class Weapons {
                 },
             }
         },
+        "glack_33": {
+            name: "Glack 33",
+            value: 350,
+            primary_skill: "handguns",
+            range: 5,
+            uses_ammo: true,
+            ammo_type: "ballistic_pistol_ammo",
+            ammo: [],
+            max_ammo: 12,
+            reload_ap: 3,
+            draft_rarity: 'uncommon',
+            attacks: {
+                'snap shot': {
+                    ap_cost: 1,
+                    base_damage: 10,
+                    range: 5,
+                    base_accuracy: 10,
+                    fatigue_damage: 2, 
+                    fatigue_cost: 1,
+                    max_ammo_used: 1,
+                    skill: "handguns",
+                    attack_type: "ranged",
+                    damage_type: "ballistic",
+                },
+                'aimed shot': {
+                    ap_cost: 3,
+                    base_damage: 10,
+                    range: 5,
+                    base_accuracy: 30,
+                    fatigue_damage: 2, 
+                    fatigue_cost: 1,
+                    max_ammo_used: 1,
+                    skill: "handguns",
+                    attack_type: "ranged",
+                    damage_type: "ballistic",
+                },
+                'smack': {
+                    ap_cost: 1,
+                    base_damage: 4,
+                    range: 1,
+                    base_accuracy: 10,
+                    fatigue_damage: 5, 
+                    fatigue_cost: 2,
+                    max_ammo_used: 0,
+                    skill: "bash_and_bludgeon",
+                    attack_type: "melee",
+                    damage_type: "blunt",
+                }
+            }
+        },
         "stinger_smg": {
             name: "Stinger SMG",
             value: 450,
@@ -342,6 +400,7 @@ class Weapons {
             ammo: [],
             max_ammo: 24,
             reload_ap: 3,
+            draft_rarity: 'uncommon',
             attacks: {
                 'quick burst': {
                     ap_cost: 2,
@@ -403,6 +462,7 @@ class Weapons {
             ammo: [],
             max_ammo: 5,
             reload_ap: 3,
+            draft_rarity: 'uncommon',
             attacks: {
                 'stream': {
                     ap_cost: 3,

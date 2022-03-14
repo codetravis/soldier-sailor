@@ -29,15 +29,16 @@ class SoldierFactory {
 
             let soldier = new Soldier({
                 scene: config.scene,
-                x: config.x, 
-                y: config.y, 
+                x: config.x || 0, 
+                y: config.y || 0, 
                 key: key, 
-                map_x_offset: config.map_x_offset,
-                map_y_offset: config.map_y_offset,
-                tile_size: config.tile_size,
-                facing: config.facing,
-                team: config.team,
+                map_x_offset: config.map_x_offset || 0,
+                map_y_offset: config.map_y_offset || 0,
+                tile_size: config.tile_size || 32,
+                facing: config.facing || 0,
+                team: config.team || 0,
                 race: race,
+                level: config.level || 1,
                 parts: parts,
                 weapons: weapons,
                 inventory: inventory
@@ -53,12 +54,13 @@ class SoldierFactory {
             x: config.x, 
             y: config.y, 
             key: key, 
-            map_x_offset: config.map_x_offset,
-            map_y_offset: config.map_y_offset,
-            tile_size: config.tile_size,
-            facing: config.facing,
-            team: config.team,
+            map_x_offset: config.map_x_offset || 0,
+            map_y_offset: config.map_y_offset || 0,
+            tile_size: config.tile_size || 32,
+            facing: config.facing || 0,
+            team: config.team || 0,
             race: race,
+            level: config.level || 1,
             skills: skills, 
             attributes: attributes,
             weapons: weapons,
@@ -170,6 +172,12 @@ class SoldierFactory {
             skills.heavy_weapons = 2 + this.diceRoller.randomDiceRoll(level)
             skills.herbalist = this.diceRoller.randomDiceRoll(level)
         }
+        if(background == 'bounty_hunter') {
+            // bounty hunter has handguns, first aid, and stealth
+            skills.handguns = 2 + this.diceRoller.randomDiceRoll(level)
+            skills.first_aid = 1 + this.diceRoller.randomDiceRoll(level)
+            skills.stealth = this.diceRoller.randomDiceRoll(level)
+        }
         return skills
     }
 
@@ -226,6 +234,7 @@ class SoldierFactory {
             'thief': 'combat_knife',
             'mechanic': 'heavy_tool',
             'pest_control': 'mini_flamethrower',
+            'bounty_hunter': 'glack_33'
         }
 
         let assigned_weapon = background_weapons[background]
@@ -328,6 +337,22 @@ class SoldierFactory {
                 'value': 15,
                 'uses': 1,
                 'weight': 10
+            }
+        }
+        if(background === 'bounty_hunter') {
+            items[0] = { 
+                'name': 'Hollow Point Pistol Ammo', 
+                'item_type': 'ballistic_pistol_ammo', 
+                'value': 1, 
+                'uses': 10, 
+                'weight': 1 
+            }
+            items[1] = {
+                'name': 'Basic Stim Patch',
+                'item_type': 'stim',
+                'value': 5,
+                'uses': 1,
+                'weight': 1
             }
         }
 
