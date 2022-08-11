@@ -81,7 +81,7 @@ class BattleScene extends Phaser.Scene {
             this.hit_locations_sum += this.hit_locations_by_weight[location]
         }.bind(this))
 
-        this.map = new ShipMaps().maps["test_map"]
+        this.map = new ShipMaps().maps["terran_cruiser"]
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
@@ -387,7 +387,7 @@ class BattleScene extends Phaser.Scene {
         // add camera, controls and boundaries
         this.setupCamera()
 
-        this.emitter = EventDispatcher.getInstance();
+        this.emitter = EventDispatcher.getInstance()
         this.emitter.on('SOLDIER_CLICKED', this.setActiveSoldier.bind(this))
         this.emitter.on('MOVEMENT_CLICKED', this.makeMovementPath.bind(this))
         this.emitter.on('ATTACK_CLICKED', this.performAttack.bind(this))

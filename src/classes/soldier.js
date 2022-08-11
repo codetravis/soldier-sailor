@@ -46,7 +46,7 @@ const UNARMED = {
 class Soldier extends Phaser.GameObjects.Sprite {
     constructor(config) {
         super(config.scene, config.x, config.y, config.key)
-
+        this.original_config = config
         this.id = uuidv4();
         this.tile_size = config.tile_size
         this.map_x_offset = config.map_x_offset
@@ -81,8 +81,8 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.setInventory(config.inventory)
 
         this.active_weapon_key = Object.keys(this.weapons)[0]
-        console.log(this.weapons)
-        console.log(this.active_weapon_key)
+        //console.log(this.weapons)
+        //console.log(this.active_weapon_key)
         this.selected_attack_key = Object.keys(this.weapons[this.active_weapon_key].attacks)[0]
 
         config.scene.add.existing(this);
