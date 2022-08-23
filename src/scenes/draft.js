@@ -83,20 +83,16 @@ class DraftScene extends Phaser.Scene {
     }
     remaining_commons -= 6
     
-    this.rare_pool.forEach( (card) => {
-      card.setAlpha(0)
-    })
-    this.uncommon_pool.forEach( (card) => {
-      card.setAlpha(0)
-    })
-    this.common_pool.forEach( (card) => {
-      card.setAlpha(0)
-    })
-    console.log(this.rare_pool)
-    console.log(this.uncommon_pool)
-    console.log(this.common_pool)
+    
     // Generate weapons and place into rarity pools (2 rare weapons)
-
+    const all_weapons = new Weapons().weapons
+    const weapon_keys = Object.keys(all_weapons)
+    for( let i = 0; i < 2; i++) {
+      let random_entry = this.dice_roller.randomDiceRoll(weapon_keys.length)
+      let weapon_config = all_weapons[weapon_keys[random_entry]]
+      weapon_config.rarity = 'rare'
+      this.rare_pool.push(new DraftCard(weapon_config))
+    }
     // Generate items and place into rarity pools (2 rare items)
 
     // Generate XP cards and place into rarity pools (no rare XP cards)
@@ -106,6 +102,15 @@ class DraftScene extends Phaser.Scene {
     // Generate money cards and place into rarity pools (no rare money cards)
 
 
+    this.rare_pool.forEach( (card) => {
+      card.setAlpha(0)
+    })
+    this.uncommon_pool.forEach( (card) => {
+      card.setAlpha(0)
+    })
+    this.common_pool.forEach( (card) => {
+      card.setAlpha(0)
+    })
     // generate a draft pack and display
     this.current_draft_pack = this.createDraftPack()
     this.displayCurrentDraftPack()
