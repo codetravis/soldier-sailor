@@ -20,12 +20,7 @@ class DraftScene extends Phaser.Scene {
     document.getElementById('info-ui').style.display = 'block'
   
     // Create Rarity pools
-    this.rare_pool = []
-    this.uncommon_pool = []
-    this.common_pool = []
-    let remaining_rares = 6
-    let remaining_uncommons = 12
-    let remaining_commons = 24
+    this.card_pool = []
 
     this.active_box = this.add.image(0, 0, 'active_box')
     this.active_box.setAlpha(0)
@@ -53,11 +48,12 @@ class DraftScene extends Phaser.Scene {
         race: races[this.dice_roller.randomDiceRoll(races.length)], 
         level: this.dice_roller.randomDiceRoll(5) + 19, 
         key: 'default_soldier'}
-      let final_config = soldier_factory.createNewSoldier(rare_config).original_config
+      let temp_soldier = soldier_factory.createNewSoldier(rare_config)
+      let final_config = temp_soldier.original_config
+      temp_soldier.destroy()
       final_config.rarity = 'rare'
-      this.rare_pool.push(new DraftCard(final_config))
+      this.card_pool.push(new DraftCard(final_config))
     }
-    remaining_rares -= 2
     for( let i = 0; i < 4; i++) {
       let uncommon_config = { 
         scene: this,
@@ -65,11 +61,12 @@ class DraftScene extends Phaser.Scene {
         race: races[this.dice_roller.randomDiceRoll(races.length)], 
         level: this.dice_roller.randomDiceRoll(5) + 9, 
         key: 'default_soldier'}
-      let final_config = soldier_factory.createNewSoldier(uncommon_config).original_config
+      let temp_soldier = soldier_factory.createNewSoldier(uncommon_config)
+      let final_config = temp_soldier.original_config
+      temp_soldier.destroy()
       final_config.rarity = 'uncommon'
-      this.uncommon_pool.push(new DraftCard(final_config))
+      this.card_pool.push(new DraftCard(final_config))
     }
-    remaining_uncommons -= 4
     for( let i = 0; i < 6; i++) {
       let common_config = { 
         scene: this,
@@ -77,21 +74,41 @@ class DraftScene extends Phaser.Scene {
         race: races[this.dice_roller.randomDiceRoll(races.length)], 
         level: this.dice_roller.randomDiceRoll(5), 
         key: 'default_soldier'}
-      let final_config = soldier_factory.createNewSoldier(common_config).original_config
+      let temp_soldier = soldier_factory.createNewSoldier(common_config)
+      let final_config = temp_soldier.original_config
+      temp_soldier.destroy()
       final_config.rarity = 'common'
-      this.common_pool.push(new DraftCard(final_config))
+      this.card_pool.push(new DraftCard(final_config))
     }
-    remaining_commons -= 6
     
     
     // Generate weapons and place into rarity pools (2 rare weapons)
     const all_weapons = new Weapons().weapons
-    const weapon_keys = Object.keys(all_weapons)
+    const array_of_weapons = Object.values(all_weapons)
+    let rare_weapons = array_of_weapons.filter((weapon) => weapon.value > 300)
+    let uncommon_weapons = array_of_weapons.filter((weapon) => weapon.value <= 300 && weapon.value > 150)
+    let common_weapons = array_of_weapons.filter((weapon) => weapon.value <= 150)
+    let placeholders = { scene: this, x: 0, y: 0, key: "attack_box", card_type: "weapon" }
     for( let i = 0; i < 2; i++) {
-      let random_entry = this.dice_roller.randomDiceRoll(weapon_keys.length)
-      let weapon_config = all_weapons[weapon_keys[random_entry]]
+      let random_entry = this.dice_roller.randomDiceRoll(rare_weapons.length) - 1
+      let weapon_config = rare_weapons[random_entry]
       weapon_config.rarity = 'rare'
-      this.rare_pool.push(new DraftCard(weapon_config))
+      weapon_config = { ...weapon_config, ...placeholders }
+      this.card_pool.push(new DraftCard(weapon_config))
+    }
+    for( let i = 0; i < 4; i++) {
+      let random_entry = this.dice_roller.randomDiceRoll(uncommon_weapons.length) - 1
+      let weapon_config = uncommon_weapons[random_entry]
+      weapon_config.rarity = 'uncommon'
+      weapon_config = { ...weapon_config, ...placeholders }
+      this.card_pool.push(new DraftCard(weapon_config))
+    }
+    for( let i = 0; i < 6; i++) {
+      let random_entry = this.dice_roller.randomDiceRoll(common_weapons.length) - 1
+      let weapon_config = common_weapons[random_entry]
+      weapon_config.rarity = 'common'
+      weapon_config = { ...weapon_config, ...placeholders }
+      this.card_pool.push(new DraftCard(weapon_config))
     }
     // Generate items and place into rarity pools (2 rare items)
 
@@ -102,13 +119,7 @@ class DraftScene extends Phaser.Scene {
     // Generate money cards and place into rarity pools (no rare money cards)
 
 
-    this.rare_pool.forEach( (card) => {
-      card.setAlpha(0)
-    })
-    this.uncommon_pool.forEach( (card) => {
-      card.setAlpha(0)
-    })
-    this.common_pool.forEach( (card) => {
+    this.card_pool.forEach( (card) => {
       card.setAlpha(0)
     })
     // generate a draft pack and display
@@ -146,12 +157,8 @@ class DraftScene extends Phaser.Scene {
 
   createDraftPack() {
     let draft_pack = []
-    draft_pack.push(this.rare_pool.pop())
-    for(let i = 0; i < 2; i++) {
-      draft_pack.push(this.uncommon_pool.pop())
-    }
-    for(let j = 0; j < 4; j++) {
-      draft_pack.push(this.common_pool.pop())
+    for(let i = 0; i < 7; i++) {
+      draft_pack.push(this.card_pool.pop())
     }
 
     return draft_pack
