@@ -44,17 +44,17 @@ class DraftCard extends Phaser.GameObjects.Sprite {
 
   displayItemData() {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
-    display_data.item_name = data.name
-    display_data.uses = data.uses
+    display_data.item_name = this.data.name
+    display_data.item_type = this.data.item_type
     return display_data
   }
 
   displayWeaponData() {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
-    display_data.name = data.name
-    display_data.primary_skill = data.primary_skill
-    display_data.uses_ammo = data.uses_ammo
-    display_data.ammo_type = data.ammo_type
+    display_data.name = this.data.name
+    display_data.primary_skill = this.data.primary_skill
+    display_data.uses_ammo = this.data.uses_ammo
+    display_data.ammo_type = this.data.ammo_type
     return display_data
   }
 

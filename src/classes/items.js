@@ -1,6 +1,7 @@
 class Items {
   items = {
     'Medkit': { 
+      name: 'Medkit',
       item_type: 'heal',
       apply: true,
       heal_type: 'instant',
@@ -8,6 +9,7 @@ class Items {
       draft_rarity: 'uncommon',
     },
     'Suture Kit': {
+      name: 'Suture Kit',
       item_type: 'limb_restore',
       apply: true,
       restore_type: 'instant',
@@ -15,6 +17,7 @@ class Items {
       draft_rarity: 'uncommon',
     },
     'Neuro Restore': {
+      name: 'Neuro Restore',
       item_type: 'revive',
       apply: true,
       revive_type: 'instant',
@@ -22,30 +25,35 @@ class Items {
       draft_rarity: 'rare',
     },
     'Broadhead Crossbow Bolt': {
+      name: 'Broadhead Crossbow Bolt',
       item_type: 'ballistic_bolt_ammo',
       apply: false,
       base_damage: 10,
       draft_rarity: 'common',
     },
     'Hollow Point Pistol Ammo': {
+      name: 'Hollow Point Pistol Ammo',
       item_type: 'ballistic_pistol_ammo',
       apply: false,
       base_damage: 15,
       draft_rarity: 'uncommon',
     },
     'Sport Pistol Ammo': {
+      name: 'Sport Pistol Ammo',
       item_type: 'ballistic_pistol_ammo',
       apply: false,
       base_damage: 8,
       draft_rarity: 'common',
     },
     'Homemade Energy Cell': {
+      name: 'Homemade Energy Cell',
       item_type: 'energy_cell',
       apply: false,
       energy_charge: 5,
       draft_rarity: 'common',
     },
     'Small Fuel Canister': {
+      name: 'Small Fuel Canister',
       item_type: 'elemental_ammo',
       apply: false,
       element: 'fire',
@@ -53,6 +61,7 @@ class Items {
       draft_rarity: 'uncommon',
     },
     'PDA': {
+      name: 'PDA',
       item_type: 'tool',
       apply: true,
       skill_bonus: 'hacking',
@@ -60,6 +69,7 @@ class Items {
       draft_rarity: 'common',
     },
     'Basic Stim Patch': {
+      name: 'Basic Stim Patch',
       item_type: 'stim',
       apply: true,
       draft_rarity: 'common',
@@ -78,6 +88,7 @@ class Items {
       ]
     },
     'Simple Repair Kit': {
+      name: 'Simple Repair Kit',
       item_type: 'repair',
       apply: true,
       repair_type: 'instant',
@@ -85,6 +96,7 @@ class Items {
       draft_rarity: 'common',
     },
     'HE Grenade': {
+      name: 'HE Grenade',
       item_type: 'throwable',
       apply: false,
       damage_type: 'explosive',
