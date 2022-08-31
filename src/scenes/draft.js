@@ -18,11 +18,20 @@ class DraftScene extends Phaser.Scene {
   create() {
     document.getElementById('control-ui').style.display = 'block'
     document.getElementById('info-ui').style.display = 'block'
+
+    this.buildControlUI()
   
     // Create Rarity pools
     this.rare_pool = []
     this.uncommon_pool = []
     this.common_pool = []
+
+    this.player_horde = { 
+      barracks: [], 
+      armory: [], 
+      skills: [], 
+      bank: { xp: 0, credits: 0 }
+    }
 
     this.active_box = this.add.image(0, 0, 'active_box')
     this.active_box.setAlpha(0)
@@ -164,11 +173,20 @@ class DraftScene extends Phaser.Scene {
     this.shufflePool(this.common_pool)
 
     // generate a draft pack and display
-    this.current_draft_pack = this.createDraftPack()
+    this.all_draft_packs = []
+    for(let i = 0; i < 4; i++) {
+      this.all_draft_packs.push(this.createDraftPack())
+    }
+    console.log(this.all_draft_packs)
+    this.current_draft_pack = this.all_draft_packs.pop()
     this.displayCurrentDraftPack()
 
     this.emitter = EventDispatcher.getInstance()
     this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
+
+    document.getElementById('select-card').onclick = function () {
+      this.takeSelectedCardFromPack()
+    }.bind(this)
   }
 
   showSelectedCard(card) {
@@ -180,12 +198,66 @@ class DraftScene extends Phaser.Scene {
     this.setInfoPanelForCard(this.selected_card)
   }
 
+  takeSelectedCardFromPack() {
+    if(this.selected_card) {
+      // add selected card to player horde
+      let card_type = this.selected_card.card_type
+      if(card_type == 'soldier') {
+        this.player_horde.barracks.push(this.selected_card)
+      } else if (card_type == 'weapon' || card_type == 'item') {
+        this.player_horde.armory.push(this.selected_card)
+      } else if (card_type == 'credit') {
+        this.player_horde.bank.credits += this.selected_card.credit_value
+      } else if (card_type == 'xp') {
+        this.player_horde.bank.xp += this.selected_card.xp_value
+      } else if (card_type == 'skill') {
+        this.player_horde.skills.push(this.selected_card)
+      }
+      console.log(this.player_horde)
+      // remove card from draft pack
+      this.removeFromPack(this.selected_card)
+      // set selected card to null
+      this.selected_card = null
+      // move to next pack
+      this.hideCurrentDraftPack()
+      this.all_draft_packs.push(this.current_draft_pack)
+      this.current_draft_pack = this.all_draft_packs.pop()
+      this.displayCurrentDraftPack()
+    }
+  }
+
+  removeFromPack(card) {
+    let position = this.current_draft_pack.indexOf(card)
+    if(position != -1) {
+      let card = this.current_draft_pack[position]
+      this.current_draft_pack.splice(position, 1)
+      //card.destroy()
+    }
+  }
+
+  buildControlUI() {
+    let ui_block = document.getElementById('control-ui')
+    ui_block.replaceChildren()
+    ui_block.appendChild(this.createUIActionButton("select-card", "Confirm Selection", "Take card from the pack"))
+  }
+
+  createUIActionButton(identifier, text, help_text) {
+    let button = document.createElement("button")
+    button.setAttribute("class", "action-button")
+    button.setAttribute("id", identifier)
+    button.setAttribute("name", identifier)
+    if(help_text) {
+        button.setAttribute("title", help_text)
+    }
+    button.innerText = text
+    return button
+  }
+
   displayCurrentDraftPack() {
     let count = 0
     this.current_draft_pack.forEach( (card) => {
       card.setX(32 + 48 * (count % 4))
       card.setY(32 + 64 * Math.floor(count / 4))
-      console.log(card)
       card.setAlpha(1)
       if(count == 0) {
         this.active_box.setX(card.x)
@@ -193,6 +265,14 @@ class DraftScene extends Phaser.Scene {
         this.active_box.setAlpha(1)
       }
       count += 1
+    })
+  }
+
+  hideCurrentDraftPack() {
+    this.current_draft_pack.forEach( (card) => {
+      card.setX(0)
+      card.setY(0)
+      card.setAlpha(0)
     })
   }
 
