@@ -222,7 +222,6 @@ class DraftScene extends Phaser.Scene {
       this.hideCurrentDraftPack()
       this.all_draft_packs.push(this.current_draft_pack)
       this.current_draft_pack = this.all_draft_packs.shift()
-      console.log(this.current_draft_pack)
       this.displayCurrentDraftPack()
     }
   }
