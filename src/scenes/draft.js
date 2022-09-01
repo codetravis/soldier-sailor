@@ -177,7 +177,7 @@ class DraftScene extends Phaser.Scene {
     for(let i = 0; i < 4; i++) {
       this.all_draft_packs.push(this.createDraftPack())
     }
-    console.log(this.all_draft_packs)
+    console.log(this.all_draft_packs[2])
     this.current_draft_pack = this.all_draft_packs.pop()
     this.displayCurrentDraftPack()
 
@@ -221,7 +221,8 @@ class DraftScene extends Phaser.Scene {
       // move to next pack
       this.hideCurrentDraftPack()
       this.all_draft_packs.push(this.current_draft_pack)
-      this.current_draft_pack = this.all_draft_packs.pop()
+      this.current_draft_pack = this.all_draft_packs.shift()
+      console.log(this.current_draft_pack)
       this.displayCurrentDraftPack()
     }
   }
@@ -231,7 +232,7 @@ class DraftScene extends Phaser.Scene {
     if(position != -1) {
       let card = this.current_draft_pack[position]
       this.current_draft_pack.splice(position, 1)
-      //card.destroy()
+      card.destroyCard()
     }
   }
 

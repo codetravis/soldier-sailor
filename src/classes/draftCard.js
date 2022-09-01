@@ -63,6 +63,12 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     display_data.amount = data.amount
     return display_data
   }
+
+  destroyCard() {
+    this.data = null
+    this.destroy()
+  }
+
 }
 
 export default DraftCard
