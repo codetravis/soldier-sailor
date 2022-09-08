@@ -60,7 +60,7 @@ class DraftCard extends Phaser.GameObjects.Sprite {
 
   displayValueData() {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
-    display_data.amount = data.amount
+    display_data.amount = this.data.amount
     return display_data
   }
 

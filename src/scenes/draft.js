@@ -99,7 +99,7 @@ class DraftScene extends Phaser.Scene {
     let rare_weapons = array_of_weapons.filter((weapon) => weapon.value > 300)
     let uncommon_weapons = array_of_weapons.filter((weapon) => weapon.value <= 300 && weapon.value > 150)
     let common_weapons = array_of_weapons.filter((weapon) => weapon.value <= 150)
-    let placeholders = { scene: this, x: 0, y: 0, key: "attack_box", card_type: "weapon" }
+    let placeholders = { scene: this, x: 0, y: 0, key: "weapon_icon", card_type: "weapon" }
     for( let i = 0; i < 2; i++) {
       let random_entry = this.dice_roller.randomDiceRoll(rare_weapons.length) - 1
       let weapon_config = rare_weapons[random_entry]
@@ -123,7 +123,7 @@ class DraftScene extends Phaser.Scene {
     }
     // Generate items and place into rarity pools (2 rare items)
 
-    placeholders = { scene: this, x: 0, y: 0, key: "movement_box", card_type: "item" }
+    placeholders = { scene: this, x: 0, y: 0, key: "item_icon", card_type: "item" }
     const all_items = new Items().items
     const array_of_items = Object.values(all_items)
     let rare_items = array_of_items.filter((item) => item.draft_rarity == "rare")
@@ -150,12 +150,21 @@ class DraftScene extends Phaser.Scene {
       item_config = { ...item_config, ...placeholders }
       this.common_pool.push(new DraftCard(item_config))
     }
-    // Generate XP cards and place into rarity pools (no rare XP cards)
+    // Generate XP cards and place into rarity pools (only uncommon XP cards)
+    placeholders = { scene: this, x: 0, y: 0, key: "xp_icon", card_type: "xp" }
+    for( let i = 0; i < 6; i++) {
+      let random_xp = this.dice_roller.randomDiceRoll(76) + 24
+      this.common_pool.push(new DraftCard({...placeholders, rarity: 'common', amount: random_xp}))
+    }
 
     // Generate skill point cards and place into rarity pools (only uncommon skill point cards)
 
     // Generate money cards and place into rarity pools (no rare money cards)
-
+    placeholders = { scene: this, x: 0, y: 0, key: "credit_icon", card_type: "credit" }
+    for( let i = 0; i < 6; i++) {
+      let random_credits = this.dice_roller.randomDiceRoll(276) + 24
+      this.common_pool.push(new DraftCard({...placeholders, rarity: 'common', amount: random_credits}))
+    }
 
     this.rare_pool.forEach( (card) => {
       card.setAlpha(0)
@@ -207,9 +216,9 @@ class DraftScene extends Phaser.Scene {
       } else if (card_type == 'weapon' || card_type == 'item') {
         this.player_horde.armory.push(this.selected_card)
       } else if (card_type == 'credit') {
-        this.player_horde.bank.credits += this.selected_card.credit_value
+        this.player_horde.bank.credits += this.selected_card.amount
       } else if (card_type == 'xp') {
-        this.player_horde.bank.xp += this.selected_card.xp_value
+        this.player_horde.bank.xp += this.selected_card.amount
       } else if (card_type == 'skill') {
         this.player_horde.skills.push(this.selected_card)
       }
@@ -313,9 +322,19 @@ class DraftScene extends Phaser.Scene {
   
     let display_data = card.getDisplayData()
     Object.keys(display_data).forEach( (key) => {
-      let key_info = document.createElement("p")
-      key_info.innerText = key + ": " + display_data[key]
-      info_detail.appendChild(key_info)
+      if(key == 'attributes' || key == 'skills') {
+        let key_info = document.createElement("ul")
+        Object.keys(display_data[key]).forEach( (inner_key) => {
+          let list_item = document.createElement("li")
+          list_item.innerText = inner_key + ": " + display_data[key][inner_key]
+          key_info.appendChild(list_item)
+        })
+        info_detail.appendChild(key_info)
+      } else {
+        let key_info = document.createElement("p")
+        key_info.innerText = key + ": " + display_data[key]
+        info_detail.appendChild(key_info)
+      }
     })
   }
 }

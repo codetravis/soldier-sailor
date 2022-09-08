@@ -13,9 +13,29 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="weapon_icon.svg">
+   sodipodi:docname="xp_icon.svg">
   <defs
-     id="defs2" />
+     id="defs2">
+    <rect
+       id="rect1997"
+       height="13.229167"
+       width="15.875"
+       y="128.32292"
+       x="70.114583" />
+    <filter
+       height="1.0000096"
+       y="-4.8e-06"
+       width="1.0000096"
+       x="-4.8e-06"
+       id="filter2005"
+       style="color-interpolation-filters:sRGB"
+       inkscape:collect="always">
+      <feGaussianBlur
+         id="feGaussianBlur2007"
+         stdDeviation="6.4e-05"
+         inkscape:collect="always" />
+    </filter>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -24,10 +44,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.959798"
-     inkscape:cx="302.95827"
+     inkscape:cx="307.73155"
      inkscape:cy="487.25279"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
      inkscape:window-width="1424"
@@ -47,11 +67,12 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
+     style="opacity:0.995;filter:url(#filter2005)"
      inkscape:label="Layer 2"
      id="layer2"
      inkscape:groupmode="layer">
@@ -63,7 +84,7 @@
        height="32"
        width="32"
        id="rect845"
-       style="fill:#fffffe;stroke:#37379b;stroke-width:1;fill-opacity:1" />
+       style="fill:#fffffe;fill-opacity:1;stroke:#37379b;stroke-width:1" />
   </g>
   <g
      inkscape:label="Layer 1"
@@ -78,44 +99,23 @@
        y="109.55209"
        inkscape:export-xdpi="24.630301"
        inkscape:export-ydpi="24.630301" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.44145"
-       id="rect837"
-       width="14.552082"
-       height="2.2489512"
-       x="74.083336"
-       y="122.10521"
+    <text
+       style="font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect1997);fill:#000000;fill-opacity:1;stroke:none;"
+       id="text1995"
+       xml:space="preserve" />
+    <text
+       inkscape:export-ydpi="24.630301"
        inkscape:export-xdpi="24.630301"
-       inkscape:export-ydpi="24.630301" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.12453"
-       id="rect839"
-       width="7.3804784"
-       height="4.4979196"
-       x="65.379936"
-       y="123.82499"
-       inkscape:export-xdpi="24.630301"
-       inkscape:export-ydpi="24.630301" />
-    <rect
-       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.43339"
-       id="rect841"
-       width="4.010675"
-       height="1.7931154"
-       x="-31.387295"
-       y="130.85176"
-       transform="matrix(0.44164826,-0.89718828,0.6585633,0.75252534,0,0)"
-       inkscape:transform-center-x="-0.074557296"
-       inkscape:transform-center-y="4.089214"
-       inkscape:export-xdpi="24.630301"
-       inkscape:export-ydpi="24.630301" />
-    <rect
-       style="fill:#4d4d4d;fill-opacity:1;stroke:#4d4d4d;stroke-width:0.717787;stroke-opacity:1"
-       id="rect846"
-       width="16.157213"
-       height="0.66968602"
-       x="77.769875"
-       y="121.70834"
-       inkscape:export-xdpi="24.630301"
-       inkscape:export-ydpi="24.630301" />
+       transform="scale(0.97363315,1.0270809)"
+       id="text2011"
+       y="129.73648"
+       x="68.019096"
+       style="font-style:normal;font-weight:normal;font-size:21.5611px;line-height:1.25;font-family:sans-serif;fill:#0089b8;fill-opacity:1;stroke:none;stroke-width:0.539027;"
+       xml:space="preserve"><tspan
+         style="fill:#0089b8;fill-opacity:1;stroke-width:0.539027;"
+         y="129.73648"
+         x="68.019096"
+         id="tspan2009"
+         sodipodi:role="line">XP</tspan></text>
   </g>
 </svg>
