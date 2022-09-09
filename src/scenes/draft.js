@@ -26,6 +26,16 @@ class DraftScene extends Phaser.Scene {
     this.uncommon_pool = []
     this.common_pool = []
 
+    // flag for if we are pulling out cards for ai to use
+    this.ai_opponent = true
+
+    this.ai_horde = { 
+      barracks: [], 
+      armory: [], 
+      skills: [], 
+      bank: { xp: 0, credits: 0 }
+    }
+
     this.player_horde = { 
       barracks: [], 
       armory: [], 
@@ -216,22 +226,54 @@ class DraftScene extends Phaser.Scene {
       } else if (card_type == 'weapon' || card_type == 'item') {
         this.player_horde.armory.push(this.selected_card)
       } else if (card_type == 'credit') {
-        this.player_horde.bank.credits += this.selected_card.amount
+        this.player_horde.bank.credits += this.selected_card.data.amount
       } else if (card_type == 'xp') {
-        this.player_horde.bank.xp += this.selected_card.amount
+        this.player_horde.bank.xp += this.selected_card.data.amount
       } else if (card_type == 'skill') {
         this.player_horde.skills.push(this.selected_card)
       }
       console.log(this.player_horde)
       // remove card from draft pack
       this.removeFromPack(this.selected_card)
-      // set selected card to null
-      this.selected_card = null
       // move to next pack
       this.hideCurrentDraftPack()
+
+      // pull a card from this pack for ai
+      if(this.ai_opponent) {
+        this.takeCardForAIOpponent()
+      }
+
+      // set selected card to null
+      this.selected_card = null
+
       this.all_draft_packs.push(this.current_draft_pack)
       this.current_draft_pack = this.all_draft_packs.shift()
       this.displayCurrentDraftPack()
+
+      
+    }
+  }
+
+  takeCardForAIOpponent() {
+    // first pass, pull random card
+    if(this.current_draft_pack.length > 0) {
+      let random_card = this.dice_roller.randomDiceRoll(this.current_draft_pack.length) - 1
+      this.selected_card = this.current_draft_pack[random_card]
+      let card_type = this.selected_card.card_type
+      if(card_type == 'soldier') {
+        this.ai_horde.barracks.push(this.selected_card)
+      } else if (card_type == 'weapon' || card_type == 'item') {
+        this.ai_horde.armory.push(this.selected_card)
+      } else if (card_type == 'credit') {
+        this.ai_horde.bank.credits += this.selected_card.data.amount
+      } else if (card_type == 'xp') {
+        this.ai_horde.bank.xp += this.selected_card.data.amount
+      } else if (card_type == 'skill') {
+        this.ai_horde.skills.push(this.selected_card)
+      }
+      console.log(this.ai_horde)
+        // remove card from draft pack
+      this.removeFromPack(this.selected_card)
     }
   }
 
@@ -240,7 +282,8 @@ class DraftScene extends Phaser.Scene {
     if(position != -1) {
       let card = this.current_draft_pack[position]
       this.current_draft_pack.splice(position, 1)
-      card.destroyCard()
+      card.setAlpha(0)
+      //card.destroyCard()
     }
   }
 
