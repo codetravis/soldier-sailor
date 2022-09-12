@@ -246,10 +246,16 @@ class DraftScene extends Phaser.Scene {
       // set selected card to null
       this.selected_card = null
 
-      this.all_draft_packs.push(this.current_draft_pack)
-      this.current_draft_pack = this.all_draft_packs.shift()
-      this.displayCurrentDraftPack()
+      if(this.current_draft_pack.length > 0) {
+        this.all_draft_packs.push(this.current_draft_pack)
+      }
 
+      if(this.all_draft_packs.length > 0) {
+        this.current_draft_pack = this.all_draft_packs.shift()
+        this.displayCurrentDraftPack()
+      } else {
+        this.scene.start('ManageCompanyScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
+      }
       
     }
   }
