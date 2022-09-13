@@ -245,7 +245,8 @@ class DraftScene extends Phaser.Scene {
 
       // set selected card to null
       this.selected_card = null
-
+      this.clearInfoPanel()
+      this.active_box.setAlpha(0)
       if(this.current_draft_pack.length > 0) {
         this.all_draft_packs.push(this.current_draft_pack)
       }
@@ -254,6 +255,7 @@ class DraftScene extends Phaser.Scene {
         this.current_draft_pack = this.all_draft_packs.shift()
         this.displayCurrentDraftPack()
       } else {
+        this.clearInfoPanel()
         this.scene.start('ManageCompanyScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
       }
       
@@ -321,6 +323,8 @@ class DraftScene extends Phaser.Scene {
         this.active_box.setX(card.x)
         this.active_box.setY(card.y)
         this.active_box.setAlpha(1)
+        this.selected_card = card
+        this.setInfoPanelForCard(card)
       }
       count += 1
     })
@@ -385,6 +389,11 @@ class DraftScene extends Phaser.Scene {
         info_detail.appendChild(key_info)
       }
     })
+  }
+
+  clearInfoPanel() {
+    let img_div = document.getElementById('info-img')
+    img_div.replaceChildren()
   }
 }
 

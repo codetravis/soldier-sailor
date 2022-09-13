@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:export-ydpi="24.630301"
+   inkscape:export-xdpi="24.630301"
+   inkscape:export-filename="C:\Users\Cooper\Documents\PhaserGames\sailor-soldier\src\assets\barracks_icon.png"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="barracks_icon.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="400"
+     inkscape:cy="560"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="1424"
+     inkscape:window-height="1030"
+     inkscape:window-x="32"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#beffff;fill-opacity:1;stroke:#000000;stroke-width:5;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect833"
+       width="128"
+       height="128"
+       x="38.286304"
+       y="69.448029" />
+    <ellipse
+       ry="10.418958"
+       rx="11.526243"
+       cy="131.21646"
+       cx="86.347092"
+       id="path835-3"
+       style="fill:#beffff;fill-opacity:1;stroke:#000000;stroke-width:0.97735;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="145.14677"
+       x="75.703529"
+       height="30.283293"
+       width="21.654163"
+       id="rect837-5"
+       style="fill:#beffff;fill-opacity:1;stroke:#000000;stroke-width:1.24737;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <ellipse
+       ry="10.418958"
+       rx="11.526243"
+       cy="131.82213"
+       cx="115.70868"
+       id="path835-4"
+       style="fill:#beffff;fill-opacity:1;stroke:#000000;stroke-width:0.97735;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="145.75241"
+       x="105.06512"
+       height="30.283293"
+       width="21.654163"
+       id="rect837-2"
+       style="fill:#beffff;fill-opacity:1;stroke:#000000;stroke-width:1.24737;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <ellipse
+       style="fill:#beffff;fill-opacity:1;stroke:#000000;stroke-width:0.97735;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path835"
+       cx="100.29384"
+       cy="138.48444"
+       rx="11.526243"
+       ry="10.418958" />
+    <rect
+       style="fill:#beffff;fill-opacity:1;stroke:#000000;stroke-width:1.24737;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect837"
+       width="21.654163"
+       height="30.283293"
+       x="89.650276"
+       y="152.41473" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:26.1508px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.653772"
+       x="62.741795"
+       y="96.167824"
+       id="text867"
+       transform="scale(0.85493953,1.1696734)"><tspan
+         sodipodi:role="line"
+         id="tspan865"
+         x="62.741795"
+         y="96.167824"
+         style="stroke-width:0.653772">Barracks</tspan></text>
+  </g>
+</svg>

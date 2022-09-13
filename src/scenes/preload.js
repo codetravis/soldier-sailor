@@ -7,6 +7,9 @@ import weaponIconImg from '../assets/weapon_icon.png'
 import itemIconImg from '../assets/item_icon.png'
 import creditIconImg from '../assets/credit_icon.png'
 import xpIconImg from '../assets/xp_icon.png'
+import barracksIconImg from '../assets/barracks_icon.png'
+import marketIconImg from '../assets/market_icon.png'
+import boardingCraftIconImg from '../assets/boarding_craft_icon.png'
 
 class PreloadScene extends Phaser.Scene {
     constructor() {
@@ -23,6 +26,9 @@ class PreloadScene extends Phaser.Scene {
         this.load.image('item_icon', itemIconImg)
         this.load.image('credit_icon', creditIconImg)
         this.load.image('xp_icon', xpIconImg)
+        this.load.image('barracks_icon', barracksIconImg)
+        this.load.image('market_icon', marketIconImg)
+        this.load.image('boarding_craft_icon', boardingCraftIconImg)
     }
 
     create() {
