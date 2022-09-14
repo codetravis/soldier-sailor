@@ -6,7 +6,7 @@ class SelectionBox extends Phaser.GameObjects.Sprite {
 
         this.event_name = config.event_name
         this.depth = config.depth || 0
-        this.tile = config.tile
+        this.tile = config.tile || {x: 0, y: 0}
         config.scene.add.existing(this);
         this.setInteractive();
         this.on('pointerdown', this.clicked, this);

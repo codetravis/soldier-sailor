@@ -394,6 +394,8 @@ class DraftScene extends Phaser.Scene {
   clearInfoPanel() {
     let img_div = document.getElementById('info-img')
     img_div.replaceChildren()
+    let info_detail = document.getElementById('info-detail')
+    info_detail.replaceChildren()
   }
 }
 
