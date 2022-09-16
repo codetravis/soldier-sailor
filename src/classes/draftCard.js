@@ -8,6 +8,7 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     this.id = uuidv4()
     this.card_type = config.card_type || 'soldier'
     this.rarity = config.rarity
+    this.config = config
     this.setData(config)
 
     config.scene.add.existing(this)

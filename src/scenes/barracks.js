@@ -6,6 +6,7 @@ import Pathfinder from '../classes/pathfinder.js'
 import FovShadow from '../classes/fovShadow.js'
 import SelectionBox from '../classes/selectionBox.js'
 import Items from '../classes/items.js'
+import DraftCard from '../classes/draftCard.js'
 
 class BarracksScene extends Phaser.Scene {
   constructor() {
@@ -18,12 +19,23 @@ class BarracksScene extends Phaser.Scene {
   }
 
   create() {
-  // options
-  // Barracks to manage soldiers, individual soldier view from barracks
-  // Boarding craft to set squad for next engagement
-  // Market to hire soldiers and buy equipment
+
     this.buildControlUI()
 
+    this.active_box = this.add.image(0, 0, 'active_box')
+    this.active_box.setAlpha(0)
+    // show list of soldiers
+    console.log(this.player_horde.barracks)
+    this.player_horde.barracks.forEach( (soldier, index) => {
+      soldier.scene = this
+      let card = new DraftCard(soldier)
+      card.setX(32 + 48 * (index % 4))
+      card.setY(32 + 64 * Math.floor(index / 4))
+      card.setAlpha(1)
+    })
+
+    this.emitter = EventDispatcher.getInstance()
+    this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
 
     document.getElementById('return-manage').onclick = function () {
       this.goToManageCompany()
@@ -54,6 +66,41 @@ class BarracksScene extends Phaser.Scene {
     }
     button.innerText = text
     return button
+  }
+
+  showSelectedCard(card) {
+    this.selected_card = card
+    this.active_box.setX(this.selected_card.x)
+    this.active_box.setY(this.selected_card.y)
+    this.active_box.setAlpha(1)
+    this.active_box.setDepth(5)
+    this.setInfoPanelForCard(this.selected_card)
+  }
+
+  setInfoPanelForCard(card) {
+    let img_div = document.getElementById('info-img')
+    img_div.replaceChildren()
+    img_div.appendChild(card.texture.getSourceImage(0))
+
+    let info_detail = document.getElementById('info-detail')
+    info_detail.replaceChildren()
+  
+    let display_data = card.getDisplayData()
+    Object.keys(display_data).forEach( (key) => {
+      if(key == 'attributes' || key == 'skills') {
+        let key_info = document.createElement("ul")
+        Object.keys(display_data[key]).forEach( (inner_key) => {
+          let list_item = document.createElement("li")
+          list_item.innerText = inner_key + ": " + display_data[key][inner_key]
+          key_info.appendChild(list_item)
+        })
+        info_detail.appendChild(key_info)
+      } else {
+        let key_info = document.createElement("p")
+        key_info.innerText = key + ": " + display_data[key]
+        info_detail.appendChild(key_info)
+      }
+    })
   }
 
   goToManageCompany() {

@@ -18,6 +18,7 @@ class ManageCompanyScene extends Phaser.Scene {
   }
 
   create() {
+    console.log(this.player_horde)
   // options
   // Barracks to manage soldiers, individual soldier view from barracks
   // Boarding craft to set squad for next engagement

@@ -222,15 +222,15 @@ class DraftScene extends Phaser.Scene {
       // add selected card to player horde
       let card_type = this.selected_card.card_type
       if(card_type == 'soldier') {
-        this.player_horde.barracks.push(this.selected_card)
+        this.player_horde.barracks.push(this.selected_card.config)
       } else if (card_type == 'weapon' || card_type == 'item') {
-        this.player_horde.armory.push(this.selected_card)
+        this.player_horde.armory.push(this.selected_card.config)
       } else if (card_type == 'credit') {
         this.player_horde.bank.credits += this.selected_card.data.amount
       } else if (card_type == 'xp') {
         this.player_horde.bank.xp += this.selected_card.data.amount
       } else if (card_type == 'skill') {
-        this.player_horde.skills.push(this.selected_card)
+        this.player_horde.skills.push(this.selected_card.config)
       }
       console.log(this.player_horde)
       // remove card from draft pack
@@ -269,15 +269,15 @@ class DraftScene extends Phaser.Scene {
       this.selected_card = this.current_draft_pack[random_card]
       let card_type = this.selected_card.card_type
       if(card_type == 'soldier') {
-        this.ai_horde.barracks.push(this.selected_card)
+        this.ai_horde.barracks.push(this.selected_card.config)
       } else if (card_type == 'weapon' || card_type == 'item') {
-        this.ai_horde.armory.push(this.selected_card)
+        this.ai_horde.armory.push(this.selected_card.config)
       } else if (card_type == 'credit') {
         this.ai_horde.bank.credits += this.selected_card.data.amount
       } else if (card_type == 'xp') {
         this.ai_horde.bank.xp += this.selected_card.data.amount
       } else if (card_type == 'skill') {
-        this.ai_horde.skills.push(this.selected_card)
+        this.ai_horde.skills.push(this.selected_card.config)
       }
       console.log(this.ai_horde)
         // remove card from draft pack
