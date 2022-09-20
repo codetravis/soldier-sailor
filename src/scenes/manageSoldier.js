@@ -8,14 +8,15 @@ import SelectionBox from '../classes/selectionBox.js'
 import Items from '../classes/items.js'
 import DraftCard from '../classes/draftCard.js'
 
-class BarracksScene extends Phaser.Scene {
+class ManageSoldierScene extends Phaser.Scene {
   constructor() {
-      super({ key: 'BarracksScene', active: false })
+      super({ key: 'ManageSoldierScene', active: false })
   }
 
   init(data) {
     this.player_horde = data.player_horde
     this.ai_horde = data.ai_horde
+    this.soldier = data.selected_soldier
   }
 
   create() {
@@ -45,10 +46,6 @@ class BarracksScene extends Phaser.Scene {
     }.bind(this)
     document.getElementById('go-to-boarding-craft').onclick = function () {
       this.goToBoardingCraft()
-    }.bind(this)
-
-    document.getElementById('manage-soldier').onclick = function () {
-      this.manageSoldier()
     }.bind(this)
   }
 
@@ -122,10 +119,6 @@ class BarracksScene extends Phaser.Scene {
     this.scene.start('BoardingCraftScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
   }
 
-  manageSoldier() {
-    console.log("Go to manage soldier")
-    this.scene.start('ManageSoldier', {player_horde: this.player_horde, ai_horde: this.ai_horde, selected_soldier: this.selected_card})
-  }
 }
 
-export default BarracksScene
+export default ManageSoldierScene
