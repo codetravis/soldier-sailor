@@ -22,17 +22,23 @@ class BarracksScene extends Phaser.Scene {
 
     this.buildControlUI()
 
-    this.active_box = this.add.image(0, 0, 'active_box')
-    this.active_box.setAlpha(0)
     // show list of soldiers
     console.log(this.player_horde.barracks)
-    this.player_horde.barracks.forEach( (soldier, index) => {
+    this.soldiers = []
+    this.player_horde.barracks.forEach( (soldier) => {
       soldier.scene = this
       let card = new DraftCard(soldier)
-      card.setX(32 + 48 * (index % 4))
-      card.setY(32 + 64 * Math.floor(index / 4))
-      card.setAlpha(1)
+      card.setX(-200)
+      card.setY(-200)
+      card.setAlpha(0)
+      this.soldiers.push(card)
     })
+
+    if(this.soldiers.length > 0) {
+      this.showSelectedCard(this.soldiers[0])
+    } else {
+      this.selected_card = null
+    }
 
     this.emitter = EventDispatcher.getInstance()
     this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
@@ -47,9 +53,6 @@ class BarracksScene extends Phaser.Scene {
       this.goToBoardingCraft()
     }.bind(this)
 
-    document.getElementById('manage-soldier').onclick = function () {
-      this.manageSoldier()
-    }.bind(this)
   }
 
   buildControlUI() {
@@ -74,10 +77,10 @@ class BarracksScene extends Phaser.Scene {
 
   showSelectedCard(card) {
     this.selected_card = card
-    this.active_box.setX(this.selected_card.x)
-    this.active_box.setY(this.selected_card.y)
-    this.active_box.setAlpha(1)
-    this.active_box.setDepth(5)
+
+    this.selected_card.setX(128)
+    this.selected_card.setY(128)
+    this.selected_card.setAlpha(1)
     this.setInfoPanelForCard(this.selected_card)
   }
 
@@ -85,7 +88,6 @@ class BarracksScene extends Phaser.Scene {
     let img_div = document.getElementById('info-img')
     img_div.replaceChildren()
     img_div.appendChild(card.texture.getSourceImage(0))
-    img_div.appendChild(this.createUIActionButton("manage-soldier", "Manage Soldier", "Manage Selected Soldier"))
 
     let info_detail = document.getElementById('info-detail')
     info_detail.replaceChildren()
@@ -120,11 +122,6 @@ class BarracksScene extends Phaser.Scene {
   goToBoardingCraft() {
     console.log("Going to Boarding Craft")
     this.scene.start('BoardingCraftScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
-  }
-
-  manageSoldier() {
-    console.log("Go to manage soldier")
-    this.scene.start('ManageSoldier', {player_horde: this.player_horde, ai_horde: this.ai_horde, selected_soldier: this.selected_card})
   }
 }
 
