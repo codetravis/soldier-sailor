@@ -25,12 +25,15 @@ class BarracksScene extends Phaser.Scene {
     // show list of soldiers
     console.log(this.player_horde.barracks)
     this.soldiers = []
-    this.player_horde.barracks.forEach( (soldier) => {
+    this.active_box = this.add.image(0, 0, 'active_box')
+    this.active_box.setAlpha(0)
+
+    this.player_horde.barracks.forEach( (soldier, index) => {
       soldier.scene = this
       let card = new DraftCard(soldier)
-      card.setX(-200)
-      card.setY(-200)
-      card.setAlpha(0)
+      card.setX(64 + 48 * index)
+      card.setY(64)
+      card.setAlpha(1)
       this.soldiers.push(card)
     })
 
@@ -76,11 +79,33 @@ class BarracksScene extends Phaser.Scene {
   }
 
   showSelectedCard(card) {
+
+    // reset current selected card
+    if(this.selected_card) {
+      let index = this.soldiers.indexOf(this.selected_card)
+      this.selected_card.setX(64 + 48 * index)
+      this.selected_card.setY(64)
+    }
+
     this.selected_card = card
+
+    this.active_box.setX(this.selected_card.x)
+    this.active_box.setY(this.selected_card.y)
+    this.active_box.setAlpha(1)
+    this.active_box.setDepth(5)
 
     this.selected_card.setX(128)
     this.selected_card.setY(128)
     this.selected_card.setAlpha(1)
+
+    this.display_weapons = []
+    let placeholders = { scene: this, x: 120, y: 164, key: "weapon_icon", card_type: "weapon" }
+    this.selected_card.config.weapons.forEach( (weapon) => {
+      this.display_weapons.push(new DraftCard({...weapon, ...placeholders}))
+    })
+    this.display_inventory = this.selected_card.config.inventory
+    
+
     this.setInfoPanelForCard(this.selected_card)
   }
 
