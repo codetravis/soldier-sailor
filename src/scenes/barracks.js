@@ -80,33 +80,38 @@ class BarracksScene extends Phaser.Scene {
 
   showSelectedCard(card) {
 
-    // reset current selected card
-    if(this.selected_card) {
-      let index = this.soldiers.indexOf(this.selected_card)
-      this.selected_card.setX(64 + 48 * index)
-      this.selected_card.setY(64)
+    if(card.card_type == 'soldier') {
+      // reset current selected card
+      if(this.selected_card) {
+        let index = this.soldiers.indexOf(this.selected_card)
+        this.selected_card.setX(64 + 48 * index)
+        this.selected_card.setY(64)
+      }
+
+      this.selected_card = card
+
+      this.active_box.setX(this.selected_card.x)
+      this.active_box.setY(this.selected_card.y)
+      this.active_box.setAlpha(1)
+      this.active_box.setDepth(5)
+
+      this.selected_card.setX(128)
+      this.selected_card.setY(128)
+      this.selected_card.setAlpha(1)
+
+      this.display_weapons = []
+      let placeholders = { scene: this, x: 120, y: 164, key: "weapon_icon", card_type: "weapon" }
+      Object.keys(this.selected_card.config.weapons).forEach( (weapon_key) => {
+        let weapon = this.selected_card.config.weapons[weapon_key]
+        this.display_weapons.push(new DraftCard({...weapon, ...placeholders}))
+      })
+
+      this.display_inventory = this.selected_card.config.inventory
+      this.setInfoPanelForCard(this.selected_card)
+    } else {
+      this.setInfoPanelForCard(card)
     }
-
-    this.selected_card = card
-
-    this.active_box.setX(this.selected_card.x)
-    this.active_box.setY(this.selected_card.y)
-    this.active_box.setAlpha(1)
-    this.active_box.setDepth(5)
-
-    this.selected_card.setX(128)
-    this.selected_card.setY(128)
-    this.selected_card.setAlpha(1)
-
-    this.display_weapons = []
-    let placeholders = { scene: this, x: 120, y: 164, key: "weapon_icon", card_type: "weapon" }
-    this.selected_card.config.weapons.forEach( (weapon) => {
-      this.display_weapons.push(new DraftCard({...weapon, ...placeholders}))
-    })
-    this.display_inventory = this.selected_card.config.inventory
     
-
-    this.setInfoPanelForCard(this.selected_card)
   }
 
   setInfoPanelForCard(card) {
