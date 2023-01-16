@@ -27,6 +27,7 @@ class BarracksScene extends Phaser.Scene {
     this.soldiers = []
     this.display_weapons = []
     this.display_inventory = []
+    this.display_armory = []
     this.active_box = this.add.image(0, 0, 'active_box')
     this.active_box.setAlpha(0)
 
@@ -44,6 +45,8 @@ class BarracksScene extends Phaser.Scene {
     } else {
       this.selected_card = null
     }
+
+    this.showAvailableEquipment()
 
     this.emitter = EventDispatcher.getInstance()
     this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
@@ -153,6 +156,13 @@ class BarracksScene extends Phaser.Scene {
         key_info.innerText = key + ": " + display_data[key]
         info_detail.appendChild(key_info)
       }
+    })
+  }
+
+  showAvailableEquipment() {
+    this.player_horde.armory.forEach( (equipment, index) => {
+      let placeholders = { scene: this, x: 100 + (48 * index), y: 364, key: equipment.card_type + "_icon", card_type: equipment.card_type }
+      this.display_armory.push(new DraftCard({...equipment, ...placeholders}))
     })
   }
 
