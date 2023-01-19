@@ -1,9 +1,6 @@
 import EventDispatcher from '../classes/eventDispatcher.js'
 import Soldier from '../classes/soldier.js'
 import SoldierFactory from '../classes/soldierFactory.js'
-import ShipMaps from '../classes/shipMaps.js'
-import Pathfinder from '../classes/pathfinder.js'
-import FovShadow from '../classes/fovShadow.js'
 import SelectionBox from '../classes/selectionBox.js'
 import Items from '../classes/items.js'
 import DraftCard from '../classes/draftCard.js'
@@ -23,11 +20,14 @@ class BarracksScene extends Phaser.Scene {
     this.buildControlUI()
 
     // show list of soldiers
-    console.log(this.player_horde.barracks)
+    //console.log(this.player_horde.barracks)
     this.soldiers = []
     this.display_weapons = []
+    this.weapon_action_buttons = []
     this.display_inventory = []
+    this.inventory_action_buttons = []
     this.display_armory = []
+    this.armory_action_buttons = []
     this.active_box = this.add.image(0, 0, 'active_box')
     this.active_box.setAlpha(0)
 
@@ -46,10 +46,13 @@ class BarracksScene extends Phaser.Scene {
       this.selected_card = null
     }
 
-    this.showAvailableEquipment()
+    this.displayArmory()
 
     this.emitter = EventDispatcher.getInstance()
     this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
+    this.emitter.on('EQUIP_TO_UNIT', this.moveFromArmoryToUnit.bind(this))
+    this.emitter.on('REMOVE_WEAPON', this.moveWeaponToArmory.bind(this))
+    this.emitter.on('REMOVE_ITEM', this.moveItemToArmory.bind(this))
 
     document.getElementById('return-manage').onclick = function () {
       this.goToManageCompany()
@@ -60,6 +63,7 @@ class BarracksScene extends Phaser.Scene {
     document.getElementById('go-to-boarding-craft').onclick = function () {
       this.goToBoardingCraft()
     }.bind(this)
+
 
   }
 
@@ -83,15 +87,37 @@ class BarracksScene extends Phaser.Scene {
     return button
   }
 
+  cleanupDisplayObjects(collection) {
+    collection.forEach( (item) => {
+      item.destroy()
+    })
+    collection = []
+  }
+
   showSelectedCard(card) {
+    if(!card) {
+      card = this.selected_card
+    }
 
     if(card.card_type == 'soldier') {
 
       // clear out previous display data
+      // this.cleanupDisplayObjects(this.display_weapons)
+      // this.cleanupDisplayObjects(this.weapon_action_buttons)
+      // this.cleanupDisplayObjects(this.display_inventory)
+      // this.cleanupDisplayObjects(this.inventory_action_buttons)
       this.display_weapons.forEach( (weapon) => {
         weapon.destroy()
       })
       this.display_weapons = []
+      this.weapon_action_buttons.forEach( (item) => {
+        item.destroy()
+      })
+      this.weapon_action_buttons = []
+      this.inventory_action_buttons.forEach( (item) => {
+        item.destroy()
+      })
+      this.inventory_action_buttons = []
       this.display_inventory.forEach( (item) => {
         item.destroy()
       })
@@ -115,22 +141,85 @@ class BarracksScene extends Phaser.Scene {
       this.selected_card.setY(128)
       this.selected_card.setAlpha(1)
 
-      let placeholders = { scene: this, x: 120, y: 164, key: "weapon_icon", card_type: "weapon" }
+      let placeholders = {}
       Object.keys(this.selected_card.config.weapons).forEach( (weapon_key) => {
         let weapon = this.selected_card.config.weapons[weapon_key]
+        if(!weapon || weapon.name == 'Unarmed') {
+          return
+        }
+        placeholders = { scene: this, x: 120 + 34 * weapon_key, y: 164, key: "weapon_icon", card_type: "weapon" }
         this.display_weapons.push(new DraftCard({...weapon, ...placeholders}))
+        placeholders = { scene: this, x: 120 + 34 * weapon_key, y: 198, key: "attack_box", index: weapon_key, display_index: this.weapon_action_buttons.length }
+        this.weapon_action_buttons.push(new SelectionBox({ event_name: "REMOVE_WEAPON", ...placeholders }))
       })
 
-      placeholders = { scene: this, x: 120, y: 194, key: "item_icon", card_type: "item" }
+      
       Object.keys(this.selected_card.config.inventory).forEach( (item_key) => {
         let item = this.selected_card.config.inventory[item_key]
+        if(!item) {
+          return
+        }
+        placeholders = { scene: this, x: 120 + 34 * item_key, y: 228, key: "item_icon", card_type: "item" }
         this.display_inventory.push(new DraftCard({...item, ...placeholders}))
+        placeholders = { scene: this, x: 120 + 34 * item_key, y: 262, key: "attack_box", index: item_key, display_index: this.inventory_action_buttons.length }
+        this.inventory_action_buttons.push(new SelectionBox({ event_name: "REMOVE_ITEM", ...placeholders }))
       })
       this.setInfoPanelForCard(this.selected_card)
     } else {
       this.setInfoPanelForCard(card)
     }
     
+  }
+
+  moveFromArmoryToUnit(selectionBox) {
+    console.log("attempting to move from armory to unit")
+    if(!this.selected_card) {
+      return
+    }
+    let item_index = selectionBox.config.index
+    let item = this.display_armory[item_index]
+    let success = false
+    if(item.config.card_type === "weapon") {
+      success = this.selected_card.addWeapon(item.config)
+      console.log("attempting to move weapon",  success)
+    } else if (item.config.card_type === "item") {
+      success = this.selected_card.addInventory(item.config)
+      console.log("attmepting to move item", success)
+    }
+
+    if(success) {
+      this.player_horde.armory.splice(item_index, 1)
+      this.displayArmory()
+      this.showSelectedCard(this.selected_card)
+    }
+  }
+
+  moveWeaponToArmory(selectionBox) {
+    if(!this.selected_card) {
+      return
+    }
+    let weapon_index = selectionBox.config.index
+    let weapon = this.display_weapons[selectionBox.config.display_index]
+    this.selected_card.removeWeapon(weapon_index)
+
+    if(weapon.config.name !== 'Unarmed') {
+      this.player_horde.armory.push(weapon.config)
+    }
+    this.displayArmory()
+    this.showSelectedCard(this.selected_card)
+  }
+
+  moveItemToArmory(selectionBox) {
+    if(!this.selected_card) {
+      return
+    }
+    let item_index = selectionBox.config.index
+    let item = this.display_inventory[selectionBox.config.display_index]
+    this.selected_card.removeInventory(item_index)
+
+    this.player_horde.armory.push(item.config)
+    this.displayArmory()
+    this.showSelectedCard(this.selected_card)
   }
 
   setInfoPanelForCard(card) {
@@ -159,10 +248,20 @@ class BarracksScene extends Phaser.Scene {
     })
   }
 
-  showAvailableEquipment() {
+  displayArmory() {
+    this.display_armory.forEach( (item) => {
+      item.destroy()
+    })
+    this.display_armory = []
+    this.armory_action_buttons.forEach( (item) => {
+      item.destroy()
+    })
+    this.armory_action_buttons = []
+
     this.player_horde.armory.forEach( (equipment, index) => {
       let placeholders = { scene: this, x: 100 + (48 * index), y: 364, key: equipment.card_type + "_icon", card_type: equipment.card_type }
       this.display_armory.push(new DraftCard({...equipment, ...placeholders}))
+      this.armory_action_buttons.push(new SelectionBox({ scene: this, x: 100 + (48 * index), y: 324, key: "movement_box", event_name: "EQUIP_TO_UNIT", index: index }))
     })
   }
 

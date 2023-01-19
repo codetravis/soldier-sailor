@@ -239,7 +239,7 @@ class SoldierFactory {
 
         let assigned_weapon = background_weapons[background]
 
-        let weapons = {}
+        let weapons = { 0: null, 1: null, 2: null }
         if(assigned_weapon) {
             weapons[0] = all_weapons[assigned_weapon]
         }

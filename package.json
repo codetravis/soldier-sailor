@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "export NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack/prod.js ",
-    "start": "export NODE_OPTIONS=--openssl-legacy-provider && webpack-dev-server --config webpack/base.js --open"
+    "start": "webpack-dev-server --config webpack/base.js --open"
   },
   "license": "MIT",
   "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",

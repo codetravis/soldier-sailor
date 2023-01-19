@@ -292,9 +292,9 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
         // modify accuracy based on if arm health is 0 or less
         if(this.health.left_arm <= 0 && this.health.right_arm <= 0) {
-            attack.accuracy = Math.floor(attack.accuracy * 0.75)
-        } else if (this.health.left_arm <= 0 || this.health.right_arm <= 0) {
             attack.accuracy = Math.floor(attack.accuracy * 0.33)
+        } else if (this.health.left_arm <= 0 || this.health.right_arm <= 0) {
+            attack.accuracy = Math.floor(attack.accuracy * 0.75)
         }
 
         // minimum chance to hit is 1
@@ -452,7 +452,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.weapons = { 0: UNARMED, 1: UNARMED, 2: UNARMED }
         if(weapons) {
             for(let i = 0; i < 3; i++) {
-                if(weapons.hasOwnProperty(i)) {
+                if(weapons[i] && weapons.hasOwnProperty(i)) {
                     this.weapons[i] = weapons[i]
                 }
             }

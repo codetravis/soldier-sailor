@@ -2,6 +2,44 @@ import { v4 as uuidv4 } from 'uuid';
 import EventDispatcher from './eventDispatcher.js'
 // Draft Cards contain just enough info to build the Soldiers, Weapons, Items, XP, and Money 
 // for a draft without building the full objects and making displaying them consistent
+
+const UNARMED = { 
+  name: "Unarmed",
+  value: 0,
+  primary_skill: "unarmed",
+  uses_ammo: false,
+  ammo_type: null,
+  ammo: [],
+  max_ammo: 0,
+  reload_ap: 0,
+  attacks: {
+      "punch": {
+          ap_cost: 1,
+          base_damage: 4,
+          range: 1,
+          base_accuracy: 20,
+          fatigue_damage: 2, 
+          fatigue_cost: 1,
+          max_ammo_used: 0,
+          skill: "unarmed",
+          attack_type: "melee",
+          damage_type: "blunt",
+      },
+      "kick": {
+          ap_cost: 2,
+          base_damage: 8,
+          range: 1,
+          base_accuracy: 10,
+          fatigue_damage: 6,
+          fatigue_cost: 4,
+          max_ammo_used: 0,
+          skill: "unarmed",
+          attack_type: "melee",
+          damage_type: "blunt",
+      }
+  }
+}
+
 class DraftCard extends Phaser.GameObjects.Sprite {
   constructor(config) {
     super(config.scene, config.x, config.y, config.key)
@@ -41,6 +79,50 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     display_data.skills = this.getData("skills")
     display_data.level = this.getData("level")
     return display_data
+  }
+
+  addWeapon(weapon) {
+    if(this.card_type !== 'soldier') {
+      return false
+    }
+
+    for(let i = 0; i < 3; i++) {
+      if(!this.config.weapons[i] || this.config.weapons[i].name === "Unarmed") {
+          this.config.weapons[i] = weapon
+          return true
+      }
+    }
+    return false
+  }
+
+  removeWeapon(weapon_key) {
+    if(this.card_type !== 'soldier') {
+      return false
+    }
+    this.config.weapons[weapon_key] = UNARMED
+  }
+
+  addInventory(item) {
+    if(this.card_type !== 'soldier') {
+      return false
+    }
+
+    for(let i = 0; i < 4; i++) {
+      if(!this.config.inventory[i]) {
+          this.config.inventory[i] = item
+          return true
+      }
+    }
+    return false
+  }
+
+  removeInventory(item_key) {
+    console.log("attempting  to remove inventory from", item_key)
+    if(this.card_type !== 'soldier') {
+      return false
+    }
+    this.config.inventory[item_key] = null
+    console.log(this.config.inventory)
   }
 
   displayItemData() {
