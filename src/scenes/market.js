@@ -6,7 +6,12 @@ import Pathfinder from '../classes/pathfinder.js'
 import FovShadow from '../classes/fovShadow.js'
 import SelectionBox from '../classes/selectionBox.js'
 import Items from '../classes/items.js'
+import Weapons from '../classes/weapons.js'
+import DraftCard from '../classes/draftCard.js'
 
+
+// Market scene allows player to buy items and weapons with the money in the player bank
+// items and weapons are then transferred to the players armory
 class MarketScene extends Phaser.Scene {
   constructor() {
       super({ key: 'MarketScene', active: false })
@@ -24,6 +29,7 @@ class MarketScene extends Phaser.Scene {
   // Market to hire soldiers and buy equipment
     this.buildControlUI()
 
+    this.marketInventory = []
 
     document.getElementById('return-manage').onclick = function () {
       this.goToManageCompany()
@@ -34,6 +40,25 @@ class MarketScene extends Phaser.Scene {
     document.getElementById('go-to-boarding-craft').onclick = function () {
       this.goToBoardingCraft()
     }.bind(this)
+
+    this.displayMarketInventory()
+  }
+
+  displayMarketInventory() {
+    let weapons = new Weapons().weapons
+    let items = new Items().items
+    let inventory = {...weapons, ...items}
+
+    Object.keys(inventory).forEach((key, index) => {
+      let image_key = inventory[key].item_type ? "item" : "weapon"
+      // TODO fix this row layout math
+      let placeholders = { scene: this, x: 120 + 38 * index % 10, y: 100 + 68 * index % 10, key: `${image_key}_icon`, card_type: image_key }
+      this.marketInventory.push(new DraftCard({...inventory[key], ...placeholders}))
+    })
+  }
+
+  buyItemForArmory() {
+
   }
 
   buildControlUI() {

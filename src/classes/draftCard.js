@@ -74,10 +74,10 @@ class DraftCard extends Phaser.GameObjects.Sprite {
 
   displaySoldierData() {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
-    display_data.race = this.getData("race")
-    display_data.attributes = this.getData("attributes")
-    display_data.skills = this.getData("skills")
-    display_data.level = this.getData("level")
+    display_data.race = this.config.race
+    display_data.attributes = this.config.attributes
+    display_data.skills = this.config.skills
+    display_data.level = this.config.level
     return display_data
   }
 
@@ -127,23 +127,23 @@ class DraftCard extends Phaser.GameObjects.Sprite {
 
   displayItemData() {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
-    display_data.item_name = this.getData("name")
-    display_data.item_type = this.getData("item_type")
+    display_data.item_name = this.config.name
+    display_data.item_type = this.config.item_type
     return display_data
   }
 
   displayWeaponData() {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
-    display_data.name = this.getData("name")
-    display_data.primary_skill = this.getData("primary_skill")
-    display_data.uses_ammo = this.getData("uses_ammo")
-    display_data.ammo_type = this.getData("ammo_type")
+    display_data.name = this.config.name
+    display_data.primary_skill = this.config.primary_skill
+    display_data.uses_ammo = this.config.uses_ammo
+    display_data.ammo_type = this.config.ammo_type
     return display_data
   }
 
   displayValueData() {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
-    display_data.amount = this.getData("amount")
+    display_data.amount = this.config.amount
     return display_data
   }
 

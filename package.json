@@ -4,7 +4,7 @@
   "description": "A Turn Based Tactics Game",
   "main": "src/index.js",
   "scripts": {
-    "build": "export NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack/prod.js ",
+    "build": "webpack --config webpack/prod.js ",
     "start": "webpack-dev-server --config webpack/base.js --open"
   },
   "license": "MIT",

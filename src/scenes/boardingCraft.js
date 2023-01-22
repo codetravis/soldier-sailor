@@ -7,6 +7,9 @@ import FovShadow from '../classes/fovShadow.js'
 import SelectionBox from '../classes/selectionBox.js'
 import Items from '../classes/items.js'
 
+// Boarding craft is selecting soldiers from the barracks for the next engagement
+// after selecting at least 1 soldier, can "begin battle"
+// move to battle scene with 
 class BoardingCraftScene extends Phaser.Scene {
   constructor() {
       super({ key: 'BoardingCraftScene', active: false })

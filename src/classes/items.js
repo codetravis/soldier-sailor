@@ -7,6 +7,7 @@ class Items {
       heal_type: 'instant',
       heal_amount: 30,
       draft_rarity: 'uncommon',
+      value: 50,
     },
     'Suture Kit': {
       name: 'Suture Kit',
@@ -15,6 +16,7 @@ class Items {
       restore_type: 'instant',
       restore_amount: 5,
       draft_rarity: 'uncommon',
+      value: 30,
     },
     'Neuro Restore': {
       name: 'Neuro Restore',
@@ -23,6 +25,7 @@ class Items {
       revive_type: 'instant',
       revive_amount: 5,
       draft_rarity: 'rare',
+      value: 50,
     },
     'Broadhead Crossbow Bolt': {
       name: 'Broadhead Crossbow Bolt',
@@ -30,6 +33,7 @@ class Items {
       apply: false,
       base_damage: 10,
       draft_rarity: 'common',
+      value: 2,
     },
     'Hollow Point Pistol Ammo': {
       name: 'Hollow Point Pistol Ammo',
@@ -37,6 +41,7 @@ class Items {
       apply: false,
       base_damage: 15,
       draft_rarity: 'uncommon',
+      value: 3,
     },
     'Sport Pistol Ammo': {
       name: 'Sport Pistol Ammo',
@@ -44,6 +49,7 @@ class Items {
       apply: false,
       base_damage: 8,
       draft_rarity: 'common',
+      value: 1,
     },
     'Homemade Energy Cell': {
       name: 'Homemade Energy Cell',
@@ -51,6 +57,7 @@ class Items {
       apply: false,
       energy_charge: 5,
       draft_rarity: 'common',
+      value: 1,
     },
     'Small Fuel Canister': {
       name: 'Small Fuel Canister',
@@ -59,6 +66,7 @@ class Items {
       element: 'fire',
       amount: 5,
       draft_rarity: 'uncommon',
+      value: 5,
     },
     'PDA': {
       name: 'PDA',
@@ -67,6 +75,7 @@ class Items {
       skill_bonus: 'hacking',
       bonus_amount: 1,
       draft_rarity: 'common',
+      value: 10,
     },
     'Basic Stim Patch': {
       name: 'Basic Stim Patch',
@@ -85,7 +94,8 @@ class Items {
         'debuff_delay': 4,
         'debuff_amount': 1,
         'debuff_duration': 5}
-      ]
+      ],
+      value: 10,
     },
     'Simple Repair Kit': {
       name: 'Simple Repair Kit',
@@ -94,6 +104,7 @@ class Items {
       repair_type: 'instant',
       repair_amount: 15,
       draft_rarity: 'common',
+      value: 10,
     },
     'HE Grenade': {
       name: 'HE Grenade',
@@ -103,6 +114,7 @@ class Items {
       damage_radius: 1,
       damage_amount: 10,
       draft_rarity: 'rare',
+      value: 50,
     } 
   }
 }

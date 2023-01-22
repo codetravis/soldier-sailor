@@ -62,7 +62,7 @@ class ManageCompanyScene extends Phaser.Scene {
 
   goToMarket() {
     console.log("Going to Market")
-    // this.scene.start('MarketScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
+    this.scene.start('MarketScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
   }
 
   goToBoardingCraft() {

@@ -292,7 +292,7 @@ class Weapons {
         },
         "throwing_knife": {
             name: "Throwing Knife",
-            value: 100,
+            value: 75,
             primary_skill: "throwing",
             range: 3,
             uses_ammo: true,
