@@ -51,9 +51,6 @@ class MarketScene extends Phaser.Scene {
 
     Object.keys(inventory).forEach((key, index) => {
       let image_key = inventory[key].item_type ? "item" : "weapon"
-      // TODO fix this row layout math
-      console.log(index % 10)
-      console.log(Math.floor(index/ 10))
       let placeholders = { scene: this, x: 120 + 38 * (index % 10), y: 100 + 68 * Math.floor(index / 10), key: `${image_key}_icon`, card_type: image_key }
       this.marketInventory.push(new DraftCard({...inventory[key], ...placeholders}))
     })
