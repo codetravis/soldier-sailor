@@ -129,6 +129,7 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     let display_data = { rarity: this.rarity, card_type: this.card_type }
     display_data.item_name = this.config.name
     display_data.item_type = this.config.item_type
+    display_data.value = this.config.value
     return display_data
   }
 
@@ -138,6 +139,7 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     display_data.primary_skill = this.config.primary_skill
     display_data.uses_ammo = this.config.uses_ammo
     display_data.ammo_type = this.config.ammo_type
+    display_data.value = this.config.value
     return display_data
   }
 

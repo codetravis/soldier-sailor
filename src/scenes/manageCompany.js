@@ -57,6 +57,7 @@ class ManageCompanyScene extends Phaser.Scene {
 
   goToBarracks() {
     console.log("Going to Barracks")
+    console.log(this.player_horde)
     this.scene.start('BarracksScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
   }
 

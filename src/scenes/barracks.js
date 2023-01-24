@@ -67,6 +67,17 @@ class BarracksScene extends Phaser.Scene {
 
   }
 
+  setEventListeners() {
+    this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
+    this.emitter.on('EQUIP_TO_UNIT', this.moveFromArmoryToUnit.bind(this))
+    this.emitter.on('REMOVE_WEAPON', this.moveWeaponToArmory.bind(this))
+    this.emitter.on('REMOVE_ITEM', this.moveItemToArmory.bind(this))
+  }
+
+  removeAllEventListeners() {
+    this.emitter.removeAllListeners()
+  }
+
   buildControlUI() {
     let ui_block = document.getElementById('control-ui')
     ui_block.replaceChildren()
@@ -173,11 +184,19 @@ class BarracksScene extends Phaser.Scene {
 
   moveFromArmoryToUnit(selectionBox) {
     console.log("attempting to move from armory to unit")
+    this.removeAllEventListeners()
+  
     if(!this.selected_card) {
+      this.setEventListeners()
       return
     }
     let item_index = selectionBox.config.index
     let item = this.display_armory[item_index]
+    if(!item) {
+      this.displayArmory()
+      this.setEventListeners()
+      return
+    }
     let success = false
     if(item.config.card_type === "weapon") {
       success = this.selected_card.addWeapon(item.config)
@@ -192,14 +211,24 @@ class BarracksScene extends Phaser.Scene {
       this.displayArmory()
       this.showSelectedCard(this.selected_card)
     }
+
+    this.setEventListeners()
   }
 
   moveWeaponToArmory(selectionBox) {
+    this.removeAllEventListeners
     if(!this.selected_card) {
+      this.setEventListeners()
       return
     }
     let weapon_index = selectionBox.config.index
     let weapon = this.display_weapons[selectionBox.config.display_index]
+
+    if(!weapon) {
+      this.setEventListeners()
+      return
+    }
+
     this.selected_card.removeWeapon(weapon_index)
 
     if(weapon.config.name !== 'Unarmed') {
@@ -207,19 +236,32 @@ class BarracksScene extends Phaser.Scene {
     }
     this.displayArmory()
     this.showSelectedCard(this.selected_card)
+
+    this.setEventListeners()
   }
 
   moveItemToArmory(selectionBox) {
+    // TODO make ammo stackable or make it mags with X rounds in it
+    this.removeAllEventListeners()
     if(!this.selected_card) {
+      this.setEventListeners()
       return
     }
     let item_index = selectionBox.config.index
     let item = this.display_inventory[selectionBox.config.display_index]
+    if(!item) {
+      this.displayArmory()
+      this.showSelectedCard()
+      this.setEventListeners()
+      return
+    }
     this.selected_card.removeInventory(item_index)
 
     this.player_horde.armory.push(item.config)
     this.displayArmory()
     this.showSelectedCard(this.selected_card)
+
+    this.setEventListeners()
   }
 
   setInfoPanelForCard(card) {
@@ -271,6 +313,7 @@ class BarracksScene extends Phaser.Scene {
 
   goToMarket() {
     console.log("Going to Market")
+    console.log(this.player_horde)
     this.scene.start('MarketScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
   }
 

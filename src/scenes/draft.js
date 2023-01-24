@@ -33,14 +33,14 @@ class DraftScene extends Phaser.Scene {
       barracks: [], 
       armory: [], 
       skills: [], 
-      bank: { xp: 0, credits: 0 }
+      bank: { xp: 0, credits: 50 }
     }
 
     this.player_horde = { 
       barracks: [], 
       armory: [], 
       skills: [], 
-      bank: { xp: 0, credits: 0 }
+      bank: { xp: 0, credits: 50 }
     }
 
     this.active_box = this.add.image(0, 0, 'active_box')
@@ -226,9 +226,9 @@ class DraftScene extends Phaser.Scene {
       } else if (card_type == 'weapon' || card_type == 'item') {
         this.player_horde.armory.push(this.selected_card.config)
       } else if (card_type == 'credit') {
-        this.player_horde.bank.credits += this.selected_card.data.amount
+        this.player_horde.bank.credits += this.selected_card.config.amount
       } else if (card_type == 'xp') {
-        this.player_horde.bank.xp += this.selected_card.data.amount
+        this.player_horde.bank.xp += this.selected_card.config.amount
       } else if (card_type == 'skill') {
         this.player_horde.skills.push(this.selected_card.config)
       }
@@ -273,7 +273,7 @@ class DraftScene extends Phaser.Scene {
       } else if (card_type == 'weapon' || card_type == 'item') {
         this.ai_horde.armory.push(this.selected_card.config)
       } else if (card_type == 'credit') {
-        this.ai_horde.bank.credits += this.selected_card.data.amount
+        this.ai_horde.bank.credits += this.selected_card.config.amount
       } else if (card_type == 'xp') {
         this.ai_horde.bank.xp += this.selected_card.data.amount
       } else if (card_type == 'skill') {

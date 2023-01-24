@@ -27,21 +27,25 @@ class MarketScene extends Phaser.Scene {
   // Barracks to manage soldiers, individual soldier view from barracks
   // Boarding craft to set squad for next engagement
   // Market to hire soldiers and buy equipment
+    console.log(this.player_horde)
     this.buildControlUI()
 
     this.marketInventory = []
 
-    document.getElementById('return-manage').onclick = function () {
+    document.getElementById('return-manage').onclick = () => {
       this.goToManageCompany()
-    }.bind(this)
-    document.getElementById('go-to-barracks').onclick = function () {
+    }
+    document.getElementById('go-to-barracks').onclick = () => {
       this.goToBarracks()
-    }.bind(this)
-    document.getElementById('go-to-boarding-craft').onclick = function () {
+    }
+    document.getElementById('go-to-boarding-craft').onclick = () => {
       this.goToBoardingCraft()
-    }.bind(this)
+    }
 
     this.displayMarketInventory()
+
+    this.emitter = EventDispatcher.getInstance()
+    this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
   }
 
   displayMarketInventory() {
@@ -57,7 +61,64 @@ class MarketScene extends Phaser.Scene {
   }
 
   buyItemForArmory() {
+    console.log("buying item")
+    if(!this.selected_card) {
+      return
+    }
 
+    if(this.selected_card.config.value > this.player_horde.bank.credits) {
+      console.log("Not enough credits to buy this item")
+      return
+    } else {
+      this.player_horde.bank.credits -= this.selected_card.config.value
+      this.player_horde.armory.push(this.selected_card.config)
+      console.log("New player bank is", this.player_horde.bank.credits)
+    }
+  }
+
+  showSelectedCard(card) {
+    if(!card) {
+      card = this.selected_card
+    }
+    this.selected_card = card
+
+    this.setInfoPanelForCard(card)
+  }
+
+  setInfoPanelForCard(card) {
+    let img_div = document.getElementById('info-img')
+    img_div.replaceChildren()
+    img_div.appendChild(card.texture.getSourceImage(0))
+
+    let info_detail = document.getElementById('info-detail')
+    info_detail.replaceChildren()
+  
+    let display_data = card.getDisplayData()
+    let value = 0
+    Object.keys(display_data).forEach( (key) => {
+      if(key == 'attributes' || key == 'skills') {
+        let key_info = document.createElement("ul")
+        Object.keys(display_data[key]).forEach( (inner_key) => {
+          let list_item = document.createElement("li")
+          list_item.innerText = inner_key + ": " + display_data[key][inner_key]
+          key_info.appendChild(list_item)
+        })
+        info_detail.appendChild(key_info)
+      } else {
+        if(key == "value") {
+          value = display_data[key]
+          return
+        }
+        let key_info = document.createElement("p")
+        key_info.innerText = key + ": " + display_data[key]
+        info_detail.appendChild(key_info)
+      }
+    })
+
+    info_detail.appendChild(this.createUIActionButton("buy-button", `Buy $${value}`, "Buy Item"))
+    document.getElementById('buy-button').onclick = () => {
+      this.buyItemForArmory()
+    }
   }
 
   buildControlUI() {
