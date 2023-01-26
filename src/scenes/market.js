@@ -71,8 +71,25 @@ class MarketScene extends Phaser.Scene {
       return
     } else {
       this.player_horde.bank.credits -= this.selected_card.config.value
-      this.player_horde.armory.push(this.selected_card.config)
+      this.addItemToArmory(this.selected_card.config)
       console.log("New player bank is", this.player_horde.bank.credits)
+    }
+  }
+
+  addItemToArmory(config) {
+    if(config.hasOwnProperty('max_stack_size')) {
+      let added = false
+      this.player_horde.armory.forEach( (item) => {
+        if(item.name === config.name && !added && item.stack_size < item.max_stack_size) {
+          item.stack_size += 1
+          added = true
+        }
+      })
+      if(!added) {
+        this.player_horde.armory.push({...config})
+      }
+    } else {
+      this.player_horde.armory.push({...config})
     }
   }
 

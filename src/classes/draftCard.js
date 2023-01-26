@@ -108,10 +108,30 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     }
 
     for(let i = 0; i < 4; i++) {
-      if(!this.config.inventory[i]) {
-          this.config.inventory[i] = item
+      let current_item = this.config.inventory[i]
+
+      if(!current_item) {
+        let new_item = {}
+        console.log(item)
+        if(item.hasOwnProperty('stack_size')) {
+          console.log("should have stack_size of 1")
+          new_item = { ...item, stack_size: 1 }
+        } else {
+          new_item = { ...item }
+        }
+        console.log("new item", new_item)
+        this.config.inventory[i] = new_item
+        return true
+      }
+
+      if(item.hasOwnProperty('stack_size') && 
+        current_item.name === item.name &&
+        current_item.stack_size < current_item.max_stack_size) {
+          this.config.inventory[i].stack_size += 1
           return true
       }
+
+      
     }
     return false
   }
@@ -121,8 +141,15 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     if(this.card_type !== 'soldier') {
       return false
     }
-    this.config.inventory[item_key] = null
-    console.log(this.config.inventory)
+
+    let item = this.config.inventory[item_key]
+    if(item.hasOwnProperty('stack_size') && item.stack_size > 1) {
+      this.config.inventory[item_key].stack_size -= 1
+      return true
+    } else {
+      this.config.inventory[item_key] = null
+      return true
+    }
   }
 
   displayItemData() {
@@ -130,6 +157,10 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     display_data.item_name = this.config.name
     display_data.item_type = this.config.item_type
     display_data.value = this.config.value
+    if(this.config.stack_size) {
+      display_data.stack_size = this.config.stack_size
+      display_data.max_stack_size = this.config.max_stack_size
+    }
     return display_data
   }
 

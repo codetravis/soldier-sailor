@@ -207,7 +207,11 @@ class BarracksScene extends Phaser.Scene {
     }
 
     if(success) {
-      this.player_horde.armory.splice(item_index, 1)
+      if(item.config.card_type === "item" && item.config.hasOwnProperty('stack_size') && item.config.stack_size > 1) {
+        this.player_horde.armory[item_index].stack_size -= 1
+      } else {
+        this.player_horde.armory.splice(item_index, 1)
+      }
       this.displayArmory()
       this.showSelectedCard(this.selected_card)
     }
@@ -257,7 +261,21 @@ class BarracksScene extends Phaser.Scene {
     }
     this.selected_card.removeInventory(item_index)
 
-    this.player_horde.armory.push(item.config)
+    if(item.config.hasOwnProperty('stack_size') && item.config.stack_size > 0) {
+      let added = false
+      this.player_horde.armory.forEach( (horde_item) => {
+        if(horde_item.name === item.config.name && !added && horde_item.stack_size < horde_item.max_stack_size) {
+          horde_item.stack_size += 1
+          added = true
+        }
+      })
+      if(!added) {
+        this.player_horde.armory.push({ ...item.config, stack_size: 1 })
+      }
+    } else {
+      this.player_horde.armory.push({ ...item.config })
+    }
+
     this.displayArmory()
     this.showSelectedCard(this.selected_card)
 

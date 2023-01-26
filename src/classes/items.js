@@ -32,6 +32,8 @@ class Items {
       item_type: 'ballistic_bolt_ammo',
       apply: false,
       base_damage: 10,
+      max_stack_size: 10,
+      stack_size: 1,
       draft_rarity: 'common',
       value: 2,
     },
@@ -40,6 +42,8 @@ class Items {
       item_type: 'ballistic_pistol_ammo',
       apply: false,
       base_damage: 15,
+      max_stack_size: 20,
+      stack_size: 1,
       draft_rarity: 'uncommon',
       value: 3,
     },
@@ -48,6 +52,8 @@ class Items {
       item_type: 'ballistic_pistol_ammo',
       apply: false,
       base_damage: 8,
+      max_stack_size: 20,
+      stack_size: 1,
       draft_rarity: 'common',
       value: 1,
     },
@@ -115,7 +121,17 @@ class Items {
       damage_amount: 10,
       draft_rarity: 'rare',
       value: 50,
-    } 
+    },
+    'Sport Rifle Ammo': {
+      name: 'Sport Rifle Ammo',
+      item_type: 'ballistic_rifle_ammo',
+      apply: false,
+      base_damage: 15,
+      max_stack_size: 15,
+      stack_size: 1,
+      draft_rarity: 'uncommon',
+      value: 2,
+    },
   }
 }
 
