@@ -98,13 +98,6 @@ class BarracksScene extends Phaser.Scene {
     return button
   }
 
-  cleanupDisplayObjects(collection) {
-    collection.forEach( (item) => {
-      item.destroy()
-    })
-    collection = []
-  }
-
   showSelectedCard(card) {
     if(!card) {
       card = this.selected_card
@@ -112,11 +105,6 @@ class BarracksScene extends Phaser.Scene {
 
     if(card.card_type == 'soldier') {
 
-      // clear out previous display data
-      // this.cleanupDisplayObjects(this.display_weapons)
-      // this.cleanupDisplayObjects(this.weapon_action_buttons)
-      // this.cleanupDisplayObjects(this.display_inventory)
-      // this.cleanupDisplayObjects(this.inventory_action_buttons)
       this.display_weapons.forEach( (weapon) => {
         weapon.destroy()
       })
@@ -175,9 +163,9 @@ class BarracksScene extends Phaser.Scene {
         placeholders = { scene: this, x: 120 + 34 * item_key, y: 262, key: "attack_box", index: item_key, display_index: this.inventory_action_buttons.length }
         this.inventory_action_buttons.push(new SelectionBox({ event_name: "REMOVE_ITEM", ...placeholders }))
       })
-      this.setInfoPanelForCard(this.selected_card)
+      this.selected_card.setInfoPanel()
     } else {
-      this.setInfoPanelForCard(card)
+      card.setInfoPanel()
     }
     
   }

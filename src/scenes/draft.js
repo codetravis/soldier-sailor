@@ -32,7 +32,8 @@ class DraftScene extends Phaser.Scene {
     this.ai_horde = { 
       barracks: [], 
       armory: [], 
-      skills: [], 
+      skills: [],
+      boarding_craft: [],
       bank: { xp: 0, credits: 50 }
     }
 
@@ -40,6 +41,7 @@ class DraftScene extends Phaser.Scene {
       barracks: [], 
       armory: [], 
       skills: [], 
+      boarding_craft: [],
       bank: { xp: 0, credits: 50 }
     }
 
@@ -214,7 +216,7 @@ class DraftScene extends Phaser.Scene {
     this.active_box.setY(this.selected_card.y)
     this.active_box.setAlpha(1)
     this.active_box.setDepth(5)
-    this.setInfoPanelForCard(this.selected_card)
+    this.selected_card.setInfoPanel()
   }
 
   takeSelectedCardFromPack() {
@@ -324,7 +326,7 @@ class DraftScene extends Phaser.Scene {
         this.active_box.setY(card.y)
         this.active_box.setAlpha(1)
         this.selected_card = card
-        this.setInfoPanelForCard(card)
+        card.setInfoPanel()
       }
       count += 1
     })
@@ -362,33 +364,6 @@ class DraftScene extends Phaser.Scene {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
-  }
-
-
-  setInfoPanelForCard(card) {
-    let img_div = document.getElementById('info-img')
-    img_div.replaceChildren()
-    img_div.appendChild(card.texture.getSourceImage(0))
-
-    let info_detail = document.getElementById('info-detail')
-    info_detail.replaceChildren()
-  
-    let display_data = card.getDisplayData()
-    Object.keys(display_data).forEach( (key) => {
-      if(key == 'attributes' || key == 'skills') {
-        let key_info = document.createElement("ul")
-        Object.keys(display_data[key]).forEach( (inner_key) => {
-          let list_item = document.createElement("li")
-          list_item.innerText = inner_key + ": " + display_data[key][inner_key]
-          key_info.appendChild(list_item)
-        })
-        info_detail.appendChild(key_info)
-      } else {
-        let key_info = document.createElement("p")
-        key_info.innerText = key + ": " + display_data[key]
-        info_detail.appendChild(key_info)
-      }
-    })
   }
 
   clearInfoPanel() {

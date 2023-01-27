@@ -68,7 +68,7 @@ class ManageCompanyScene extends Phaser.Scene {
 
   goToBoardingCraft() {
     console.log("Going to Boarding Craft")
-    // this.scene.start('BoardingCraftScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
+    this.scene.start('BoardingCraftScene', {player_horde: this.player_horde, ai_horde: this.ai_horde})
   }
 }
 

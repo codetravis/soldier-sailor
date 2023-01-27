@@ -184,6 +184,32 @@ class DraftCard extends Phaser.GameObjects.Sprite {
     this.destroy()
   }
 
+  setInfoPanel() {
+    let img_div = document.getElementById('info-img')
+    img_div.replaceChildren()
+    img_div.appendChild(this.texture.getSourceImage(0))
+
+    let info_detail = document.getElementById('info-detail')
+    info_detail.replaceChildren()
+  
+    let display_data = this.getDisplayData()
+    Object.keys(display_data).forEach( (key) => {
+      if(key == 'attributes' || key == 'skills') {
+        let key_info = document.createElement("ul")
+        Object.keys(display_data[key]).forEach( (inner_key) => {
+          let list_item = document.createElement("li")
+          list_item.innerText = inner_key + ": " + display_data[key][inner_key]
+          key_info.appendChild(list_item)
+        })
+        info_detail.appendChild(key_info)
+      } else {
+        let key_info = document.createElement("p")
+        key_info.innerText = key + ": " + display_data[key]
+        info_detail.appendChild(key_info)
+      }
+    })
+  }
+
 }
 
 export default DraftCard
