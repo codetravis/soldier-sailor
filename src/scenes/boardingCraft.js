@@ -2,6 +2,7 @@ import EventDispatcher from '../classes/eventDispatcher.js'
 import Soldier from '../classes/soldier.js'
 import SelectionBox from '../classes/selectionBox.js'
 import DraftCard from '../classes/draftCard.js'
+import DiceRoller from '../classes/diceRoller.js'
 
 // Boarding craft is selecting soldiers from the barracks for the next engagement
 // after selecting at least 1 soldier, can "begin battle"
@@ -17,6 +18,7 @@ class BoardingCraftScene extends Phaser.Scene {
   }
 
   create() {
+    console.log(this.ai_horde)
   // options
   // Barracks to manage soldiers, individual soldier view from barracks
   // Boarding craft to set squad for next engagement
@@ -41,18 +43,21 @@ class BoardingCraftScene extends Phaser.Scene {
 
     this.emitter = EventDispatcher.getInstance()
     this.emitter.on('CARD_CLICKED', this.showSelectedCard.bind(this))
-    this.emitter.on('MOVE_TO_BOARDING_CRAFT', this.moveSoldierToBoardingCraft.bind(this))
+    this.emitter.on('MOVE_TO_BOARDING_CRAFT', this.movePlayerSoldierToBoardingCraft.bind(this))
     this.emitter.on('MOVE_TO_BARRACKS', this.moveSoldierToBarracks.bind(this))
 
-    document.getElementById('return-manage').onclick = function () {
+    document.getElementById('return-manage').onclick = () => {
       this.goToManageCompany()
-    }.bind(this)
-    document.getElementById('go-to-market').onclick = function () {
+    }
+    document.getElementById('go-to-market').onclick =  () => {
       this.goToMarket()
-    }.bind(this)
-    document.getElementById('go-to-barracks').onclick = function () {
+    }
+    document.getElementById('go-to-barracks').onclick =  () => {
       this.goToBarracks()
-    }.bind(this)
+    }
+    document.getElementById('start-battle').onclick = () => {
+      this.startBattle()
+    }
   }
 
   buildControlUI() {
@@ -61,6 +66,7 @@ class BoardingCraftScene extends Phaser.Scene {
     ui_block.appendChild(this.createUIActionButton("return-manage", "Manage Company", "Return to main Manage Company view"))
     ui_block.appendChild(this.createUIActionButton("go-to-market", "Go to Market", "Go to Market view"))
     ui_block.appendChild(this.createUIActionButton("go-to-barracks", "Go to Barracks", "Go to Barracks view"))
+    ui_block.appendChild(this.createUIActionButton("start-battle", "Start Battle", "Begin battle with selected soldiers"))
   }
 
   createUIActionButton(identifier, text, help_text) {
@@ -126,7 +132,7 @@ class BoardingCraftScene extends Phaser.Scene {
     
   }
 
-  moveSoldierToBoardingCraft() {
+  movePlayerSoldierToBoardingCraft() {
     if(this.selected_action_box) {
       this.selected_action_box.destroy()
     }
@@ -138,6 +144,20 @@ class BoardingCraftScene extends Phaser.Scene {
     this.soldiers.splice(index, 1)
     this.display_boarding_craft.push(this.selected_card)
     this.refreshSoldierDisplay()
+  }
+
+  moveAISoldiersToBoardingCraft() {
+
+    for(let i = 0; i < 3; i++) {
+      if(this.ai_horde.barracks.length <= 0) {
+        break
+      }
+      let die = new DiceRoller()
+      let index = die.randomDiceRoll(this.ai_horde.barracks.length) - 1
+      console.log(index)
+      this.ai_horde.boarding_craft.push(this.ai_horde.barracks[index])
+      this.ai_horde.barracks.splice(index, 1)
+    }
   }
 
   moveSoldierToBarracks() {
@@ -195,6 +215,22 @@ class BoardingCraftScene extends Phaser.Scene {
   goToBarracks() {
     console.log("Going to Barracks")
     this.scene.start('BarracksScene', { player_horde: this.player_horde, ai_horde: this.ai_horde })
+  }
+
+  startBattle() {
+    if(this.player_horde.boarding_craft.length > 0) {
+      // pull AI characters into their boarding craft
+      this.moveAISoldiersToBoardingCraft()
+      if(this.ai_horde.boarding_craft.length > 0) {
+        // send data to battle scene
+
+        this.scene.start('BattleScene', { player_horde: this.player_horde, ai_horde: this.ai_horde })
+      } else {
+        console.log("The AI is not fielding any soldiers", this.ai_horde)
+      }
+    } else {
+      console.log("Cannot start battle without soldiers")
+    }
   }
 }
 

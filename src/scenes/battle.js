@@ -27,9 +27,10 @@ class BattleScene extends Phaser.Scene {
     }
 
     init(data) {
-        if(data.soldiers) {
+        this.player_horde = data.player_horde
+        this.ai_horde = data.ai_horde
+        if(this.player_horde) {
             this.default_soldiers = false
-            this.soldier_templates = data.soldiers
         } else {
             this.default_soldiers = true
         }
@@ -69,11 +70,11 @@ class BattleScene extends Phaser.Scene {
 
         this.hit_locations_by_weight =  {
             head: 6,
-            torso: 40,
-            right_arm: 12,
-            left_arm: 12,
-            right_leg: 15,
-            left_leg: 15
+            torso: 30,
+            right_arm: 14,
+            left_arm: 14,
+            right_leg: 18,
+            left_leg: 18
         }
         this.hit_locations = Object.keys(this.hit_locations_by_weight)
         this.hit_locations_sum = 0
@@ -165,9 +166,10 @@ class BattleScene extends Phaser.Scene {
             })
             this.teams[1].push(player_drone)
         } else {
-            this.soldier_templates["1"].forEach( (background, index) => {
+            this.player_horde.boarding_craft.forEach( (config, index) => {
                 this.teams[1].push(
-                    soldier_factory.createNewSoldier({
+                    new Soldier({
+                        ...config,
                         scene: this, 
                         x: this.attacker_start_positions[index].x * this.tile_size + this.map_x_offset, 
                         y: this.attacker_start_positions[index].y * this.tile_size + this.map_y_offset, 
@@ -176,10 +178,7 @@ class BattleScene extends Phaser.Scene {
                         map_y_offset: this.map_y_offset,
                         tile_size: this.tile_size,
                         facing: 4,
-                        team: 1,
-                        background: background,
-                        level: 1,
-                        equipment_value: 500
+                        team: 1
                     })
                 )
             })
@@ -359,10 +358,11 @@ class BattleScene extends Phaser.Scene {
             this.teams[2].push(down_soldier)
         } else {
             const positions = Object.keys(this.defender_start_positions)
-            this.soldier_templates["2"].forEach( (background, index) => {
+            this.ai_horde.boarding_craft.forEach( (config, index) => {
                 
                 this.teams[2].push(
-                    soldier_factory.createNewSoldier({
+                    new Soldier({
+                        ...config,
                         scene: this,
                         x: this.defender_start_positions[positions[index]].x * this.tile_size + this.map_x_offset, 
                         y: this.defender_start_positions[positions[index]].y * this.tile_size + this.map_y_offset, 
@@ -371,10 +371,7 @@ class BattleScene extends Phaser.Scene {
                         map_y_offset: this.map_y_offset,
                         tile_size: this.tile_size,
                         facing: 4,
-                        team: 1,
-                        background: background,
-                        level: 1,
-                        equipment_value: 500
+                        team: 2,
                     })
                 )
             })

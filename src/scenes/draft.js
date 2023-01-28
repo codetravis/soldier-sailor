@@ -234,7 +234,7 @@ class DraftScene extends Phaser.Scene {
       } else if (card_type == 'skill') {
         this.player_horde.skills.push(this.selected_card.config)
       }
-      console.log(this.player_horde)
+      //console.log(this.player_horde)
       // remove card from draft pack
       this.removeFromPack(this.selected_card)
       // move to next pack
@@ -277,11 +277,11 @@ class DraftScene extends Phaser.Scene {
       } else if (card_type == 'credit') {
         this.ai_horde.bank.credits += this.selected_card.config.amount
       } else if (card_type == 'xp') {
-        this.ai_horde.bank.xp += this.selected_card.data.amount
+        this.ai_horde.bank.xp += this.selected_card.config.amount
       } else if (card_type == 'skill') {
         this.ai_horde.skills.push(this.selected_card.config)
       }
-      console.log(this.ai_horde)
+      //console.log(this.ai_horde)
         // remove card from draft pack
       this.removeFromPack(this.selected_card)
     }
