@@ -394,33 +394,33 @@ class BattleScene extends Phaser.Scene {
         this.emitter.on('LOOT_TILE_CLICKED', this.showAvailableLoot.bind(this))
         this.emitter.on('THROWABLE_ITEM_CLICKED', this.throwItem.bind(this))
         
-        document.getElementById('end-turn').onclick = function() {
+        document.getElementById('end-turn').onclick = () => {
             this.endTurn()
-        }.bind(this)
+        }
 
-        document.getElementById('show-attacks').onclick = function () {
+        document.getElementById('show-attacks').onclick = () => {
             this.showSoldierAttacks()
-        }.bind(this)
+        }
 
-        document.getElementById('change-attack').onclick = function () {
+        document.getElementById('change-attack').onclick = () => {
             this.changeActiveSoldierAttack()
-        }.bind(this)
+        }
 
-        document.getElementById('change-weapon').onclick = function () {
+        document.getElementById('change-weapon').onclick = () => {
             this.changeActiveSoldierWeapon()
-        }.bind(this)
+        }
 
-        document.getElementById('soldier-rest').onclick = function () {
+        document.getElementById('soldier-rest').onclick = () => {
             this.activeSoldierRest()
-        }.bind(this)
+        }
 
-        document.getElementById('reload-weapon').onclick = function () {
+        document.getElementById('reload-weapon').onclick = () => {
             this.attemptReload()
-        }.bind(this)
+        }
 
-        document.getElementById('attempt-loot').onclick = function () {
+        document.getElementById('attempt-loot').onclick = () => {
             this.attemptLoot()
-        }.bind(this)
+        }
 
         document.addEventListener('click', (e) => {
             if(e.target.className === 'item-button') {
