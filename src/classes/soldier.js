@@ -93,7 +93,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
     set_health_by_race() {
         this.health = {
             head: 30 + (1 * this.attributes.build),
-            torso: 100 + (1 * this.attributes.core) + (3 * this.attributes.build),
+            torso: 100 + (1 * this.attributes.core) + (2 * this.attributes.build),
             right_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
             left_arm: 40 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
             right_leg: 60 + (1 * this.attributes.limbs) + (1 * this.attributes.build),
@@ -563,8 +563,10 @@ class Soldier extends Phaser.GameObjects.Sprite {
         // TODO: apply buffs and debuffs
         this.move_speed = this.attributes.limbs * 0.2 + 0.1
         if(this.health.left_leg <= 0 && this.health.right_leg <= 0) {
-            this.move_speed = this.move_speed * 0.80
+            // both legs 'destroyed', move speed is only 20% of normal
+            this.move_speed = this.move_speed * 0.20
         } else if (this.health.left_leg <= 0 || this.health.right_leg <= 0) {
+            // one leg 'destroyed', move speed halved
             this.move_speed = this.move_speed * 0.50
         }
         if(this.health.left_arm <= 0 && this.health.right_arm <= 0) {

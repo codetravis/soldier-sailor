@@ -259,7 +259,7 @@ class Weapons {
                     base_accuracy: 5,
                     fatigue_damage: 1, 
                     fatigue_cost: 1,
-                    max_ammo_used: 1,
+                    max_ammo_used: 2,
                     skill: "marksmanship",
                     attack_type: "ranged",
                     damage_type: "energy",

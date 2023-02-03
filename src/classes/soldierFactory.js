@@ -2,6 +2,7 @@ import Soldier from './soldier.js'
 import DiceRoller from './diceRoller.js'
 import Weapons from './weapons.js'
 import DroneParts from './droneParts.js'
+import Items from './items.js'
 
 const DRONE = 'drone'
 
@@ -192,24 +193,24 @@ class SoldierFactory {
             return sum + value
         }, 0 )
 
-        let base_brains = race == 'goblin' ? 2 : 0
+        let base_brains = race == 'goblin' ? 3 : 1
         attributes.brains = base_brains + Math.floor(random_roles[0]/random_sum * max_points)
 
-        let base_senses = race == 'elf' ? 1 : 0
+        let base_senses = race == 'elf' ? 2 : 1
         attributes.senses = base_senses + Math.floor(random_roles[1]/random_sum * max_points)
 
-        let base_spirit = race == 'dwarf' ? 1 : 0
+        let base_spirit = race == 'dwarf' ? 2 : 1
         attributes.spirit = base_spirit + Math.floor(random_roles[2]/random_sum * max_points)
 
-        let base_core = race == 'dwarf' ? 1 : 0
+        let base_core = race == 'dwarf' ? 2 : 1
         attributes.core = base_core + Math.floor(random_roles[3]/random_sum * max_points)
 
         attributes.limbs = Math.floor(random_roles[4]/random_sum * max_points)
 
-        let base_hands = race == 'elf' ? 1 : 0
+        let base_hands = race == 'elf' ? 2 : 1
         attributes.hands = base_hands + Math.floor(random_roles[5]/random_sum * max_points)
 
-        let base_build = race == 'orc' ? 2 : 0
+        let base_build = race == 'orc' ? 3 : 1
         attributes.build = base_build + Math.floor(random_roles[6]/random_sum * max_points)
         return attributes
     }
@@ -249,111 +250,43 @@ class SoldierFactory {
 
     assignItems(background) {
         let items = {}
+        const item_list = new Items().items
         if(background === 'nurse') {
-            items[0] = { 
-                'name': 'Medkit',
-                'item_type': 'heal',
-                'value': 50,
-                'uses': 2,
-                'weight': 10
-            }
+            items[0] = item_list['Medkit'] 
         }
         if(background === 'surgeon') {
-            items[0] = { 
-                'name': 'Suture Kit', 
-                'item_type': 'limb_restore', 
-                'value': 25, 
-                'uses': 2, 
-                'weight': 5 
-            }
+            items[0] = item_list['Suture Kit'] 
         }
         if(background === 'hunter') {
-            items[0] = { 
-                'name': 'Broadhead Crossbow Bolt', 
-                'item_type': 'ballistic_bolt_ammo', 
-                'value': 2, 
-                'uses': 5, 
-                'weight': 1 
-            }
+            items[0] = item_list['Broadhead Crossbow Bolt']
         }
         if(background === 'soldier') {
-            items[0] = { 
-                'name': 'Hollow Point Pistol Ammo', 
-                'item_type': 'ballistic_pistol_ammo', 
-                'value': 1, 
-                'uses': 20, 
-                'weight': 1 
-            }
+            items[0] = item_list['Hollow Point Pistol Ammo']
+            items[0].stack_size = 20
         }
         if(background === 'duelist') {
-            items[0] = { 
-                'name': 'Hollow Point Pistol Ammo', 
-                'item_type': 'ballistic_pistol_ammo', 
-                'value': 1, 
-                'uses': 10, 
-                'weight': 1 
-            }
+            items[0] = item_list['Hollow Point Pistol Ammo']
+            items[0].stack_size = 10
         }
         if(background === 'hobbyist') {
-            items[0] = { 
-                'name': 'Homemade Energy Cell', 
-                'item_type': 'energy_ammo', 
-                'value': 3, 
-                'uses': 3, 
-                'weight': 3
-            }
+            items[0] = item_list['Homemade Energy Cell']
         }
         if(background === 'pest_control') {
-            items[0] = { 
-                'name': 'Small Fuel Canister', 
-                'item_type': 'elemental_ammo', 
-                'value': 5, 
-                'uses': 1, 
-                'weight': 5
-            }
+            items[0] = item_list['Small Fuel Canister']
         }
         if(background === 'hacker') {
-            items[1] = {
-                'name': 'PDA',
-                'item_type': 'hacker_tool',
-                'value': 10,
-                'uses': 5,
-                'weight': 5
-            }
+            items[1] = item_list['PDA']
         }
         if(background === 'manager') {
-            items[2] = {
-                'name': 'Basic Stim Patch',
-                'item_type': 'stim',
-                'value': 5,
-                'uses': 2,
-                'weight': 1
-            }
+            items[2] = item_list['Basic Stim Patch']
         }
         if(background === 'mechanic') {
-            items[0] = {
-                'name': 'Simple Repair Kit',
-                'item_type': 'repair',
-                'value': 15,
-                'uses': 1,
-                'weight': 10
-            }
+            items[0] = item_list['Simple Repair Kit']
         }
         if(background === 'bounty_hunter') {
-            items[0] = { 
-                'name': 'Hollow Point Pistol Ammo', 
-                'item_type': 'ballistic_pistol_ammo', 
-                'value': 1, 
-                'uses': 10, 
-                'weight': 1 
-            }
-            items[1] = {
-                'name': 'Basic Stim Patch',
-                'item_type': 'stim',
-                'value': 5,
-                'uses': 1,
-                'weight': 1
-            }
+            items[0] = item_list['Hollow Point Pistol Ammo']
+            items[0].stack_size = 10
+            items[1] = item_list['Basic Stim Patch']
         }
 
         return items
