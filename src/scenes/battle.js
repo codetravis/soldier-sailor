@@ -901,6 +901,10 @@ class BattleScene extends Phaser.Scene {
                     }
                 })
             }
+
+            if(this.selected_item['uses'] === 0) {
+                this.active_soldier.removeItemFromInventory(this.selected_item_key)
+            }
         }
         this.cleanUpAllActionSquares()
     }

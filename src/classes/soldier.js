@@ -286,7 +286,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
             attack.accuracy += skill_modifier * 5
         }
 
-        // modify accuracy based on solider morale
+        // modify accuracy based on soldier morale
         let morale_modifier = Math.floor(((this.morale - 40) / 10)) * 3
         attack.accuracy += morale_modifier
 
@@ -383,13 +383,13 @@ class Soldier extends Phaser.GameObjects.Sprite {
 
     setAllAttributes(attributes) {
         this.attributes = {
-            brains: attributes.brains || 0,
-            senses: attributes.senses || 0,
-            spirit: attributes.spirit || 0,
-            core: attributes.core || 0,
-            limbs: attributes.limbs || 0,
-            hands: attributes.hands || 0,
-            build: attributes.build || 0
+            brains: attributes.brains || 1,
+            senses: attributes.senses || 1,
+            spirit: attributes.spirit || 1,
+            core: attributes.core || 1,
+            limbs: attributes.limbs || 1,
+            hands: attributes.hands || 1,
+            build: attributes.build || 1
         }
     }
 
