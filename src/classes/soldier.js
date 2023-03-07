@@ -80,8 +80,8 @@ class Soldier extends Phaser.GameObjects.Sprite {
         this.setArmor(config.armor)
         this.setInventory(config.inventory)
 
-        this.active_weapon_key = Object.keys(this.weapons)[0]
-        //console.log(this.weapons)
+        this.active_weapon_key = parseInt(Object.keys(this.weapons)[0])
+        console.log(this.weapons)
         //console.log(this.active_weapon_key)
         this.selected_attack_key = Object.keys(this.weapons[this.active_weapon_key].attacks)[0]
 
@@ -262,6 +262,7 @@ class Soldier extends Phaser.GameObjects.Sprite {
         } else {
             this.active_weapon_key = 0
         }
+        this.selected_attack_key = Object.keys(this.weapons[this.active_weapon_key].attacks)[0]
     }
 
     getSelectedAttack() {
