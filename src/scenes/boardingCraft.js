@@ -19,10 +19,7 @@ class BoardingCraftScene extends Phaser.Scene {
 
   create() {
     console.log(this.ai_horde)
-  // options
-  // Barracks to manage soldiers, individual soldier view from barracks
-  // Boarding craft to set squad for next engagement
-  // Market to hire soldiers and buy equipment
+    // Boarding craft to set squad for next engagement
     this.buildControlUI()
 
     this.soldiers = []
@@ -139,10 +136,12 @@ class BoardingCraftScene extends Phaser.Scene {
 
     let index = this.player_horde.barracks.indexOf(this.selected_card.config)
 
-    this.player_horde.boarding_craft.push(this.selected_card.config)
-    this.player_horde.barracks.splice(index, 1)
-    this.soldiers.splice(index, 1)
-    this.display_boarding_craft.push(this.selected_card)
+    if(index !== -1) {
+      this.player_horde.boarding_craft.push(this.selected_card.config)
+      this.player_horde.barracks.splice(index, 1)
+      this.soldiers.splice(index, 1)
+      this.display_boarding_craft.push(this.selected_card)
+    }
     this.refreshSoldierDisplay()
   }
 
@@ -167,10 +166,12 @@ class BoardingCraftScene extends Phaser.Scene {
 
     let index = this.player_horde.boarding_craft.indexOf(this.selected_card.config)
 
-    this.player_horde.barracks.push(this.selected_card.config)
-    this.player_horde.boarding_craft.splice(index, 1)
-    this.display_boarding_craft.splice(index, 1)
-    this.soldiers.push(this.selected_card)
+    if(index !== -1) {
+      this.player_horde.barracks.push(this.selected_card.config)
+      this.player_horde.boarding_craft.splice(index, 1)
+      this.display_boarding_craft.splice(index, 1)
+      this.soldiers.push(this.selected_card)
+    }
     this.refreshSoldierDisplay()
   }
 

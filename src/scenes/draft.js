@@ -53,7 +53,7 @@ class DraftScene extends Phaser.Scene {
     // 6 Packs * 7 Cards is 42 cards. 14 Soldiers, 10 Weapons, 2 Rare Item cards,
     // and 16 randomly distributed between items, XP, skill points, and money
 
-    // money can be used to hire mercenaries for a single battle, buy items and weapons for your soldiers
+    // money can be used to hire (maybe? mercenaries for a single battle), buy items and weapons for your soldiers
     // XP can be applied to soldiers to help them level up
     // skill points can be given to soldiers to increase their proficiency
     // in a skill without needing to level up
