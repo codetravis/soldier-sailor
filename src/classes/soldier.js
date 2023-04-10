@@ -548,12 +548,12 @@ class Soldier extends Phaser.GameObjects.Sprite {
         item_keys.forEach( (key) => {
             if(this.inventory[key]) {
                 if(this.inventory[key].item_type === weapon.ammo_type && 
-                    this.inventory[key].uses > 0) {
+                    this.inventory[key].stack_size > 0) {
                     this.ap -= weapon.reload_ap
-                    while(this.inventory[key].uses > 0 && weapon.ammo.length < weapon.max_ammo) {
+                    while(this.inventory[key].stack_size > 0 && weapon.ammo.length < weapon.max_ammo) {
                         console.log("adding ammo to active weapon")
                         weapon.ammo.push(this.inventory[key])
-                        this.inventory[key].uses -= 1
+                        this.inventory[key].stack_size -= 1
                     }
                 }
             }
