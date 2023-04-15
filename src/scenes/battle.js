@@ -11,7 +11,7 @@ const WALL = 0
 const FLOOR = 1
 const CAPTAIN = 2
 const ENGINEER = 3
-const WEAPONS = 4
+const DEFENDER_SPAWN = 4
 const DOOR_CLOSED = 5
 const DOOR_OPEN = 6
 const BOARDING = 7
@@ -34,6 +34,7 @@ class BattleScene extends Phaser.Scene {
         } else {
             this.default_soldiers = true
         }
+        this.map_key = data.map_key
     }
 
     preload() {
@@ -82,11 +83,15 @@ class BattleScene extends Phaser.Scene {
             this.hit_locations_sum += this.hit_locations_by_weight[location]
         }.bind(this))
 
-        this.map = new ShipMaps().maps["terran_cruiser"]
+        if(this.map_key) {
+            this.map = new ShipMaps().maps[this.map_key]
+        } else {
+            this.map = new ShipMaps().maps["test_map"]
+        }
         this.map_width = this.map[0].length
         this.map_height = this.map.length
         this.map_tiles = {}
-        this.defender_start_positions = {}
+        this.defender_start_positions = []
         this.attacker_start_positions = []
         for(let row = 0; row < this.map.length; row++) {
             let tile_color = 0x333333
@@ -97,13 +102,13 @@ class BattleScene extends Phaser.Scene {
                     tile_color = 0xffffff
                 } else if (cell_type === CAPTAIN) {
                     tile_color = 0x0000ff
-                    this.defender_start_positions["captain"] = { x: col, y: row }
+                    //this.defender_start_positions["captain"] = { x: col, y: row }
                 } else if (cell_type === ENGINEER) {
                     tile_color = 0x00ff00
-                    this.defender_start_positions["engineer"] = { x: col, y: row }
-                } else if (cell_type === WEAPONS) {
+                    //this.defender_start_positions["engineer"] = { x: col, y: row }
+                } else if (cell_type === DEFENDER_SPAWN) {
                     tile_color = 0xff0000
-                    this.defender_start_positions["weapons"] = { x: col, y: row }
+                    this.defender_start_positions.push({ x: col, y: row })
                 } else if (cell_type === BOARDING) {
                     this.attacker_start_positions.push({ x: col, y: row })
                     tile_color = 0x777777
@@ -197,8 +202,8 @@ class BattleScene extends Phaser.Scene {
             this.teams[2].push(
                 new Soldier({
                     scene: this, 
-                    x: this.defender_start_positions["captain"].x * this.tile_size + this.map_x_offset, 
-                    y: this.defender_start_positions["captain"].y * this.tile_size + this.map_y_offset, 
+                    x: this.defender_start_positions[0].x * this.tile_size + this.map_x_offset, 
+                    y: this.defender_start_positions[0].y * this.tile_size + this.map_y_offset, 
                     key: 'default_enemy_soldier', 
                     map_x_offset: this.map_x_offset,
                     map_y_offset: this.map_y_offset,
@@ -258,8 +263,8 @@ class BattleScene extends Phaser.Scene {
 
             this.teams[2].push(soldier_factory.createNewSoldier({
                     scene: this, 
-                    x: this.defender_start_positions["engineer"].x * this.tile_size + this.map_x_offset, 
-                    y: this.defender_start_positions["engineer"].y * this.tile_size + this.map_y_offset,
+                    x: this.defender_start_positions[1].x * this.tile_size + this.map_x_offset, 
+                    y: this.defender_start_positions[1].y * this.tile_size + this.map_y_offset,
                     key: 'default_enemy_soldier',
                     map_x_offset: this.map_x_offset,
                     map_y_offset: this.map_y_offset,
@@ -274,8 +279,8 @@ class BattleScene extends Phaser.Scene {
             )
             let down_soldier = new Soldier({
                 scene: this, 
-                x: this.defender_start_positions["weapons"].x * this.tile_size + this.map_x_offset, 
-                y: this.defender_start_positions["weapons"].y * this.tile_size + this.map_y_offset, 
+                x: this.defender_start_positions[2].x * this.tile_size + this.map_x_offset, 
+                y: this.defender_start_positions[2].y * this.tile_size + this.map_y_offset, 
                 key: 'default_enemy_soldier', 
                 map_x_offset: this.map_x_offset,
                 map_y_offset: this.map_y_offset,
@@ -357,15 +362,14 @@ class BattleScene extends Phaser.Scene {
             console.log(down_soldier.max_health)
             this.teams[2].push(down_soldier)
         } else {
-            const positions = Object.keys(this.defender_start_positions)
             this.ai_horde.boarding_craft.forEach( (config, index) => {
                 
                 this.teams[2].push(
                     new Soldier({
                         ...config,
                         scene: this,
-                        x: this.defender_start_positions[positions[index]].x * this.tile_size + this.map_x_offset, 
-                        y: this.defender_start_positions[positions[index]].y * this.tile_size + this.map_y_offset, 
+                        x: this.defender_start_positions[index].x * this.tile_size + this.map_x_offset, 
+                        y: this.defender_start_positions[index].y * this.tile_size + this.map_y_offset, 
                         key: 'default_enemy_soldier', 
                         map_x_offset: this.map_x_offset,
                         map_y_offset: this.map_y_offset,
